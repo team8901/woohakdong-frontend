@@ -57,7 +57,9 @@ export const middleware = (req: NextRequest) => {
 
   if (!isAllowedPath) {
     /** 접근 불가하면 권한별 첫 허용 경로로 리다이렉트 */
-    const redirectTo = USER_TYPE_ALLOWED_PATH[userType][0] ?? DEFAULT_PATH[0];
+    const redirectTo = USER_TYPE_ALLOWED_PATH[userType]
+      ? USER_TYPE_ALLOWED_PATH[userType][0]
+      : DEFAULT_PATH[0];
     url.pathname = redirectTo;
 
     return NextResponse.redirect(url);
