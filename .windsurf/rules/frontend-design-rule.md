@@ -139,15 +139,15 @@ function Page() {
 **Rule:** Assign complex boolean conditions to named variables.
 
 ```typescript
-const matchedProducts = products.filter(product => {
+const matchedProducts = products.filter((product) => {
   // Check if product belongs to the target category
   const isSameCategory = product.categories.some(
-    category => category.id === targetCategory.id,
+    (category) => category.id === targetCategory.id,
   );
 
   // Check if any product price falls within the desired range
   const isPriceInRange = product.prices.some(
-    price => price >= minPrice && price <= maxPrice,
+    (price) => price >= minPrice && price <= maxPrice,
   );
 
   // The overall condition is now much clearer
@@ -247,7 +247,7 @@ export function FieldLevelForm() {
       <div>
         <Input
           {...register('name', {
-            validate: value =>
+            validate: (value) =>
               value.trim() === '' ? 'Please enter your name.' : true,
           })}
           placeholder="Name"
@@ -259,7 +259,7 @@ export function FieldLevelForm() {
       <div>
         <Input
           {...register('email', {
-            validate: value =>
+            validate: (value) =>
               /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)
                 ? true
                 : 'Invalid email address.',
@@ -383,7 +383,7 @@ function ItemEditModal({ open, items, recommendedItems, onConfirm, onClose }) {
         <div className="mb-4 flex justify-between">
           <Input
             value={keyword}
-            onChange={e => setKeyword(e.target.value)} // State managed here
+            onChange={(e) => setKeyword(e.target.value)} // State managed here
             placeholder="Search items..."
           />
           <Button onClick={onClose}>Close</Button>
@@ -453,7 +453,7 @@ export function ClubList({ clubs }: { clubs: Club[] }) {
   // Use 'use client' only when interactions are needed
   return (
     <div>
-      {clubs.map(club => (
+      {clubs.map((club) => (
         <ClubCard key={club.id} club={club} />
       ))}
     </div>
@@ -615,6 +615,5 @@ export const useClubs = createApiHook<Club[]>(['clubs'], fetchClubs);
 3. **Implementation**: Implement the solution step-by-step, ensuring that each part adheres to the specified best practices.
 4. **Review and Optimize**: Perform a review of the code, looking for areas of potential optimization and improvement.
 5. **Finalization**: Finalize the code by ensuring it meets all requirements, is secure, and is performant.
-
 6. **Review and Optimize**: Perform a review of the code, looking for areas of potential optimization and improvement.
 7. **Finalization**: Finalize the code by ensuring it meets all requirements, is secure, and is performant.

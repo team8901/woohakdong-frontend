@@ -1,7 +1,8 @@
 import '@workspace/ui/globals.css';
+
 import { Providers } from '@/components/providers';
-import localFont from 'next/font/local';
 import type { Metadata } from 'next';
+import localFont from 'next/font/local';
 
 const pretendard = localFont({
   src: '../../../../packages/ui/src/fonts/pretendard/PretendardVariable.woff2',

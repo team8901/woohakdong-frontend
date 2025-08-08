@@ -18,7 +18,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use(
-  config => {
+  (config) => {
     // TODO: 요청 인터셉터 로직 추가
     return config;
   },
