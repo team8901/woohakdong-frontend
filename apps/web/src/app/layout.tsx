@@ -4,7 +4,7 @@ import localFont from 'next/font/local';
 import type { Metadata } from 'next';
 
 const pretendard = localFont({
-  src: '../../../packages/ui/src/fonts/pretendard/PretendardVariable.woff2',
+  src: '../../../../packages/ui/src/fonts/pretendard/PretendardVariable.woff2',
   display: 'swap',
   weight: '100 900',
   variable: '--font-pretendard',
