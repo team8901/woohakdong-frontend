@@ -1,6 +1,6 @@
 import '@workspace/ui/globals.css';
 
-import { Providers } from '@/components/providers';
+import { Providers } from '@/_shared/components/providers';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 
