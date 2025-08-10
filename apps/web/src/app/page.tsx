@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { onAuthStateChange } from '@workspace/firebase';
+import { onAuthStateChange } from '@workspace/firebase/auth';
 import { LoaderIcon } from 'lucide-react';
 
 function HomePage() {
@@ -22,7 +22,7 @@ function HomePage() {
 
   return (
     <div className="flex min-h-svh items-center justify-center">
-      <LoaderIcon className="size-6 animate-spin text-primary" />
+      <LoaderIcon className="text-primary size-6 animate-spin" />
     </div>
   );
 }
