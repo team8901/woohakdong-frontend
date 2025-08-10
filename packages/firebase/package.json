@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "main": "./src/index.ts",
+  "exports": {
+    "./auth": "./src/auth.ts",
+    "./firebase": "./src/firebase.ts"
+  },
   "dependencies": {
     "firebase": "^12.1.0"
   },
   "devDependencies": {
     "@workspace/typescript-config": "workspace:*",
     "typescript": "^5.9.2"
-  },
-  "exports": {
-    "./auth": "./src/auth.ts"
   }
 }

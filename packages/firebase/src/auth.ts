@@ -7,7 +7,9 @@ import {
   type UserCredential,
 } from 'firebase/auth';
 
-import { firebaseAuth } from './index.js';
+export type { User, UserCredential };
+
+import { firebaseAuth } from './firebase.js';
 
 const googleProvider = new GoogleAuthProvider();
 
