@@ -169,6 +169,13 @@ importers:
       firebase:
         specifier: ^12.1.0
         version: 12.1.0
+    devDependencies:
+      '@workspace/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
 
   packages/typescript-config: {}
 

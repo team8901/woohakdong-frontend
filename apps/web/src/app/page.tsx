@@ -2,8 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { onAuthStateChange } from '@workspace/firebase/auth';
-import { type User } from '@workspace/firebase/auth';
+import { onAuthStateChange, type User } from '@workspace/firebase/auth';
 import { LoaderIcon } from 'lucide-react';
 
 function HomePage() {
