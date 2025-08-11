@@ -4,8 +4,7 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./auth": "./src/auth.ts",
-    "./firebase": "./src/firebase.ts"
+    "./auth": "./src/auth.ts"
   },
   "dependencies": {
     "firebase": "^12.1.0"

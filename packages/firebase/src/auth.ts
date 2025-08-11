@@ -9,7 +9,7 @@ import {
 
 export type { User, UserCredential };
 
-import { firebaseAuth } from './firebase.js';
+import { firebaseAuth } from './firebase-config.js';
 
 const googleProvider = new GoogleAuthProvider();
 
