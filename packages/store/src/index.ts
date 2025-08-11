@@ -41,7 +41,7 @@ function createAtomStore<S>(initialValue?: S) {
       (set) => ({
         state: initialValue,
         setState: (value) => {
-          if (typeof value === 'function') {
+          if (value instanceof Function) {
             return set((prevState) => ({
               ...prevState,
               state: value(prevState.state),
