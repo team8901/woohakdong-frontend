@@ -14,7 +14,7 @@ type State<S> = {
  * @returns [state, setState] 배열을 반환하는 hook (React useState 와 유사한 형태)
  *
  * 1. 초기값이 있는 경우
- * - 사용 예시: `const useInpu한 = createAtomStore<string>('')`
+ * - 사용 예시: `const useInput = createAtomStore<string>('')`
  * - ex) 입력 input 의 초기값은 대부분 빈 문자열
  *
  * 2. 초기값이 없는 경우
