@@ -11,9 +11,9 @@ function HomePage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChange((user: User | null) => {
       if (user) {
-        router.push('/sign-up');
+        router.replace('/sign-up');
       } else {
-        router.push('/login');
+        router.replace('/login');
       }
     });
 
