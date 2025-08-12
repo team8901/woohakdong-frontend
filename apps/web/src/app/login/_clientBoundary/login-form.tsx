@@ -1,13 +1,26 @@
+'use client';
 import { cn } from '@workspace/ui/lib/utils';
 import { Button } from '@workspace/ui/components/button';
-import { Input } from '@workspace/ui/components/input';
-import { Label } from '@workspace/ui/components/label';
 import { GoogleIcon } from '@workspace/ui/icons/google-icon';
+import { signInWithGoogle } from '@workspace/firebase/auth';
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<'div'>) {
+const LoginForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+
+      // 테스트 알럿
+      console.log('Google 로그인 성공');
+      alert('Google 로그인 성공');
+
+      // TODO: 로그인 후 라우팅 추가
+    } catch (error) {
+      // 테스트 알럿
+      console.error('Google 로그인 실패:', error);
+      alert('Google 로그인 실패');
+    }
+  };
+
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <div className="flex flex-col gap-6">
@@ -24,7 +37,11 @@ export function LoginForm({
             </p>
           </div>
         </div>
-        <Button variant="outline" type="button" className="w-full">
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full"
+          onClick={handleGoogleLogin}>
           <GoogleIcon />
           Google로 시작하기
         </Button>
@@ -41,4 +58,6 @@ export function LoginForm({
       </div>
     </div>
   );
-}
+};
+
+export default LoginForm;
