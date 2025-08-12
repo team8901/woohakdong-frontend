@@ -16,9 +16,11 @@ const USER_TYPE_ALLOWED_PATH: Record<
   UserType,
   [string, ...(string | RegExp)[]]
 > = {
-  [USER_TYPE.비회원]: ['/login', '/club-list'],
-  [USER_TYPE.준회원]: ['/sign-up', '/club-list'],
+  [USER_TYPE.비회원]: ['/', '/login', '/sign-up'],
+  [USER_TYPE.준회원]: ['/', '/login', '/club-list'],
   [USER_TYPE.정회원]: [
+    '/',
+    '/login',
     '/join-club',
     '/club-list',
     /^\/clubs\/[^/]+$/, // /clubs/{clubEnglishName} 패턴 허용 (clubEnglishName 한 개 하위 경로)
@@ -71,6 +73,7 @@ export const middleware = (req: NextRequest) => {
 /** 미들웨어가 matcher 경로에서만 동작하도록 설정 */
 export const config = {
   matcher: [
+    '/',
     '/login',
     '/sign-up',
     '/join-club',
