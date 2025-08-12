@@ -59,7 +59,7 @@ export const getCurrentUser = (): User | null => {
 /**
  * 사용자 정보를 간단한 객체로 변환
  * @param user - Firebase User 객체
- * @returns 필요한 사용자 정보만 포함한 객체
+ * @returns 필요한 사용자 정보만 포함한 객체 또는 null
  */
 export const getUserInfo = (user: User | null) => {
   if (!user) return null;

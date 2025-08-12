@@ -41,7 +41,7 @@ describe('middleware', () => {
   describe('비회원 (GUEST) 사용자', () => {
     test('허용된 경로 / (홈페이지)에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -49,7 +49,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /login에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/login');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -57,7 +57,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /sign-up에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/sign-up');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -65,7 +65,7 @@ describe('middleware', () => {
 
     test('허용되지 않은 경로 /join-club에 접근하면 / (홈페이지)로 리다이렉트되어야 함', () => {
       const req = createMockRequest('/join-club');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/');
@@ -73,7 +73,7 @@ describe('middleware', () => {
 
     test('허용되지 않은 경로 /club-list에 접근하면 / (홈페이지)로 리다이렉트되어야 함', () => {
       const req = createMockRequest('/club-list');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/');
@@ -81,7 +81,7 @@ describe('middleware', () => {
 
     test('허용되지 않은 경로 /clubs/example에 접근하면 / (홈페이지)로 리다이렉트되어야 함', () => {
       const req = createMockRequest('/clubs/example');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/');
@@ -91,7 +91,7 @@ describe('middleware', () => {
   describe('준회원 (ASSOCIATE_USER) 사용자', () => {
     test('허용된 경로 / (홈페이지)에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/', 'ASSOCIATE_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -99,7 +99,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /login에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/login', 'ASSOCIATE_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -107,7 +107,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /club-list에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/club-list', 'ASSOCIATE_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -115,7 +115,7 @@ describe('middleware', () => {
 
     test('허용되지 않은 경로 /sign-up에 접근하면 / (홈페이지)로 리다이렉트되어야 함', () => {
       const req = createMockRequest('/sign-up', 'ASSOCIATE_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/');
@@ -123,7 +123,7 @@ describe('middleware', () => {
 
     test('허용되지 않은 경로 /join-club에 접근하면 / (홈페이지)로 리다이렉트되어야 함', () => {
       const req = createMockRequest('/join-club', 'ASSOCIATE_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/');
@@ -131,7 +131,7 @@ describe('middleware', () => {
 
     test('허용되지 않은 경로 /clubs/example에 접근하면 / (홈페이지)로 리다이렉트되어야 함', () => {
       const req = createMockRequest('/clubs/example', 'ASSOCIATE_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/');
@@ -141,7 +141,7 @@ describe('middleware', () => {
   describe('정회원 (REGULAR_USER) 사용자', () => {
     test('허용된 경로 / (홈페이지)에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -149,7 +149,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /login에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/login', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -157,7 +157,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /join-club에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/join-club', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -165,7 +165,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /club-list에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/club-list', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -173,7 +173,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /clubs/example에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/clubs/example', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -181,7 +181,7 @@ describe('middleware', () => {
 
     test('허용된 경로 /clubs/test-club에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/clubs/test-club', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -189,7 +189,7 @@ describe('middleware', () => {
 
     test('허용되지 않은 경로 /sign-up에 접근하면 / (홈페이지)로 리다이렉트되어야 함', () => {
       const req = createMockRequest('/sign-up', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/');
@@ -197,7 +197,7 @@ describe('middleware', () => {
 
     test('허용되지 않은 경로 /clubs/example/invalid에 접근하면 / (홈페이지)로 리다이렉트되어야 함', () => {
       const req = createMockRequest('/clubs/example/invalid', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/');
@@ -207,7 +207,7 @@ describe('middleware', () => {
   describe('경로 패턴 테스트', () => {
     test('비회원 - 하위 경로가 있는 허용된 경로 /login/callback에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/login/callback');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -215,7 +215,7 @@ describe('middleware', () => {
 
     test('비회원 - 하위 경로가 있는 허용된 경로 /sign-up/step1에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/sign-up/step1');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -223,7 +223,7 @@ describe('middleware', () => {
 
     test('준회원 - 하위 경로가 있는 허용된 경로 /club-list/page/1에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/club-list/page/1', 'ASSOCIATE_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -231,7 +231,7 @@ describe('middleware', () => {
 
     test('정회원 - 하위 경로가 있는 허용된 경로 /join-club/search에 접근할 수 있어야 함', () => {
       const req = createMockRequest('/join-club/search', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -241,7 +241,7 @@ describe('middleware', () => {
   describe('기본값 테스트', () => {
     test('userType 쿠키가 없으면 비회원으로 처리되어야 함', () => {
       const req = createMockRequest('/join-club'); // 비회원에게 허용되지 않은 경로
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/'); // 비회원의 기본 경로 (홈페이지)
@@ -249,7 +249,7 @@ describe('middleware', () => {
 
     test('유효하지 않은 userType이 있으면 기본값으로 처리되어야 함', () => {
       const req = createMockRequest('/join-club', 'INVALID_TYPE');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/'); // 기본값(비회원)의 기본 경로 (홈페이지)
@@ -259,7 +259,7 @@ describe('middleware', () => {
   describe('정규식 패턴 테스트', () => {
     test('/clubs/valid-club-name 패턴은 정회원에게 허용되어야 함', () => {
       const req = createMockRequest('/clubs/my-awesome-club', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.next).toHaveBeenCalled();
       expect(NextResponse.redirect).not.toHaveBeenCalled();
@@ -267,7 +267,7 @@ describe('middleware', () => {
 
     test('/clubs/club-name/sub-path 패턴은 정회원에게도 허용되지 않아야 함', () => {
       const req = createMockRequest('/clubs/my-club/members', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/'); // 정회원의 기본 경로 (홈페이지)
@@ -275,7 +275,7 @@ describe('middleware', () => {
 
     test('/clubs만 있는 경로는 정회원에게 허용되지 않아야 함', () => {
       const req = createMockRequest('/clubs', 'REGULAR_USER');
-      const result = middleware(req);
+      middleware(req);
 
       expect(NextResponse.redirect).toHaveBeenCalled();
       expect(req.nextUrl.pathname).toBe('/'); // 정회원의 기본 경로 (홈페이지)
