@@ -1,0 +1,15 @@
+{
+  "name": "@workspace/react-query",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./queryClient": "./src/queryClient.ts"
+  },
+  "devDependencies": {
+    "@tanstack/react-query": "^5.84.2"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.84.2"
+  }
+}

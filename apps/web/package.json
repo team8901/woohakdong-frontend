@@ -13,10 +13,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.84.2",
     "@workspace/api": "workspace:*",
     "@workspace/firebase": "workspace:*",
-    "@workspace/ui": "workspace:*",
+    "@workspace/react-query": "workspace:*",
     "@workspace/store": "workspace:*",
+    "@workspace/ui": "workspace:*",
     "lucide-react": "^0.536.0",
     "next": "^15.4.5",
     "next-themes": "^0.4.6",
