@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { getQueryClient } from '@workspace/react-query/queryClient';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 
@@ -16,7 +17,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
       enableColorScheme>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <ReactQueryDevtools />
+      </QueryClientProvider>
     </NextThemesProvider>
   );
 }

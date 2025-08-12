@@ -16,6 +16,7 @@ export const ClubInfoSearchClient = ({ initialData }: Props) => {
   return (
     <div>
       <p>동아리 검색 결과</p>
+      {data.data.length === 0 && <span>없음</span>}
       <ul>
         {data.data.map((v) => (
           <li key={v.id}>
