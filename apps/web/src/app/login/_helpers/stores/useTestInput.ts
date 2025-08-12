@@ -1,4 +1,4 @@
-import { createAtomStore } from '@workspace/store';
+import { createAtomStore } from '@workspace/store/createAtomStore';
 
 /**
  * 테스트용 인풋 store

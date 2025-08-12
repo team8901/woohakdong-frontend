@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    "./createAtomStore": "./src/createAtomStore.ts"
   },
   "dependencies": {
     "zustand": "^5.0.7"
