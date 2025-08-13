@@ -79,7 +79,10 @@ const DEFAULT_MUTATION_OPTIONS: Options['mutationOptions'] = {
  *
  * @see https://tanstack.com/query/latest/docs/reference/QueryClient
  */
-export const getQueryClient = ({ queryOptions, mutationOptions }: Options) =>
+export const getQueryClient = ({
+  queryOptions,
+  mutationOptions,
+}: Options = {}) =>
   new QueryClient({
     defaultOptions: {
       queries: {

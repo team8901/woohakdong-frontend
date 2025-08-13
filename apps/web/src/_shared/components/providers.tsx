@@ -7,7 +7,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { getQueryClient } from '@workspace/react-query/queryClient';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 
-const queryClient = getQueryClient({});
+const queryClient = getQueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
