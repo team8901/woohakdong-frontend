@@ -1,6 +1,4 @@
-'use client';
-
-import LoginForm from './_clientBoundary/login-form';
+import LoginForm from './_components/LoginForm';
 
 const LoginPage = () => {
   return (

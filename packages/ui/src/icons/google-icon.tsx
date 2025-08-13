@@ -1,10 +1,10 @@
 import type { SVGProps } from 'react';
 
-function GoogleIcon({
+const GoogleIcon = ({
   width = 20,
   height = 20,
   ...props
-}: SVGProps<SVGSVGElement>) {
+}: SVGProps<SVGSVGElement>) => {
   return (
     <svg width={width} height={height} viewBox="0 0 48 48" {...props}>
       <g>
@@ -28,6 +28,6 @@ function GoogleIcon({
       </g>
     </svg>
   );
-}
+};
 
-export { GoogleIcon };
+export default GoogleIcon;

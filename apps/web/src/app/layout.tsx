@@ -1,6 +1,6 @@
 import '@workspace/ui/globals.css';
 
-import { Providers } from '@/_shared/components/providers';
+import { ThemeProvider } from '@/_shared/components/providers';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 
@@ -23,15 +23,20 @@ export const metadata: Metadata = {
   description: '우학동 : 귀찮았던 동아리 관리, 우학동이 대신 해 드릴게요',
 };
 
+/**
+ * 서버에서 렌더링된 HTML과 클라이언트에서의 초기 렌더링이 정확히 일치하지 않을 수 있는 경우
+ * 이를 방지하기 위해 suppressHydrationWarning을 사용
+ * (참고 URL: https://ui.shadcn.com/docs/dark-mode/next)
+ */
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="kr" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning>
       <body className={`${pretendard.variable} ${jua.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
