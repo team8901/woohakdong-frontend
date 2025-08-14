@@ -1,30 +1,11 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { onAuthStateChange, type User } from '@workspace/firebase/auth';
 import { LoaderIcon } from 'lucide-react';
 
-function HomePage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChange((user: User | null) => {
-      if (user) {
-        router.replace('/sign-up');
-      } else {
-        router.replace('/login');
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
+const Page = () => {
   return (
-    <div className="flex min-h-svh items-center justify-center">
-      <LoaderIcon className="text-primary size-6 animate-spin" />
+    <div className="flex min-h-screen w-screen items-center justify-center">
+      <LoaderIcon className="text-muted-foreground size-6 animate-spin" />
     </div>
   );
-}
+};
 
-export default HomePage;
+export default Page;
