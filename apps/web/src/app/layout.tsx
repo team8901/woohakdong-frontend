@@ -1,6 +1,6 @@
 import '@workspace/ui/globals.css';
 
-import { ThemeProvider } from '@/_shared/components/providers';
+import { ThemeProviderClient } from '@/_shared/clientBoundary/ThemeProviderClient';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 
@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${pretendard.variable} ${jua.variable} antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProviderClient>{children}</ThemeProviderClient>
       </body>
     </html>
   );
