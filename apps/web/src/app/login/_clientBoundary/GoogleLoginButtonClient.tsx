@@ -3,10 +3,9 @@
 import { Button } from '@workspace/ui/components/button';
 import { Loader2Icon } from 'lucide-react';
 import GoogleIcon from '@workspace/ui/icons/google-icon';
-import React from 'react';
-import useGoogleLogin from '../_helpers/hooks/use-google-login';
+import { useGoogleLogin } from '../_helpers/hooks/useGoogleLogin';
 
-const GoogleLoginButton = () => {
+export const GoogleLoginButtonClient = () => {
   const { loginWithGoogle, isLoading } = useGoogleLogin();
 
   return (
@@ -31,5 +30,3 @@ const GoogleLoginButton = () => {
     </Button>
   );
 };
-
-export default GoogleLoginButton;

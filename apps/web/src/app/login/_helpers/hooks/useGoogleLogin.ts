@@ -1,9 +1,7 @@
-'use client';
-
 import { useState } from 'react';
 import { signInWithGoogle } from '@workspace/firebase/auth';
 
-const useGoogleLogin = () => {
+export const useGoogleLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const loginWithGoogle = async () => {
@@ -22,5 +20,3 @@ const useGoogleLogin = () => {
 
   return { loginWithGoogle, isLoading };
 };
-
-export default useGoogleLogin;
