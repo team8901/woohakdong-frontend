@@ -1,4 +1,4 @@
-import { GoogleLoginButtonClient } from '../_clientBoundary/GoogleLoginButtonClient';
+import { GoogleLoginButtonClient } from '../../_clientBoundary/GoogleLoginButtonClient';
 
 export const LoginForm = () => {
   return (

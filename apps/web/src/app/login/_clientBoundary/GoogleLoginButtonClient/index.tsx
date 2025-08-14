@@ -2,8 +2,8 @@
 
 import { Button } from '@workspace/ui/components/button';
 import { Loader2Icon } from 'lucide-react';
-import GoogleIcon from '@workspace/ui/icons/google-icon';
-import { useGoogleLogin } from '../_helpers/hooks/useGoogleLogin';
+import { GoogleIcon } from '@workspace/ui/icons/google-icon';
+import { useGoogleLogin } from '../../_helpers/hooks/useGoogleLogin';
 
 export const GoogleLoginButtonClient = () => {
   const { loginWithGoogle, isLoading } = useGoogleLogin();

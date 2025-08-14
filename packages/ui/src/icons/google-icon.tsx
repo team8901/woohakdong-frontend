@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-const GoogleIcon = ({
+export const GoogleIcon = ({
   width = 20,
   height = 20,
   ...props
@@ -29,5 +29,3 @@ const GoogleIcon = ({
     </svg>
   );
 };
-
-export default GoogleIcon;
