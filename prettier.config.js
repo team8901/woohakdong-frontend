@@ -85,7 +85,5 @@ module.exports = {
    * Tailwind CSS 클래스 자동 정렬 플러그인
    * @see https://github.com/tailwindlabs/prettier-plugin-tailwindcss
    */
-  plugins: [
-    'prettier-plugin-tailwindcss',
-  ],
-}
+  plugins: ['prettier-plugin-tailwindcss'],
+};
