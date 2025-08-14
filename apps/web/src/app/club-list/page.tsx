@@ -1,7 +1,9 @@
+import { ClubInfoSearchSuspense } from '@/app/club-list/_suspense/ClubInfoSearchSuspense';
+
 const ClubListPage = () => {
   return (
-    <div className="flex min-h-svh items-center justify-center">
-      클럽 목록 페이지
+    <div className="flex min-h-svh flex-col items-center justify-center">
+      <ClubInfoSearchSuspense />
     </div>
   );
 };
