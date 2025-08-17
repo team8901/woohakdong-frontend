@@ -1,4 +1,3 @@
-import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Input } from '@workspace/ui/components/input';
 import {
@@ -29,28 +28,6 @@ type UserInfoFormProps = {
 export function UserInfoForm({ form }: UserInfoFormProps) {
   return (
     <div className="flex flex-col gap-6">
-      {/* 이름 입력 */}
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>이름</FormLabel>
-            <Tooltip>
-              <TooltipTrigger>
-                <FormControl>
-                  <Input disabled type="text" {...field} />
-                </FormControl>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>구글 계정 이름으로 자동 설정돼요</p>
-              </TooltipContent>
-            </Tooltip>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
       {/* 이메일 입력 */}
       <FormField
         control={form.control}
@@ -59,10 +36,17 @@ export function UserInfoForm({ form }: UserInfoFormProps) {
           <FormItem>
             <FormLabel>이메일</FormLabel>
             <Tooltip>
-              <TooltipTrigger>
-                <FormControl>
-                  <Input disabled type="email" {...field} />
-                </FormControl>
+              <TooltipTrigger asChild>
+                <div onClick={(e) => e.preventDefault()} tabIndex={-1}>
+                  <FormControl>
+                    <Input
+                      disabled
+                      type="email"
+                      {...field}
+                      className="cursor-not-allowed"
+                    />
+                  </FormControl>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>구글 계정 이메일로 자동 설정돼요</p>

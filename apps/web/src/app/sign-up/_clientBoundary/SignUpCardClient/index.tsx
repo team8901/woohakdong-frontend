@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@workspace/ui/components/button';
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardTitle,
 } from '@workspace/ui/components/card';
@@ -44,14 +45,20 @@ export const SignUpCardClient = () => {
     <Card>
       <CardHeader className="md:text-xl">
         {step === 1 ? (
-          <CardTitle>
-            <p>반가워요! 🤗</p>
-            <p>우학동의 멤버가 되어 함께 시작해볼까요?</p>
-          </CardTitle>
+          <>
+            {/* TODO: 로그인으로 받아온 이름 사용해야 함 */}
+            <CardTitle>강동우님 만나서 반가워요! 👋🏻</CardTitle>
+            <CardDescription>
+              간편한 시작을 위해 몇 가지만 알려주세요.
+            </CardDescription>
+          </>
         ) : (
-          <CardTitle>
-            <p>이제 학적만 입력하면 회원가입이 완료돼요 🤩</p>
-          </CardTitle>
+          <>
+            <CardTitle>거의 다 왔어요! 👏🏻</CardTitle>
+            <CardDescription>
+              우학동 이용을 위한 마지막 단계에요.
+            </CardDescription>
+          </>
         )}
       </CardHeader>
       <CardContent>
@@ -64,7 +71,7 @@ export const SignUpCardClient = () => {
             {step === 1 ? '로그아웃' : '이전'}
           </Button>
           <Button type="button" onClick={handleNextStep}>
-            {step === 1 ? '다음' : '우학동 시작하기'}
+            {step === 1 ? '다음' : '완료'}
             <ArrowRightIcon />
           </Button>
         </div>

@@ -32,6 +32,7 @@ export const useSignUpForm = ({
       const isValid = await form.trigger(fieldsToValidate);
 
       if (isValid) {
+        form.clearErrors();
         setStep(2);
       }
     } else {

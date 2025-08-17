@@ -30,10 +30,17 @@ export function UserSchoolInfoForm({ form }: UserSchoolInfoFormProps) {
           <FormItem>
             <FormLabel>학교</FormLabel>
             <Tooltip>
-              <TooltipTrigger>
-                <FormControl>
-                  <Input disabled type="text" {...field} />
-                </FormControl>
+              <TooltipTrigger asChild>
+                <div onClick={(e) => e.preventDefault()} tabIndex={-1}>
+                  <FormControl>
+                    <Input
+                      disabled
+                      type="text"
+                      {...field}
+                      className="cursor-not-allowed"
+                    />
+                  </FormControl>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>구글 계정의 도메인으로 자동 설정된 학교예요</p>
