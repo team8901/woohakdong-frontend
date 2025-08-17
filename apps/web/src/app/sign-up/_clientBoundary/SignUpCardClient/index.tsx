@@ -56,7 +56,8 @@ export const SignUpCardClient = () => {
           <>
             <CardTitle>거의 다 왔어요! 👏🏻</CardTitle>
             <CardDescription>
-              우학동 이용을 위한 마지막 단계에요.
+              완료 버튼을 누르면 가입이 완료돼요. 입력한 정보는 이후에 수정할 수
+              있어요.
             </CardDescription>
           </>
         )}
