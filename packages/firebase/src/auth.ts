@@ -72,3 +72,41 @@ export const getUserInfo = (user: User | null) => {
     emailVerified: user.emailVerified,
   };
 };
+
+/**
+ * Firebase ID 토큰 획득
+ * @returns Promise<string> - Firebase ID 토큰
+ */
+export const getFirebaseIdToken = async (): Promise<string> => {
+  const user = getCurrentUser();
+  if (!user) {
+    throw new Error('사용자가 로그인되어 있지 않습니다.');
+  }
+
+  try {
+    const idToken = await user.getIdToken();
+    return idToken;
+  } catch (error) {
+    console.error('Firebase ID 토큰 획득 실패:', error);
+    throw error;
+  }
+};
+
+/**
+ * Firebase ID 토큰 강제 갱신
+ * @returns Promise<string> - 새로운 Firebase ID 토큰
+ */
+export const refreshFirebaseIdToken = async (): Promise<string> => {
+  const user = getCurrentUser();
+  if (!user) {
+    throw new Error('사용자가 로그인되어 있지 않습니다.');
+  }
+
+  try {
+    const idToken = await user.getIdToken(true); // 강제 갱신
+    return idToken;
+  } catch (error) {
+    console.error('Firebase ID 토큰 갱신 실패:', error);
+    throw error;
+  }
+};
