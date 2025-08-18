@@ -1,0 +1,16 @@
+{
+  "name": "@workspace/msw",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./types": "./src/types.ts",
+    "./createMockHandler": "./src/createMockHandler.ts"
+  },
+  "dependencies": {
+    "@workspace/api": "workspace:*"
+  },
+  "peerDependencies": {
+    "msw": "^2.10.5"
+  }
+}
