@@ -29,9 +29,6 @@ importers:
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:packages/typescript-config
-      husky:
-        specifier: ^9.1.7
-        version: 9.1.7
       identity-obj-proxy:
         specifier: ^3.0.0
         version: 3.0.0
@@ -41,9 +38,6 @@ importers:
       jest-environment-jsdom:
         specifier: ^30.0.5
         version: 30.0.5
-      lint-staged:
-        specifier: ^16.1.5
-        version: 16.1.5
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -114,6 +108,12 @@ importers:
       '@workspace/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      husky:
+        specifier: ^9.1.7
+        version: 9.1.7
+      lint-staged:
+        specifier: ^16.1.5
+        version: 16.1.5
       typescript:
         specifier: ^5.9.2
         version: 5.9.2
