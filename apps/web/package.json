@@ -10,8 +10,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
-    "prepare": "husky"
+    "test": "jest"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.84.2",
@@ -33,13 +32,6 @@
     "@types/react-dom": "^19.1.7",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
     "typescript": "^5.9.2"
-  },
-  "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix"
-    ]
   }
 }
