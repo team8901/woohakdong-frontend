@@ -53,7 +53,7 @@ export const SignUpCardClient = () => {
                 <LogOutIcon />
                 <span>로그아웃</span>
               </Button>
-              <Button type="submit">
+              <Button type="submit" disabled={!form.formState.isValid}>
                 <span>완료</span>
               </Button>
             </div>

@@ -24,6 +24,29 @@ type SignUpFormProps = {
 export const SignUpForm = ({ form }: SignUpFormProps) => {
   return (
     <div className="flex flex-col gap-6">
+      {/* 성별 선택 */}
+      <FormField
+        control={form.control}
+        name="gender"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>성별</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value || ''}>
+              <FormControl>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="남성/여성" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="MALE">남성</SelectItem>
+                <SelectItem value="FEMALE">여성</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* 닉네임 입력 */}
       <FormField
         control={form.control}
@@ -96,35 +119,8 @@ export const SignUpForm = ({ form }: SignUpFormProps) => {
                 inputMode="numeric"
                 placeholder="202512345"
                 {...field}
-                onChange={(e) => {
-                  const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                  field.onChange(digits);
-                }}
               />
             </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      {/* 성별 선택 */}
-      <FormField
-        control={form.control}
-        name="gender"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>성별</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value || ''}>
-              <FormControl>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="남성/여성" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="MALE">남성</SelectItem>
-                <SelectItem value="FEMALE">여성</SelectItem>
-              </SelectContent>
-            </Select>
             <FormMessage />
           </FormItem>
         )}
