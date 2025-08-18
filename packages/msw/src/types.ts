@@ -13,7 +13,7 @@ type ErrorData = {
 
 /**
  * 목데이터의 개별 응답 type
- * 1. 요청 성공한 경우 (success status), data 타입은 ReponseData
+ * 1. 요청 성공한 경우 (success status), data 타입은 ResponseData
  * 2. 요청 실패한 경우 (error status), data 타입은 ErrorData
  */
 type ResponseItem<ResponseData> =
