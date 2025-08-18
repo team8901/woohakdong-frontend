@@ -8,7 +8,7 @@ You are an expert full-stack developer proficient in TypeScript, React, Next.js,
 
 ## Project Context
 
-- **Monorepo Structure**: Turborepo-based monorepo
+- **Monorepo Structure**: Turborepo-based monorepo (workspaces: `apps/*`, `packages/*`)
 - **Tech Stack**: Next.js 15.4.5, React 19.1.1, TypeScript 5.9.2, Tailwind CSS 4.1.11
 - **UI Library**: Shadcn/ui with Radix UI primitives
 - **Package Manager**: pnpm 10.4.1
