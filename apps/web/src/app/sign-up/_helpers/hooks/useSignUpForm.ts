@@ -2,57 +2,38 @@ import { UseFormReturn } from 'react-hook-form';
 import { FormData } from '../utils/zodSchemas';
 
 type UseSignUpFormProps = {
-  step: 1 | 2;
-  setStep: (step: 1 | 2) => void;
   form: UseFormReturn<FormData>;
 };
 
 type UseSignUpFormReturn = {
-  handleNextStep: () => Promise<void>;
-  handlePreviousStep: () => Promise<void>;
+  onQuit: () => Promise<void>;
   onSubmit: (data: FormData) => Promise<void>;
 };
 
 export const useSignUpForm = ({
-  step,
-  setStep,
   form,
 }: UseSignUpFormProps): UseSignUpFormReturn => {
+  const onQuit = async (): Promise<void> => {
+    form.clearErrors();
+    // TODO: 회원가입 취소 또는 로그아웃 로직
+    console.log('회원가입 취소');
+  };
+
   const onSubmit = async (data: FormData): Promise<void> => {
-    console.log('회원가입 최종 데이터', {
-      ...data,
-      phone: data.phone.replace(/\D/g, ''),
-    });
-    // TODO: 서버에 데이터 전송 API 연동
-  };
+    const userProfile = {
+      nickname: data.nickname,
+      phoneNumber: data.phoneNumber,
+      studentId: data.studentId,
+      gender: data.gender,
+    };
 
-  const handleNextStep = async (): Promise<void> => {
-    if (step === 1) {
-      const fieldsToValidate: (keyof FormData)[] = ['gender', 'phone'];
-      const isValid = await form.trigger(fieldsToValidate);
+    console.log('서버로 전송할 데이터:', userProfile);
 
-      if (isValid) {
-        form.clearErrors();
-        setStep(2);
-      }
-    } else {
-      await form.handleSubmit(onSubmit)();
-    }
-  };
-
-  const handlePreviousStep = async (): Promise<void> => {
-    if (step === 2) {
-      setStep(1);
-      form.clearErrors();
-    } else {
-      // TODO: 회원가입 취소 또는 로그아웃 로직
-      console.log('회원가입 취소');
-    }
+    // TODO: 서버로 전송하는 부분 추가
   };
 
   return {
-    handleNextStep,
-    handlePreviousStep,
+    onQuit,
     onSubmit,
   };
 };
