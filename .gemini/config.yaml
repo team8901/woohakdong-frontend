@@ -1,0 +1,16 @@
+# Gemini PR Review Config
+have_fun: true # Gemini가 가벼운 농담을 할지 여부
+
+code_review:
+  comment_severity_threshold: MEDIUM # 코드리뷰의 심각도 임계값
+  max_review_comments: 10 # 최대 코드리뷰 댓글 수
+
+pull_request_opened:
+  summary: true # PR이 열렸을 때 요약을 생성할지 여부
+  code_review: true # PR이 열렸을 때 코드리뷰를 할지 여부
+
+ignore_patterns:
+  - '*.md'
+  - '*.json'
+  - '*.yaml'
+  - '*.yml'
