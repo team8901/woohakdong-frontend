@@ -26,3 +26,4 @@ export const ClubInfoSearchClient = ({ initialData }: Props) => {
   );
 };
 // test
+// test
