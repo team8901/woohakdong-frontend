@@ -4,6 +4,8 @@ import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { RefreshCcwIcon, SirenIcon } from 'lucide-react';
 
+const SUPPORT_MAIL = '8901.dev@gmail.com';
+
 /**
  * web 서비스의 global error 를 핸들링하는 Error boundary
  * @see https://nextjs.org/docs/app/getting-started/error-handling
@@ -34,8 +36,8 @@ const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
               문제가 계속된다면, 아래의 이메일로 문의해 주시면 빠르게 해결해
               드릴게요!
             </p>
-            <Button variant="link" className="text-muted-foreground">
-              <a href="mailto:8901.dev@gmail.com">8901.dev@gmail.com</a>
+            <Button variant="link" className="text-muted-foreground" asChild>
+              <a href={`mailto:${SUPPORT_MAIL}`}>{SUPPORT_MAIL}</a>
             </Button>
           </div>
         </div>
