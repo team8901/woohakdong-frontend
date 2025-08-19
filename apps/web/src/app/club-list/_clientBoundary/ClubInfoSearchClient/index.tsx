@@ -28,3 +28,4 @@ export const ClubInfoSearchClient = ({ initialData }: Props) => {
 // test
 // test
 // test
+// test
