@@ -6,6 +6,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
+    "lint:fix": "turbo lint -- --fix",
     "check": "prettier --check \"**/*.{js,ts,tsx,md}\"",
     "format": "prettier --write \"**/*.{js,ts,tsx,md}\"",
     "test": "turbo run test",
