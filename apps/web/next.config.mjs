@@ -6,6 +6,7 @@ const nextConfig = {
     '@workspace/firebase',
     '@workspace/store',
     '@workspace/react-query',
+    '@workspace/msw',
   ],
 };
 
