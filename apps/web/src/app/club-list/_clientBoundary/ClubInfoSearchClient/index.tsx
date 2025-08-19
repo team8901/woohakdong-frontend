@@ -5,7 +5,6 @@ type Props = {
   initialData: ClubInfoSearchResponse;
 };
 // test
-
 export const ClubInfoSearchClient = ({ initialData }: Props) => {
   const { data } = useGetClubInfoSearchSuspenseQuery(
     { name: '두잇', nameEn: 'doit' },
