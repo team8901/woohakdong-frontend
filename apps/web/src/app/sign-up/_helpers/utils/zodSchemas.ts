@@ -1,8 +1,5 @@
 import { z } from 'zod';
 import {
-  PHONE_NUMBER_REGEX,
-  STUDENT_ID_REGEX,
-  NICKNAME_REGEX,
   validateNickname,
   validateStudentId,
   validatePhoneNumber,
