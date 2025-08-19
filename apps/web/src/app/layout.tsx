@@ -1,8 +1,9 @@
 import '@workspace/ui/globals.css';
 
 import { ProviderClient } from '@/_shared/clientBoundary/ProviderClient';
-import localFont from 'next/font/local';
+import { EnableMockClient } from '@/mock/browser';
 import type { Metadata } from 'next';
+import localFont from 'next/font/local';
 
 const pretendard = localFont({
   src: '../../../../packages/ui/src/fonts/pretendard/PretendardVariable.woff2',
@@ -35,7 +36,10 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${pretendard.variable} ${jua.variable} antialiased`}>
-        <ProviderClient>{children}</ProviderClient>
+        <ProviderClient>
+          <EnableMockClient />
+          {children}
+        </ProviderClient>
       </body>
     </html>
   );

@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:mock": "NEXT_PUBLIC_IS_MOCK=true next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -17,6 +18,7 @@
     "@tanstack/react-query-devtools": "^5.84.2",
     "@workspace/api": "workspace:*",
     "@workspace/firebase": "workspace:*",
+    "@workspace/msw": "workspace:*",
     "@workspace/react-query": "workspace:*",
     "@workspace/store": "workspace:*",
     "@workspace/ui": "workspace:*",
@@ -32,6 +34,12 @@
     "@types/react-dom": "^19.1.7",
     "@workspace/eslint-config": "workspace:^",
     "@workspace/typescript-config": "workspace:*",
+    "msw": "^2.10.5",
     "typescript": "^5.9.2"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
