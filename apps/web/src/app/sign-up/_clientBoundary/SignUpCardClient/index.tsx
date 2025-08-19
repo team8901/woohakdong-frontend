@@ -38,10 +38,10 @@ export const SignUpCardClient = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card>
-          <CardHeader className="md:text-xl">
+          <CardHeader>
             <CardTitle>만나서 반가워요! 👋🏻</CardTitle>
             <CardDescription>
-              간편한 시작을 위해 몇 가지만 알려주세요.
+              프로필 완성을 위해 몇 가지만 알려주세요
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -51,10 +51,10 @@ export const SignUpCardClient = () => {
             <div className="flex w-full items-center justify-between gap-6">
               <Button variant="outline" type="button" onClick={onQuit}>
                 <LogOutIcon />
-                <span>로그아웃</span>
+                로그아웃
               </Button>
               <Button type="submit" disabled={!form.formState.isValid}>
-                <span>완료</span>
+                완료
               </Button>
             </div>
           </CardFooter>

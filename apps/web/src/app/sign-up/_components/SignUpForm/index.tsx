@@ -55,7 +55,12 @@ export const SignUpForm = ({ form }: SignUpFormProps) => {
           <FormItem>
             <FormLabel>닉네임</FormLabel>
             <FormControl>
-              <Input type="text" placeholder="학동이" {...field} />
+              <Input
+                type="text"
+                inputMode="tel"
+                placeholder="학동이"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
