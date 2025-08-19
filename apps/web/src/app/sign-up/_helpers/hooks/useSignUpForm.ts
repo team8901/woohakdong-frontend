@@ -1,25 +1,28 @@
-import { UseFormReturn } from 'react-hook-form';
-import { FormData } from '../utils/zodSchemas';
-
-type UseSignUpFormProps = {
-  form: UseFormReturn<FormData>;
-};
+import { useForm, UseFormReturn } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormData, userProfileSchema } from '../utils/zodSchemas';
+import { UserProfile } from '../constants';
 
 type UseSignUpFormReturn = {
+  form: UseFormReturn<FormData>;
+  isFormValid: boolean;
+  isSubmitting: boolean;
   onQuit: () => Promise<void>;
   onSubmit: (data: FormData) => Promise<void>;
 };
 
-type UserProfile = {
-  nickname: string;
-  phoneNumber: string;
-  studentId: string;
-  gender: 'MALE' | 'FEMALE';
-};
+export const useSignUpForm = (): UseSignUpFormReturn => {
+  const form = useForm<FormData>({
+    resolver: zodResolver(userProfileSchema),
+    mode: 'onChange',
+    defaultValues: {
+      nickname: '',
+      phoneNumber: '',
+      studentId: '',
+      gender: undefined,
+    },
+  });
 
-export const useSignUpForm = ({
-  form,
-}: UseSignUpFormProps): UseSignUpFormReturn => {
   const onQuit = async (): Promise<void> => {
     try {
       form.clearErrors();
@@ -50,7 +53,10 @@ export const useSignUpForm = ({
   };
 
   return {
+    form,
     onQuit,
     onSubmit,
+    isFormValid: form.formState.isValid,
+    isSubmitting: form.formState.isSubmitting,
   };
 };

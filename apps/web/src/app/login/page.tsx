@@ -1,4 +1,4 @@
-import { LoginForm } from './_components/LoginForm';
+import { LoginPanel } from './_components/LoginPanel';
 
 const LoginPage = () => {
   return (
@@ -9,7 +9,7 @@ const LoginPage = () => {
         우학동
       </a>
       <div className="w-full max-w-sm">
-        <LoginForm />
+        <LoginPanel />
       </div>
     </div>
   );

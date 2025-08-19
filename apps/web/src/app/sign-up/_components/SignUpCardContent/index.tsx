@@ -22,7 +22,7 @@ type SignUpFormProps = {
   form: UseFormReturn<FormData>;
 };
 
-export const SignUpForm = ({ form }: SignUpFormProps) => {
+export const SignUpCardContent = ({ form }: SignUpFormProps) => {
   return (
     <div className="flex flex-col gap-6">
       {/* 성별 선택 */}
@@ -132,7 +132,7 @@ export const SignUpForm = ({ form }: SignUpFormProps) => {
             <FormLabel>학번</FormLabel>
             <FormControl>
               <Input
-                type="text"
+                type="number"
                 inputMode="numeric"
                 placeholder="202512345"
                 autoComplete="off"

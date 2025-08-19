@@ -1,3 +1,10 @@
+export type UserProfile = {
+  nickname: string;
+  phoneNumber: string;
+  studentId: string;
+  gender: 'MALE' | 'FEMALE';
+};
+
 // 휴대폰 번호 정규식 (하이픈 포함)
 export const PHONE_NUMBER_REGEX = /^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$/;
 
