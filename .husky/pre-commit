@@ -1,9 +1,9 @@
-echo "🔍 commit 이전에 lint 규칙을 적용합니다..."
+echo "🔍 커밋 이전에 lint 검사를 진행합니다..."
 
 if npx lint-staged; then
-  echo "✅ 모든 lint 규칙이 성공적으로 적용되었습니다."
+  echo "✅ lint 검사에 성공했습니다."
   exit 0
 else
-  echo "❌ lint 규칙 검사에서 오류가 발생했습니다."
+  echo "❌ lint 검사에 실패했습니다. lint fix 후에 커밋해 주세요."
   exit 1
 fi

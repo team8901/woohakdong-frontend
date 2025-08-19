@@ -6,7 +6,6 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "lint:fix": "turbo lint -- --fix",
     "check": "prettier --check \"**/*.{js,ts,tsx,md}\"",
     "format": "prettier --write \"**/*.{js,ts,tsx,md}\"",
     "test": "turbo run test",
@@ -38,9 +37,7 @@
     "node": ">=20"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
-      "prettier --write",
-      "eslint --fix"
-    ]
+    "*.{js,jsx,ts,tsx,json,css,md}": "npx prettier --write",
+    "./apps/web/**/*.{js,jsx,ts,tsx}": "npx eslint --max-warnings=0 --config apps/web/eslint.config.js"
   }
 }
