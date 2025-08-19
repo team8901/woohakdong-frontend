@@ -1,5 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { FormData } from '../../_helpers/utils/zodSchemas';
+import { GENDER_OPTIONS } from '../../_helpers/constants';
 import { Input } from '@workspace/ui/components/input';
 import {
   FormControl,
@@ -38,8 +39,11 @@ export const SignUpForm = ({ form }: SignUpFormProps) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="MALE">남성</SelectItem>
-                <SelectItem value="FEMALE">여성</SelectItem>
+                {GENDER_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FormMessage />
@@ -57,11 +61,16 @@ export const SignUpForm = ({ form }: SignUpFormProps) => {
             <FormControl>
               <Input
                 type="text"
-                inputMode="tel"
+                inputMode="text"
                 placeholder="학동이"
+                autoComplete="off"
                 {...field}
               />
             </FormControl>
+            <FormDescription className="flex flex-col">
+              <span>• 2자 이상 20자 이내로 입력해 주세요</span>
+              <span>• 한글, 영문, 숫자, (_), (-)만 사용 가능해요</span>
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -72,7 +81,7 @@ export const SignUpForm = ({ form }: SignUpFormProps) => {
         control={form.control}
         name="phoneNumber"
         render={({ field }) => {
-          const formatPhoneNumber = (value: string) => {
+          const formatPhoneNumber = (value: string): string => {
             const digits = value.replace(/\D/g, '').slice(0, 11);
 
             // 하이픈 자동 삽입
@@ -85,25 +94,28 @@ export const SignUpForm = ({ form }: SignUpFormProps) => {
             }
           };
 
+          const handlePhoneNumberChange = (
+            e: React.ChangeEvent<HTMLInputElement>,
+          ) => {
+            const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+            field.onChange(formatPhoneNumber(digits));
+          };
+
           return (
             <FormItem>
               <FormLabel>휴대폰 번호</FormLabel>
               <FormControl>
                 <Input
-                  type="text"
+                  type="tel"
                   inputMode="tel"
                   placeholder="010-1234-5678"
+                  autoComplete="off"
                   value={formatPhoneNumber(field.value || '')}
-                  onChange={(e) => {
-                    const digits = e.target.value
-                      .replace(/\D/g, '')
-                      .slice(0, 11);
-                    field.onChange(formatPhoneNumber(digits));
-                  }}
+                  onChange={handlePhoneNumberChange}
                 />
               </FormControl>
               <FormDescription>
-                대시(-) 없이 숫자만 입력해주세요
+                • 대시(-)를 제외한 숫자만 입력해주세요
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -123,9 +135,11 @@ export const SignUpForm = ({ form }: SignUpFormProps) => {
                 type="text"
                 inputMode="numeric"
                 placeholder="202512345"
+                autoComplete="off"
                 {...field}
               />
             </FormControl>
+            <FormDescription>• 9-11자리 숫자만 입력 가능해요</FormDescription>
             <FormMessage />
           </FormItem>
         )}

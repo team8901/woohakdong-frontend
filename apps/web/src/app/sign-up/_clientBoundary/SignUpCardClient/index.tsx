@@ -12,8 +12,7 @@ import {
   CardFooter,
   CardTitle,
 } from '@workspace/ui/components/card';
-import { LogOutIcon, ArrowRightIcon } from 'lucide-react';
-import {} from '@workspace/ui/components/card';
+import { LogOutIcon, Loader2Icon } from 'lucide-react';
 import { FormData, userProfileSchema } from '../../_helpers/utils/zodSchemas';
 import { SignUpForm } from '../../_components/SignUpForm';
 import { useSignUpForm } from '../../_helpers/hooks/useSignUpForm';
@@ -34,14 +33,17 @@ export const SignUpCardClient = () => {
     form,
   });
 
+  const isFormValid = form.formState.isValid;
+  const isSubmitting = form.formState.isSubmitting;
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
         <Card>
           <CardHeader>
             <CardTitle>만나서 반가워요! 👋🏻</CardTitle>
             <CardDescription>
-              프로필 완성을 위해 몇 가지만 알려주세요
+              프로필 완성을 위해 몇 가지 정보만 알려주세요
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -49,12 +51,27 @@ export const SignUpCardClient = () => {
           </CardContent>
           <CardFooter>
             <div className="flex w-full items-center justify-between gap-6">
-              <Button variant="outline" type="button" onClick={onQuit}>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={onQuit}
+                disabled={isSubmitting}
+                aria-label="로그아웃">
                 <LogOutIcon />
                 로그아웃
               </Button>
-              <Button type="submit" disabled={!form.formState.isValid}>
-                완료
+              <Button
+                type="submit"
+                disabled={!isFormValid || isSubmitting}
+                aria-label="프로필 완성하기">
+                {isSubmitting ? (
+                  <>
+                    <Loader2Icon className="animate-spin" />
+                    완성 중...
+                  </>
+                ) : (
+                  '프로필 완성'
+                )}
               </Button>
             </div>
           </CardFooter>
