@@ -1,7 +1,7 @@
 'use client';
 
 import { useGetClubInfoSearchSuspenseQuery } from '@/data/club/getClubInfoSearch/query';
-import { ClubInfoSearchResponse } from '@/data/club/getClubInfoSearch/type';
+import { type ClubInfoSearchResponse } from '@/data/club/getClubInfoSearch/type';
 
 type Props = {
   initialData: ClubInfoSearchResponse;
@@ -27,3 +27,4 @@ export const ClubInfoSearchClient = ({ initialData }: Props) => {
     </div>
   );
 };
+// test
