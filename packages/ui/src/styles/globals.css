@@ -7,7 +7,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 1. 라이트 모드 변수 (Light Mode Variables) */
 :root {
+  /* Layout */
+  --radius: 0.75rem;
+  --spacing: 0.25rem;
+
+  /* Colors */
   --background: #ffffff;
   --foreground: #1d1d1f;
   --card: #ffffff;
@@ -16,31 +22,36 @@
   --popover-foreground: #1d1d1f;
   --primary: #1a74e8;
   --primary-foreground: #ffffff;
-  --secondary: #f3f4f6;
-  --secondary-foreground: #4b5563;
-  --muted: #f9fafb;
-  --muted-foreground: #6b7280;
-  --accent: #f2f3f7;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #1d1d1f;
+  --muted: #f5f5f5;
+  --muted-foreground: #8d8d8f;
+  --accent: #f5f5f5;
   --accent-foreground: #1d1d1f;
-  --destructive: #ef4444;
+  --destructive: #e53935;
   --destructive-foreground: #ffffff;
-  --border: #e5e7eb;
-  --input: #e5e7eb;
+  --border: #e8e8e8;
+  --input: #e8e8e8;
   --ring: #1a74e8;
+
+  /* Chart Colors */
   --chart-1: #1a74e8;
   --chart-2: #2563eb;
   --chart-3: #1d4ed8;
   --chart-4: #1e40af;
   --chart-5: #1e3a8a;
-  --sidebar: #f9fafb;
+
+  /* Sidebar Colors */
+  --sidebar: #fafafa;
   --sidebar-foreground: #1d1d1f;
-  --sidebar-primary: #3b82f6;
+  --sidebar-primary: #1a74e8;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f2f3f7;
+  --sidebar-accent: #ededed;
   --sidebar-accent-foreground: #1d1d1f;
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #1a74e8;
-  --radius: 0.625rem;
+
+  /* Shadows */
   --shadow-2xs: 0 4px 12px 0px hsl(240 3.3333% 11.7647% / 0.02);
   --shadow-xs: 0 4px 12px 0px hsl(240 3.3333% 11.7647% / 0.02);
   --shadow-sm:
@@ -59,44 +70,49 @@
     0 4px 12px 0px hsl(240 3.3333% 11.7647% / 0.04),
     0 8px 10px -1px hsl(240 3.3333% 11.7647% / 0.04);
   --shadow-2xl: 0 4px 12px 0px hsl(240 3.3333% 11.7647% / 0.1);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
 }
 
+/* 2. 다크 모드 변수 (Dark Mode Variables) */
 .dark {
+  /* Colors */
   --background: #171717;
-  --foreground: #e5e5e5;
-  --card: #262626;
-  --card-foreground: #e5e5e5;
-  --popover: #262626;
-  --popover-foreground: #e5e5e5;
+  --foreground: #f5f5f7;
+  --card: #1d1d1f;
+  --card-foreground: #f5f5f7;
+  --popover: #1d1d1f;
+  --popover-foreground: #f5f5f7;
   --primary: #3b82f6;
-  --primary-foreground: #ffffff;
+  --primary-foreground: #f5f5f7;
   --secondary: #262626;
-  --secondary-foreground: #e5e5e5;
+  --secondary-foreground: #f5f5f7;
   --muted: #262626;
-  --muted-foreground: #a3a3a3;
-  --accent: #1e3a8a;
-  --accent-foreground: #bfdbfe;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #404040;
-  --input: #404040;
+  --muted-foreground: #f5f5f7;
+  --accent: #262626;
+  --accent-foreground: #f5f5f7;
+  --destructive: #e53935;
+  --destructive-foreground: #f5f5f5;
+  --border: #323232;
+  --input: #363636;
   --ring: #3b82f6;
+
+  /* Chart Colors */
   --chart-1: #60a5fa;
   --chart-2: #3b82f6;
   --chart-3: #2563eb;
   --chart-4: #1d4ed8;
   --chart-5: #1e40af;
-  --sidebar: #171717;
-  --sidebar-foreground: #e5e5e5;
+
+  /* Sidebar Colors */
+  --sidebar: #1d1d1d;
+  --sidebar-foreground: #f5f5f7;
   --sidebar-primary: #3b82f6;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1e3a8a;
-  --sidebar-accent-foreground: #bfdbfe;
-  --sidebar-border: #404040;
+  --sidebar-primary-foreground: #f5f5f7;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #f5f5f7;
+  --sidebar-border: #323232;
   --sidebar-ring: #3b82f6;
-  --radius: 0.625rem;
+
+  /* Shadows */
   --shadow-2xs: 0 4px 12px 0px hsl(0 0% 0% / 0.02);
   --shadow-xs: 0 4px 12px 0px hsl(0 0% 0% / 0.02);
   --shadow-sm:
@@ -112,9 +128,13 @@
   --shadow-2xl: 0 4px 12px 0px hsl(0 0% 0% / 0.1);
 }
 
-@theme inline {
+/* 3. 테마 공통 변수 (Common Theme Variables) */
+@theme {
+  /* Fonts */
   --font-pretendard: var(--font-pretendard);
   --font-jua: var(--font-jua);
+
+  /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -134,11 +154,15 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
+  /* Chart Colors */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* Sidebar Colors */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -147,10 +171,14 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Shadows */
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);

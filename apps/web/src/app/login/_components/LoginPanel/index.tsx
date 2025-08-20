@@ -1,6 +1,6 @@
 import { GoogleLoginButtonClient } from '../../_clientBoundary/GoogleLoginButtonClient';
 
-export const LoginForm = () => {
+export const LoginPanel = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-2 text-center">
