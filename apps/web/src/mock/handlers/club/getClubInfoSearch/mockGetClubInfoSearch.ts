@@ -1,10 +1,10 @@
 import { API_URL } from '@/data/apiUrl';
-import { ClubInfoSearchResponse } from '@/data/club/getClubInfoSearch/type';
+import { type ClubInfoSearchResponse } from '@/data/club/getClubInfoSearch/type';
 import {
   동아리_정보_없음,
   동아리_정보_있음,
 } from '@/mock/handlers/club/getClubInfoSearch/mockData';
-import { MockApiResponse } from '@workspace/msw/types';
+import { type MockApiResponse } from '@workspace/msw/types';
 
 export const mockGetClubInfoSearch = {
   url: API_URL.CLUB.CLUB_INFO_SEARCH,

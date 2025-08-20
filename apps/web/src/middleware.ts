@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 /** 권한별 유저 타입 */
 const USER_TYPE = {
@@ -61,6 +61,7 @@ export const middleware = (req: NextRequest) => {
     const redirectTo = USER_TYPE_ALLOWED_PATH[userType]
       ? USER_TYPE_ALLOWED_PATH[userType][0]
       : DEFAULT_PATH[0];
+
     url.pathname = redirectTo;
 
     return NextResponse.redirect(url);

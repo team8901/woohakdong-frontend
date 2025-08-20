@@ -11,11 +11,11 @@ type Params<PathParams, QueryParams> = {
  * @param queryParams - query parameter (예: `/info?name=doit`)
  */
 export function buildUrlWithParams<
-  PathParams extends Record<string, string | number> = {},
+  PathParams extends Record<string, string | number> = Record<string, string | number>,
   QueryParams extends Record<
     string,
     string | number | boolean | undefined
-  > = {},
+  > = Record<string, string | number | boolean | undefined>,
 >({ url, pathParams, queryParams }: Params<PathParams, QueryParams>) {
   let newUrl = url;
 
@@ -37,6 +37,7 @@ export function buildUrlWithParams<
     }
 
     const queryString = String(searchParams);
+
     if (queryString) {
       newUrl += `?${queryString}`;
     }

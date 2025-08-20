@@ -1,7 +1,5 @@
-import { UseFormReturn } from 'react-hook-form';
-import { FormData } from '../../_helpers/utils/zodSchemas';
-import { GENDER_OPTIONS } from '../../_helpers/constants';
-import { Input } from '@workspace/ui/components/input';
+import { type UseFormReturn } from 'react-hook-form';
+
 import {
   FormControl,
   FormDescription,
@@ -10,6 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@workspace/ui/components/form';
+import { Input } from '@workspace/ui/components/input';
 import {
   Select,
   SelectContent,
@@ -17,6 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@workspace/ui/components/select';
+
+import { GENDER_OPTIONS } from '../../_helpers/constants';
+import { type FormData } from '../../_helpers/utils/zodSchemas';
 
 type SignUpFormProps = {
   form: UseFormReturn<FormData>;
@@ -98,6 +100,7 @@ export const SignUpCardContent = ({ form }: SignUpFormProps) => {
             e: React.ChangeEvent<HTMLInputElement>,
           ) => {
             const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+
             field.onChange(formatPhoneNumber(digits));
           };
 
@@ -132,7 +135,7 @@ export const SignUpCardContent = ({ form }: SignUpFormProps) => {
             <FormLabel>학번</FormLabel>
             <FormControl>
               <Input
-                type="number"
+                type="text"
                 inputMode="numeric"
                 placeholder="202512345"
                 autoComplete="off"

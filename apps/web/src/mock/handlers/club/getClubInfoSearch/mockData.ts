@@ -1,4 +1,4 @@
-import { ClubInfoSearchResponse } from '@/data/club/getClubInfoSearch/type';
+import { type ClubInfoSearchResponse } from '@/data/club/getClubInfoSearch/type';
 
 export const 동아리_정보_없음: ClubInfoSearchResponse = {
   data: [],

@@ -35,6 +35,9 @@ export const config = [
             './apps/*/tsconfig.json',
           ],
         },
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        },
       },
     },
     rules: {
