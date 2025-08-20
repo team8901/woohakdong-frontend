@@ -14,10 +14,12 @@ if npx lint-staged; then
   exit 0
 else
   echo ""
-  echo "╭─ [████████████░░░░░░░░] 60% - ⚠️"
+  echo "╭─ [███████████████████░] 98% - ⚠️"
   echo "│"
   echo "├─ 🚨 린트 오류 발견!"
-  echo "╰─ 🔄 수정 완료 후 다시 커밋해주세요"
+  echo "├─ 🔄 수정 완료 후 다시 커밋해주세요"
+  echo "│"
+  echo "╰─ 🔧 자동 수정: pnpm lint:fix"
   echo ""
   exit 1
 fi
