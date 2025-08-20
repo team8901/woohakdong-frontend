@@ -1,9 +1,23 @@
-echo "🔍 커밋 이전에 lint 검사를 진행합니다..."
+echo ""
+echo "╭─ [░░░░░░░░░░░░░░░░░░░░] 0%"
+echo "│"
+echo "╰─ 🔍 코드 품질 검사 진행 중..."
+echo ""
 
 if npx lint-staged; then
-  echo "✅ lint 검사에 성공했습니다."
+  echo ""
+  echo "╭─ [████████████████████] 100%"
+  echo "│"
+  echo "├─ ✅ 모든 검사 통과"
+  echo "╰─ 🌟 완벽합니다. 즐거운 코딩하세요!"
+  echo ""
   exit 0
 else
-  echo "❌ lint 검사에 실패했습니다. lint fix 후에 커밋해 주세요."
+  echo ""
+  echo "╭─ [████████████░░░░░░░░] 60% - ⚠️"
+  echo "│"
+  echo "├─ 🚨 린트 오류 발견!"
+  echo "╰─ 🔄 수정 완료 후 다시 커밋해주세요"
+  echo ""
   exit 1
 fi
