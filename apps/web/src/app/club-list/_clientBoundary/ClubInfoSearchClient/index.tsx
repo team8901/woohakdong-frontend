@@ -27,3 +27,4 @@ export const ClubInfoSearchClient = ({ initialData }: Props) => {
     </div>
   );
 };
+// test
