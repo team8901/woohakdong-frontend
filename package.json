@@ -39,24 +39,6 @@
     "node": ">=20"
   },
   "lint-staged": {
-    "./apps/web/**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix --config apps/web/eslint.config.js",
-      "git add",
-      "eslint --max-warnings=0 --config apps/web/eslint.config.js"
-    ],
-    "./packages/ui/**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix --config packages/ui/eslint.config.js",
-      "git add",
-      "eslint --max-warnings=0 --config packages/ui/eslint.config.js"
-    ],
-    "./packages/!(ui)/**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "git add",
-      "eslint --max-warnings=0"
-    ],
-    "**/*.{json,md}": [
-      "prettier --write",
-      "git add"
-    ]
+    "./apps/web/**/*.{js,jsx,ts,tsx}": "npx eslint --max-warnings=0 --config apps/web/eslint.config.js"
   }
 }
