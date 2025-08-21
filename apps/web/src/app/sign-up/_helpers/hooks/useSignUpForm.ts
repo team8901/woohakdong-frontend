@@ -1,7 +1,9 @@
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { useForm, type UseFormReturn } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormData, userProfileSchema } from '../utils/zodSchemas';
-import { UserProfile } from '../constants';
+
+import { type UserProfile } from '../constants';
+import { type FormData, userProfileSchema } from '../utils/zodSchemas';
 
 type UseSignUpFormReturn = {
   form: UseFormReturn<FormData>;

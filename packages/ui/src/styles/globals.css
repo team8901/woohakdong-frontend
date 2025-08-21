@@ -200,4 +200,17 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+
+  /* 숫자 입력 필드의 spinner 제거 */
+  /* 웹킷 기반 브라우저 (Chrome, Safari, Edge) */
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Firefox */
+  input[type='number'] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
 }

@@ -1,6 +1,7 @@
 import { Card } from '@workspace/ui/components/card';
-import { SignUpCardHeader } from './_components/SignUpCardHeader';
+
 import { SignUpFormClient } from './_clientBoundary/SignUpFormClient';
+import { SignUpCardHeader } from './_components/SignUpCardHeader';
 
 const SignUpPage = () => {
   return (

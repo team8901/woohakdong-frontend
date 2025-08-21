@@ -1,7 +1,7 @@
 import {
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@workspace/ui/components/card';
 
 export const SignUpCardHeader = () => {

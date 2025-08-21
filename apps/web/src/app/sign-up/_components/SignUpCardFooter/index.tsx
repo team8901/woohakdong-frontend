@@ -1,5 +1,5 @@
 import { Button } from '@workspace/ui/components/button';
-import { LogOutIcon, Loader2Icon } from 'lucide-react';
+import { Loader2Icon, LogOutIcon } from 'lucide-react';
 
 interface SignUpCardFooterProps {
   onQuit: () => void;

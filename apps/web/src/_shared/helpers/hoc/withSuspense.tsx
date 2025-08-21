@@ -1,5 +1,6 @@
+import { type ReactNode, Suspense } from 'react';
+
 import { getComponentName } from '@/_shared/helpers/utils/getComponentName';
-import { ReactNode, Suspense } from 'react';
 
 /**
  * 컴포넌트를 Suspense 로 감싸는 HOC
