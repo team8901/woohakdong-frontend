@@ -1,7 +1,7 @@
 import { Button } from '@workspace/ui/components/button';
 import { LogOutIcon, Loader2Icon } from 'lucide-react';
 
-interface SignUpCardFooterProps {
+export interface SignUpCardFooterProps {
   onQuit: () => void;
   isFormValid: boolean;
   isSubmitting: boolean;
