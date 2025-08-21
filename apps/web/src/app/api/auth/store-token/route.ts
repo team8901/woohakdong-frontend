@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { type NextRequest, NextResponse } from 'next/server';
 
 type StoreTokenRequest = {
   accessToken: string;
@@ -8,7 +8,9 @@ type StoreTokenRequest = {
 
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
   try {
-    const { accessToken, refreshToken }: StoreTokenRequest = await request.json();
+    const { accessToken, refreshToken }: StoreTokenRequest =
+      await request.json();
+
     if (!accessToken || !refreshToken) {
       return NextResponse.json(
         { error: 'AccessToken과 RefreshToken이 필요합니다.' },
@@ -17,7 +19,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
     }
 
     const cookieStore = await cookies();
-    
+
     const cookieOptions = {
       httpOnly: true,
       secure: true,
@@ -42,6 +44,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
     );
   } catch (error) {
     console.error('토큰 저장 오류:', error);
+
     return NextResponse.json(
       { error: '토큰 저장에 실패했습니다.' },
       { status: 500 },
@@ -65,6 +68,7 @@ export const DELETE = async (): Promise<NextResponse> => {
     );
   } catch (error) {
     console.error('토큰 삭제 중 오류 발생:', error);
+
     return NextResponse.json(
       { error: '토큰 삭제 중 오류가 발생했습니다.' },
       { status: 500 },

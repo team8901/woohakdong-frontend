@@ -40,12 +40,14 @@ export const storeTokensInCookie = async (
     }
 
     const result = await response.json();
+
     return {
       success: true,
       message: result.message || '토큰이 성공적으로 저장되었습니다.',
     };
   } catch (error) {
     console.error('토큰 저장 오류:', error);
+
     throw error;
   }
 };

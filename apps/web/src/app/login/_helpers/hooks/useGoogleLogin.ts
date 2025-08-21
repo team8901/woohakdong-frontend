@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
-import { signInWithGoogle } from '@workspace/firebase/auth';
-import { getFirebaseIdToken, signInWithGoogle } from '@workspace/firebase/auth';
 import { getAuthSocialLogin } from '@/data/auth/getAuthSocialLogin/fetch';
-import { setAuthToken } from '@workspace/api/axios';
 import { getAuthTest } from '@/data/auth/getAuthTest/fetch';
+import { setAuthToken } from '@workspace/api/axios';
+import { getFirebaseIdToken, signInWithGoogle } from '@workspace/firebase/auth';
+
 import { storeAndSetTokens } from '../utils/tokenStorage';
 
 export const useGoogleLogin = () => {
@@ -16,6 +16,7 @@ export const useGoogleLogin = () => {
     try {
       // Firebase Google 로그인
       const userCredential = await signInWithGoogle();
+
       console.log(
         'Firebase Google 로그인 완료: ',
         userCredential.user.displayName,
@@ -28,6 +29,7 @@ export const useGoogleLogin = () => {
         provider: 'google',
         providerAccessToken: firebaseIdToken,
       });
+
       console.log('AccessToken 및 RefreshToken 발급 완료');
 
       // 토큰 저장 및 axios 인스턴스 설정
@@ -36,6 +38,7 @@ export const useGoogleLogin = () => {
 
       // 테스트 API 호출
       const testResponse = await getAuthTest();
+
       console.log('테스트 API 응답:', testResponse);
     } catch (err) {
       console.error('로그인 실패:\n', err);

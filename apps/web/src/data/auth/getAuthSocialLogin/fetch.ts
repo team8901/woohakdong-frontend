@@ -1,7 +1,7 @@
 import { API_URL } from '@/data/apiUrl';
 import {
-  AuthSocialLoginRequest,
-  AuthSocialLoginResponse,
+  type AuthSocialLoginRequest,
+  type AuthSocialLoginResponse,
 } from '@/data/auth/getAuthSocialLogin/type';
 import { api } from '@workspace/api/axios';
 
