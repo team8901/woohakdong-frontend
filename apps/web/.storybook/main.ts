@@ -1,6 +1,5 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite';
-
-import { join, dirname, resolve } from 'path';
+import { dirname, join, resolve } from 'path';
 import { mergeConfig } from 'vitest/config.js';
 
 /**
@@ -35,4 +34,5 @@ const config: StorybookConfig = {
     });
   },
 };
+
 export default config;
