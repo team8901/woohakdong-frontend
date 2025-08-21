@@ -1,8 +1,9 @@
 import { z } from 'zod';
+
 import {
   validateNickname,
-  validateStudentId,
   validatePhoneNumber,
+  validateStudentId,
 } from '../constants';
 
 export const userProfileSchema = z.object({

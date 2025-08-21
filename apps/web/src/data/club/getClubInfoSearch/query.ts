@@ -2,13 +2,13 @@ import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { API_URL } from '@/data/apiUrl';
 import { getClubInfoSearch } from '@/data/club/getClubInfoSearch/fetch';
 import {
-  ClubInfoSearchRequest,
-  ClubInfoSearchResponse,
+  type ClubInfoSearchRequest,
+  type ClubInfoSearchResponse,
 } from '@/data/club/getClubInfoSearch/type';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import {
-  OmittedQueryOptions,
-  OmittedSuspenseQueryOptions,
+  type OmittedQueryOptions,
+  type OmittedSuspenseQueryOptions,
 } from '@workspace/react-query/queryClient';
 
 /** 동아리 정보 검색 query */

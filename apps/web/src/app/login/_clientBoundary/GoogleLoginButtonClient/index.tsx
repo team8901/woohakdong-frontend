@@ -1,8 +1,9 @@
 'use client';
 
 import { Button } from '@workspace/ui/components/button';
-import { Loader2Icon } from 'lucide-react';
 import { GoogleIcon } from '@workspace/ui/icons/google-icon';
+import { Loader2Icon } from 'lucide-react';
+
 import { useGoogleLogin } from '../../_helpers/hooks/useGoogleLogin';
 
 export const GoogleLoginButtonClient = () => {

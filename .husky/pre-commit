@@ -1,0 +1,41 @@
+#!/bin/sh
+
+echo ""
+echo "╭─ [░░░░░░░░░░░░░░░░░░░░] 0%"
+echo "│"
+echo "├─ 🔍 코드 품질 검사 진행 중..." 
+echo "╰─ 🔧 오류가 있으면 자동 수정됩니다."
+echo ""
+
+if npx lint-staged; then
+  echo ""
+  echo "╭─ [████████████████████] 100%"
+  echo "│"
+  echo "├─ ✅ 모든 검사 통과!"
+  echo "╰─ 🌟 완벽합니다. 즐거운 코딩하세요!"
+  echo ""
+  exit 0
+else
+  # lint-staged의 종료 코드 확인
+  exit_code=$?
+  
+  echo ""
+  
+  # staged 파일이 없는 경우 (lint-staged prevented an empty git commit)
+  if [ $exit_code -eq 1 ] && git diff --cached --quiet; then
+    echo "╭─ [░░░░░░░░░░░░░░░░░░░░] 0% - 💡"
+    echo "│"
+    echo "├─ 📝 커밋할 변경사항이 없습니다."
+    echo "╰─ 🚀 변경사항을 스테이징하고 다시 커밋해보세요!"
+  else
+    # 일반적인 린트 에러의 경우
+    echo "╭─ [███████████████████░] 98% - ⚠️"
+    echo "│"
+    echo "├─ 🚨 린트 문제 발견!"
+    echo "├─ 👀 위의 오류 메시지를 확인하고 수정해서 다시 커밋해주세요."
+    echo "╰─ 💪 거의 다 왔습니다. 조금만 더 화이팅!"
+  fi
+  
+  echo ""
+  exit 1
+fi

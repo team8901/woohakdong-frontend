@@ -25,6 +25,8 @@ export const nextJsConfig = [
     rules: {
       ...pluginNext.configs.recommended.rules,
       ...pluginNext.configs['core-web-vitals'].rules,
+      // App Router를 사용하므로 이 규칙은 필요하지 않음
+      '@next/next/no-html-link-for-pages': 'off',
     },
   },
   {

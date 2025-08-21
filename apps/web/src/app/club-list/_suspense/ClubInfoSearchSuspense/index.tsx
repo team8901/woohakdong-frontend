@@ -10,6 +10,7 @@ export const ClubInfoSearchSuspense = withSuspense(
       return <ClubInfoSearchClient initialData={data} />;
     } catch (error) {
       console.error('ClubInfoSearchSuspense', error);
+
       throw new Error(`동아리 정보 검색에 실패했어요`);
     }
   },
