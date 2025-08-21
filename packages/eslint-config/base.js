@@ -35,6 +35,9 @@ export const config = [
             './apps/*/tsconfig.json',
           ],
         },
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        },
       },
     },
     rules: {
@@ -42,6 +45,7 @@ export const config = [
       'import/no-unresolved': 'error',
       'import/no-duplicates': 'error',
       'import/no-unused-modules': 'warn',
+      'import/newline-after-import': ['error', { count: 1 }],
 
       // Simple import sort (더 강력한 import 정렬)
       'simple-import-sort/imports': [
@@ -73,6 +77,19 @@ export const config = [
           prefer: 'type-imports',
           fixStyle: 'inline-type-imports',
         },
+      ],
+
+      // 개행 규칙
+      'padding-line-between-statements': [
+        'error',
+        { blankLine: 'always', prev: '*', next: '*' },
+        { blankLine: 'any', prev: 'import', next: 'import' },
+        { blankLine: 'any', prev: 'case', next: 'case' },
+        { blankLine: 'any', prev: 'directive', next: 'directive' },
+        { blankLine: 'any', prev: ['const', 'let'], next: ['const', 'let'] },
+        { blankLine: 'any', prev: 'expression', next: 'expression' },
+        { blankLine: 'any', prev: 'export', next: 'export' },
+        { blankLine: 'any', prev: '*', next: 'break' },
       ],
     },
   },

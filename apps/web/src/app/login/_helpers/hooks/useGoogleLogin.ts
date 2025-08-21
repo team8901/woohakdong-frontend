@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { signInWithGoogle } from '@workspace/firebase/auth';
 
 export const useGoogleLogin = () => {
@@ -6,6 +7,7 @@ export const useGoogleLogin = () => {
 
   const loginWithGoogle = async () => {
     setIsLoading(true);
+
     try {
       await signInWithGoogle();
       console.log('Google 로그인 성공');

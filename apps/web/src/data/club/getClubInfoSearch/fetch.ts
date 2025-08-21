@@ -1,8 +1,8 @@
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { API_URL } from '@/data/apiUrl';
 import {
-  ClubInfoSearchRequest,
-  ClubInfoSearchResponse,
+  type ClubInfoSearchRequest,
+  type ClubInfoSearchResponse,
 } from '@/data/club/getClubInfoSearch/type';
 import { api } from '@workspace/api/axios';
 
@@ -17,5 +17,6 @@ export const getClubInfoSearch = async ({
   });
 
   const { data } = await api.get<ClubInfoSearchResponse>(url);
+
   return data;
 };

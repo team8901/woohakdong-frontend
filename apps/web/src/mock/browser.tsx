@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
+
 import { IS_MOCK } from '@/mock/config/env';
 import { api } from '@workspace/api/axios';
-import { useEffect, useRef } from 'react';
 
 const ON_MSW_ENABLED = 'on-msw-enabled';
 

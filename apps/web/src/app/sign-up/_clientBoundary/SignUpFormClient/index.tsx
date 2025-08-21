@@ -1,10 +1,11 @@
 'use client';
 
+import { CardContent, CardFooter } from '@workspace/ui/components/card';
+import { Form } from '@workspace/ui/components/form';
+
+import { SignUpCardContent } from '../../_components/SignUpCardContent';
 import { SignUpCardFooter } from '../../_components/SignUpCardFooter';
 import { useSignUpForm } from '../../_helpers/hooks/useSignUpForm';
-import { Form } from '@workspace/ui/components/form';
-import { CardContent, CardFooter } from '@workspace/ui/components/card';
-import { SignUpCardContent } from '../../_components/SignUpCardContent';
 
 export const SignUpFormClient = () => {
   const { form, isFormValid, isSubmitting, onQuit, onSubmit } = useSignUpForm();
