@@ -135,7 +135,7 @@ export const SignUpCardContent = ({ form }: SignUpFormProps) => {
             <FormLabel>학번</FormLabel>
             <FormControl>
               <Input
-                type="text"
+                type="number"
                 inputMode="numeric"
                 placeholder="202512345"
                 autoComplete="off"
