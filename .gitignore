@@ -38,3 +38,6 @@ npm-debug.log*
 # IDE Setting
 .trae/
 .windsurf/
+
+*storybook.log
+storybook-static
