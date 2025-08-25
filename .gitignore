@@ -35,9 +35,6 @@ npm-debug.log*
 .DS_Store
 *.pem
 
-# IDE Setting
-.trae/
-.windsurf/
-
+# Storybook
 *storybook.log
 storybook-static
