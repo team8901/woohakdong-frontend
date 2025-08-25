@@ -1,20 +1,16 @@
 # 우학동 프론트엔드
 
-Turborepo 기반 모노레포 구조의 우학동 프론트엔드 코드베이스입니다. Next.js(App Router)와 Shadcn UI, Tailwind CSS를 중심으로 일관된 디자인 시스템과 개발자 경험(DX)을 제공합니다.
+Turborepo를 활용한 모노레포 아키텍처로 구성되어 있습니다. Next.js App Router를 기반으로 하며, Shadcn UI와 Tailwind CSS를 통해 일관된 UI를 구현합니다.
 
 <br>
 
 ## ✨ 주요 기능
 
-- 서버 컴포넌트 우선(App Router) 아키텍처 적용으로 성능과 DX 최적화
 - 공용 UI 패키지(packages/ui) 기반의 일관된 디자인 시스템(Shadcn/ui + Tailwind CSS 4)
-- next-themes를 통한 다크/라이트 테마 토글 및 퍼시스턴스
 - React Query(packages/react-query) 기반 데이터 캐싱/동기화 패턴 제공
-- MSW(Mock Service Worker)로 API 목킹(dev:mock) 지원, 백엔드 무관한 기능 개발 가능
+- MSW(Mock Service Worker)로 API 목킹(dev:mock) 지원
 - Storybook을 통한 컴포넌트 개발/문서화/시각 테스트(workbench)
-- Jest + React Testing Library 기반 단위 테스트 환경
-- Turborepo 캐시/파이프라인으로 빠른 빌드와 병렬화된 워크플로우
-- Axios API 클라이언트(packages/api), Firebase 초기화(packages/firebase) 스켈레톤 제공
+- Jest + React Testing Library 유닛 단위 테스트 환경
 - Husky + lint-staged 프리커밋 훅으로 일관된 코드 품질 보장
 
 <br>
@@ -49,11 +45,24 @@ Turborepo 기반 모노레포 구조의 우학동 프론트엔드 코드베이�
 ```
 woohakdong-frontend/
 ├── apps/
-│   └── web/                 # 메인 웹 애플리케이션 (Next.js 15)
-│       ├── app/             # App Router
-│       ├── components/      # 웹 전용 컴포넌트
-│       ├── hooks/           # 웹 전용 훅
-│       └── lib/             # 웹 전용 유틸리티
+│   └── web/              # 메인 웹 애플리케이션 (Next.js 15)
+│       ├── .storybook/   # 스토리북 설정
+│       ├── public/
+│       │   └── mockServiceWorker.js  # MSW 설정
+│       ├── src/
+│       │   ├── _shared/
+│       │   │   ├── clientBoundary/   # 웹 전용 공통 클라이언트 컴포넌트 ('use client' 선언)
+│       │   │   ├── components/       # 웹 전용 공통 순수 컴포넌트 (서버 컴포넌트)
+│       │   │   └── helpers/
+│       │   │       ├── hoc/          # 웹 전용 공통 hoc
+│       │   │       ├── hooks/        # 웹 전용 공통 훅
+│       │   │       └── utils/        # 웹 전용 공통 함수
+│       │   ├── app/    # App Router
+│       │   ├── data/   # Fetch API 함수, React Query 훅, 요청/응답 데이터 타입
+│       │   ├── mock/   # MSW 핸들러
+│       │   ├── instrumentation.ts
+│       │   └── middleware.ts
+│       └── package.json
 ├── packages/
 │   ├── ui/                  # 공용 UI 컴포넌트 (Shadcn/ui 기반)
 │   ├── api/                 # API 클라이언트 유틸
