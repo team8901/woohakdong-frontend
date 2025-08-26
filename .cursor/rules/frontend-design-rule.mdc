@@ -4,15 +4,22 @@ alwaysApply: false
 
 # WooHakDong Frontend Design Guidelines
 
-You are an expert full-stack developer proficient in TypeScript, React, Next.js, and modern UI/UX frameworks (e.g., Tailwind CSS, Shadcn UI, Radix UI). Your task is to produce the most optimized and maintainable Next.js code for the WooHakDong project, following best practices and adhering to the principles of clean code and robust architecture.
+You are an expert full-stack developer proficient in TypeScript, React, Next.js, and modern UI/UX frameworks (e.g., Tailwind CSS, Shadcn UI, Radix UI). Your task is to produce the most optimized and maintainable Next.js code for this project, following best practices and adhering to the principles of clean code and robust architecture.
 
 ## Project Context
 
-- **Monorepo Structure**: Turborepo-based monorepo (workspaces: `apps/*`, `packages/*`)
+- **Monorepo Structure**: Turborepo-based monorepo with apps/web and packages (api, firebase, msw, react-query, store, typescript-config, ui, eslint-config)
 - **Tech Stack**: Next.js 15.4.5, React 19.1.1, TypeScript 5.9.2, Tailwind CSS 4.1.11
-- **UI Library**: Shadcn/ui with Radix UI primitives
-- **Package Manager**: pnpm 10.4.1
+- **UI Library**: Custom UI kit (@workspace/ui) built on Radix UI primitives and Tailwind CSS (shadcn-style patterns)
+- **Package Manager**: pnpm 10.14.0
 - **Theme**: next-themes for dark/light mode support
+- **Tooling/Testing**:
+  - Build/Orchestration: Turbo 2.5.5
+  - Linting/Formatting: ESLint 9.32.0 with @workspace/eslint-config, Prettier 3.6.2 + prettier-plugin-tailwindcss 0.6.14
+  - Unit/Component Testing: Jest 30.0.5 (jsdom), @swc/jest, ts-jest, Testing Library (react 16.3.0, jest-dom 6.6.4, user-event 14.6.1)
+  - Storybook: 9.1.2 (+ @storybook/nextjs-vite, addon-* 9.1.2)
+  - Mocking: MSW 2.10.5 (apps/web + packages/msw)
+  - Git hooks: Husky 9.1.7, lint-staged 16.1.5
 
 ## Core Principles
 
@@ -279,31 +286,23 @@ export function FieldLevelForm() {
 **Rule:** Organize directories by feature/domain, not just by code type.
 
 ```
-apps/web/
-├── app/                    # Next.js App Router
-├── components/             # Shared/common components
-├── hooks/                  # Shared/common hooks
-├── lib/                    # Shared/common utils
-├── domains/
-│   ├── user/
-│   │   ├── components/
-│   │   │   └── UserProfileCard.tsx
-│   │   ├── hooks/
-│   │   │   └── useUser.ts
-│   │   └── index.ts        # Optional barrel file
-│   ├── club/
-│   │   ├── components/
-│   │   │   └── ClubList.tsx
-│   │   ├── hooks/
-│   │   │   └── useClubs.ts
-│   │   └── ...
-│   └── activity/
-│       ├── components/
-│       │   └── ActivitySummary.tsx
+apps/web/src/
+├── app/                                  # Next.js App Router (RSC-first)
+├── _shared/                              # Cross-route client-only helpers/components
+│   ├── clientBoundary/
+│   ├── components/
+│   └── helpers/
+│       ├── hoc/
 │       ├── hooks/
-│       │   └── useActivity.ts
-│       └── ...
-└── App.tsx
+│       └── utils/
+├── data/                                 # Data access and constants
+│   ├── apiUrl.ts
+│   └── club/
+├── hooks/                                # App-wide reusable hooks
+├── lib/                                  # App-wide server/client libraries
+├── mock/                                 # MSW setup and handlers
+├── instrumentation.ts
+└── middleware.ts
 ```
 
 #### Relating Magic Numbers to Logic
@@ -408,7 +407,7 @@ function ItemEditModal({ open, items, recommendedItems, onConfirm, onClose }) {
 
 ```typescript
 // packages/ui/src/components/ - Shared UI components
-// apps/web/components/ - Web app specific components
+// apps/web/src/_shared/ - Web app specific components
 // apps/admin/components/ - Admin specific components
 // apps/landing/components/ - Landing specific components
 ```
