@@ -1,3 +1,4 @@
+import { captureAxiosError } from '@workspace/sentry/captureAxiosError';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const isServer = typeof window === 'undefined';
@@ -24,13 +25,8 @@ api.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error),
 );
 
-api.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
-    // TODO: 응답 인터셉터 로직 추가
-    return Promise.reject(error);
-  },
-);
+// API 에러를 센트리로 캡쳐
+api.interceptors.response.use(undefined, captureAxiosError);
 
 /**
  * 공용 axios 인스턴스에 Bearer 토큰을 Authorization 헤더에 설정
