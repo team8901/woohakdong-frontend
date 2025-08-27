@@ -294,8 +294,6 @@ apps/web/src/
 ├── data/                                 # Data access and constants
 │   ├── apiUrl.ts
 │   └── club/
-├── hooks/                                # App-wide reusable hooks
-├── lib/                                  # App-wide server/client libraries
 ├── mock/                                 # MSW setup and handlers
 ├── instrumentation.ts
 └── middleware.ts
@@ -403,9 +401,7 @@ function ItemEditModal({ open, items, recommendedItems, onConfirm, onClose }) {
 
 ```typescript
 // packages/ui/src/components/ - Shared UI components
-// apps/web/src/_shared/ - Web app specific components
-// apps/admin/components/ - Admin specific components
-// apps/landing/components/ - Landing specific components
+// apps/web/src/_shared/ - Web app specific shared components and helpers
 ```
 
 #### Shared Type Definitions
