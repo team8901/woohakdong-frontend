@@ -51,7 +51,7 @@ export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
     email: 'alsdn1360@ajou.ac.kr',
     // avatar: '/avatars/shadcn.jpg', TODO: 주석 제거 해야 함
   },
-  userJoinedClub: [
+  userJoinedClubs: [
     // TODO: 동아리 정보 가져와서 넣어야 함
     {
       name: 'Do-IT!',

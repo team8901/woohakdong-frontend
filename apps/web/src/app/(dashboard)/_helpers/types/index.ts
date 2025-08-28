@@ -5,13 +5,13 @@ export type DashboardHeaderData = {
   title: string;
 };
 
-export type UserAccount = {
+export type UserAccountInfo = {
   name: string;
   email: string;
   avatar?: string;
 };
 
-export type UserJoinedClub = {
+export type UserJoinedClubs = {
   name: string;
   logo: LucideIcon;
 };
@@ -28,7 +28,7 @@ export type NavigationMenu = {
 };
 
 export type DashboardSidebarData = {
-  userAccountInfo: UserAccount;
-  userJoinedClub: UserJoinedClub[];
+  userAccountInfo: UserAccountInfo;
+  userJoinedClubs: UserJoinedClubs[];
   navigationMenus: NavigationMenu[];
 };

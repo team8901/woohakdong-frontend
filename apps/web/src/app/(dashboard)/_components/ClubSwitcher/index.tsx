@@ -16,18 +16,13 @@ import {
 } from '@workspace/ui/components/sidebar';
 import { ChevronsUpDown, Plus } from 'lucide-react';
 
-export const ClubSwitcher = ({
-  teams,
-}: {
-  teams: {
-    name: string;
-    logo: React.ElementType;
-  }[];
-}) => {
-  const { isMobile } = useSidebar();
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+import { type UserJoinedClubs } from '../../_helpers/types';
 
-  if (!activeTeam) {
+export const ClubSwitcher = ({ clubs }: { clubs: UserJoinedClubs[] }) => {
+  const { isMobile } = useSidebar();
+  const [activeClub, setActiveClub] = React.useState(clubs[0]);
+
+  if (!activeClub) {
     return null;
   }
 
@@ -40,10 +35,10 @@ export const ClubSwitcher = ({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <activeTeam.logo className="size-4" />
+                <activeClub.logo className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
+                <span className="truncate font-medium">{activeClub.name}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -56,10 +51,10 @@ export const ClubSwitcher = ({
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               동아리 목록
             </DropdownMenuLabel>
-            {teams.map((team) => (
+            {clubs.map((team) => (
               <DropdownMenuItem
                 key={team.name}
-                onClick={() => setActiveTeam(team)}
+                onClick={() => setActiveClub(team)}
                 className="gap-2 p-2">
                 <div className="flex size-6 items-center justify-center rounded-md border">
                   <team.logo className="size-3.5 shrink-0" />

@@ -26,7 +26,7 @@ export const DashboardSidebarClient = ({
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
-        <ClubSwitcher teams={DASHBOARD_SIDEBAR_MAP.userJoinedClub} />
+        <ClubSwitcher clubs={DASHBOARD_SIDEBAR_MAP.userJoinedClubs} />
       </SidebarHeader>
       <SidebarContent>
         {DASHBOARD_SIDEBAR_MAP.navigationMenus.map((navigationMenu) => (
