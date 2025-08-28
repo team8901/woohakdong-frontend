@@ -42,7 +42,7 @@ export const DashboardSidebarClient = ({
                   return (
                     <SidebarMenuButton
                       asChild
-                      key={subCategory.title}
+                      key={subCategory.url}
                       isActive={isActive}
                       tooltip={subCategory.title}>
                       <Link href={subCategory.url} onClick={handleMenuClick}>

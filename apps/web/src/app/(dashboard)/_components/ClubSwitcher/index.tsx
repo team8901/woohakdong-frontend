@@ -53,7 +53,7 @@ export const ClubSwitcher = ({ clubs }: { clubs: UserJoinedClubs[] }) => {
             </DropdownMenuLabel>
             {clubs.map((team) => (
               <DropdownMenuItem
-                key={team.name}
+                key={team.id}
                 onClick={() => setActiveClub(team)}
                 className="gap-2 p-2">
                 <div className="flex size-6 items-center justify-center rounded-md border">

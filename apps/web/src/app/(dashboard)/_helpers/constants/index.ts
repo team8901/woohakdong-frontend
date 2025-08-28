@@ -11,7 +11,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 
-import { type DashboardSidebarData,type PathData } from '../types';
+import { type DashboardSidebarData, type PathData } from '../types';
 
 export const DASHBOARD_HEADER_MAP: Record<string, PathData> = {
   '/notice': {
@@ -54,14 +54,17 @@ export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
   userJoinedClubs: [
     // TODO: 동아리 정보 가져와서 넣어야 함
     {
+      id: 1,
       name: 'Do-IT!',
       logo: GalleryVerticalEnd,
     },
     {
+      id: 2,
       name: '우학동',
       logo: AudioWaveform,
     },
     {
+      id: 3,
       name: '볼랜드',
       logo: Command,
     },

@@ -12,6 +12,7 @@ export type UserAccountInfo = {
 };
 
 export type UserJoinedClubs = {
+  id: number;
   name: string;
   logo: LucideIcon;
 };
