@@ -1,6 +1,6 @@
 import { type LucideIcon } from 'lucide-react';
 
-export type DashboardHeaderData = {
+export type PathData = {
   category: string;
   title: string;
 };

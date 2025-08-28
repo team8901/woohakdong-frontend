@@ -11,11 +11,11 @@ import { Separator } from '@workspace/ui/components/separator';
 import { SidebarTrigger } from '@workspace/ui/components/sidebar';
 import { usePathname } from 'next/navigation';
 
-import { getDashboardHeaderData } from '../../_helpers/utils/headerUtils';
+import { getPathData } from '../../_helpers/utils/dashboardHeaderUtils';
 
 export function DashboardHeaderClient() {
   const pathname = usePathname();
-  const headerData = getDashboardHeaderData(pathname);
+  const headerData = getPathData(pathname);
 
   return (
     <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear">

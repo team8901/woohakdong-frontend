@@ -11,9 +11,9 @@ import {
   UsersRound,
 } from 'lucide-react';
 
-import { type DashboardHeaderData, type DashboardSidebarData } from '../types';
+import { type DashboardSidebarData,type PathData } from '../types';
 
-export const DASHBOARD_HEADER_MAP: Record<string, DashboardHeaderData> = {
+export const DASHBOARD_HEADER_MAP: Record<string, PathData> = {
   '/notice': {
     category: '소식',
     title: '공지사항',
