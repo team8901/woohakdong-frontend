@@ -15,7 +15,7 @@ import { getDashboardHeaderData } from '../../_helpers/utils/headerUtils';
 
 export function DashboardHeaderClient() {
   const pathname = usePathname();
-  const headerConfig = getDashboardHeaderData(pathname);
+  const headerData = getDashboardHeaderData(pathname);
 
   return (
     <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear">
@@ -27,12 +27,12 @@ export function DashboardHeaderClient() {
         />
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              {headerConfig.category}
+            <BreadcrumbItem className="block">
+              {headerData.category}
             </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbSeparator className="block" />
             <BreadcrumbItem>
-              <BreadcrumbPage>{headerConfig.title}</BreadcrumbPage>
+              <BreadcrumbPage>{headerData.title}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

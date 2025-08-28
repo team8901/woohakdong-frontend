@@ -16,10 +16,13 @@ import Link from 'next/link';
 import { ClubSwitcher } from '../../_components/ClubSwitcher';
 import { UserAccount } from '../../_components/UserAccount';
 import { DASHBOARD_SIDEBAR_MAP } from '../../_helpers/constants';
+import { useMobileSidebarClose } from '../../_helpers/hooks/useMobileSidebarClose';
 
 export const DashboardSidebarClient = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
+  const { handleMenuClick } = useMobileSidebarClose();
+
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
@@ -36,7 +39,7 @@ export const DashboardSidebarClient = ({
                     asChild
                     key={subCategory.title}
                     tooltip={subCategory.title}>
-                    <Link href={subCategory.url}>
+                    <Link href={subCategory.url} onClick={handleMenuClick}>
                       <subCategory.icon />
                       {subCategory.title}
                     </Link>

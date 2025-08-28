@@ -44,6 +44,7 @@ export const DASHBOARD_HEADER_MAP: Record<string, DashboardHeaderData> = {
   },
 };
 
+// TODO: 현재 하드코딩 된 상태
 export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
   userAccountInfo: {
     name: '강동우',
