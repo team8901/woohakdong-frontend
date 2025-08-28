@@ -3,8 +3,8 @@ import {
   SidebarProvider,
 } from '@workspace/ui/components/sidebar';
 
+import { DashboardHeaderClient } from './_clientBoundary/DashboardHeaderClient';
 import { DashboardSidebarClient } from './_clientBoundary/DashboardSidebarClient';
-import { DashboardHeader } from './_components/DashboardHeader';
 
 export default function DashboardLayout({
   children,
@@ -16,7 +16,7 @@ export default function DashboardLayout({
       <SidebarProvider>
         <DashboardSidebarClient />
         <SidebarInset>
-          <DashboardHeader />
+          <DashboardHeaderClient />
           <main className="flex-1 p-5 pt-0">{children}</main>
         </SidebarInset>
       </SidebarProvider>

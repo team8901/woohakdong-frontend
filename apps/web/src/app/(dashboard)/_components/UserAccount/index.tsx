@@ -16,7 +16,7 @@ import {
 } from '@workspace/ui/components/sidebar';
 import { BadgeCheck, CreditCard, LogOut } from 'lucide-react';
 
-export const UserAccountInfo = ({
+export const UserAccount = ({
   user,
 }: {
   user: {
