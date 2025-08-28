@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
 } from '@workspace/ui/components/sidebar';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import { ClubSwitcher } from '../../_components/ClubSwitcher';
 import { UserAccount } from '../../_components/UserAccount';
@@ -22,6 +23,7 @@ export const DashboardSidebarClient = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
   const { handleMenuClick } = useMobileSidebarClose();
+  const pathname = usePathname();
 
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
@@ -34,17 +36,22 @@ export const DashboardSidebarClient = ({
             <SidebarGroupLabel>{navigationMenu.category}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {navigationMenu.subCategories.map((subCategory) => (
-                  <SidebarMenuButton
-                    asChild
-                    key={subCategory.title}
-                    tooltip={subCategory.title}>
-                    <Link href={subCategory.url} onClick={handleMenuClick}>
-                      <subCategory.icon />
-                      {subCategory.title}
-                    </Link>
-                  </SidebarMenuButton>
-                ))}
+                {navigationMenu.subCategories.map((subCategory) => {
+                  const isActive = pathname === subCategory.url;
+
+                  return (
+                    <SidebarMenuButton
+                      asChild
+                      key={subCategory.title}
+                      isActive={isActive}
+                      tooltip={subCategory.title}>
+                      <Link href={subCategory.url} onClick={handleMenuClick}>
+                        <subCategory.icon />
+                        {subCategory.title}
+                      </Link>
+                    </SidebarMenuButton>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
