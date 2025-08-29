@@ -14,6 +14,7 @@ export const api = axios.create({
     'Content-Type': 'application/json',
     Accept: 'application/json',
   },
+  withCredentials: true,
 });
 
 api.interceptors.request.use(
@@ -34,16 +35,16 @@ api.interceptors.response.use(
 
 /**
  * 공용 axios 인스턴스에 Bearer 토큰을 Authorization 헤더에 설정
- * @param token 액세스 토큰 (JWT)
+ * @param accessToken 액세스 토큰 (JWT)
  */
-export const setAuthToken = (token: string) => {
-  api.defaults.headers.common.Authorization = `Bearer ${token}`;
+export const setAuthorization = (accessToken: string) => {
+  api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 };
 
 /**
  * 공용 axios 인스턴스에서 Authorization 헤더 제거
  */
-export const deleteAuthToken = () => {
+export const clearAuthorization = () => {
   delete api.defaults.headers.common.Authorization;
 };
 
