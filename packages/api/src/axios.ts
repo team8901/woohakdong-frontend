@@ -1,4 +1,9 @@
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  isAxiosError,
+  AxiosError,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
 
 const isServer = typeof window === 'undefined';
 
@@ -34,18 +39,19 @@ api.interceptors.response.use(
 );
 
 /**
- * 공용 axios 인스턴스에 Bearer 토큰을 Authorization 헤더에 설정
- * @param accessToken 액세스 토큰 (JWT)
+ * 공용 axios 인스턴스에 accessToken을 Authorization 헤더에 설정
+ * @param accessToken 서버로부터 받은 JWT
  */
-export const setAuthorization = (accessToken: string) => {
+export const setAuthorizationHeader = (accessToken: string) => {
   api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 };
 
 /**
  * 공용 axios 인스턴스에서 Authorization 헤더 제거
  */
-export const clearAuthorization = () => {
+export const clearAuthorizationHeader = () => {
   delete api.defaults.headers.common.Authorization;
 };
 
+export { isAxiosError };
 export type { AxiosError, AxiosRequestConfig, AxiosResponse };
