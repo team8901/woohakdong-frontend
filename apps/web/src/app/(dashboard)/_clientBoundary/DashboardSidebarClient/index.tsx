@@ -4,61 +4,31 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
 } from '@workspace/ui/components/sidebar';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
-import { ClubSwitcher } from '../../_components/ClubSwitcher';
-import { UserAccount } from '../../_components/UserAccount';
 import { DASHBOARD_SIDEBAR_MAP } from '../../_helpers/constants';
-import { useMobileSidebarClose } from '../../_helpers/hooks/useMobileSidebarClose';
+import { ClubSwitcherClient } from '../ClubSwitcherClient';
+import { SidebarNavigationClient } from '../SidebarNavigationClient';
+import { UserAccountClient } from '../UserAccountClient';
 
 export const DashboardSidebarClient = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
-  const { handleMenuClick } = useMobileSidebarClose();
-  const pathname = usePathname();
-
   return (
     <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
-        <ClubSwitcher clubs={DASHBOARD_SIDEBAR_MAP.userJoinedClubs} />
+        <ClubSwitcherClient clubs={DASHBOARD_SIDEBAR_MAP.userJoinedClubs} />
       </SidebarHeader>
-      <SidebarContent>
-        {DASHBOARD_SIDEBAR_MAP.navigationMenus.map((navigationMenu) => (
-          <SidebarGroup key={navigationMenu.category}>
-            <SidebarGroupLabel>{navigationMenu.category}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {navigationMenu.subCategories.map((subCategory) => {
-                  const isActive = pathname === subCategory.url;
 
-                  return (
-                    <SidebarMenuButton
-                      asChild
-                      key={subCategory.url}
-                      isActive={isActive}
-                      tooltip={subCategory.title}>
-                      <Link href={subCategory.url} onClick={handleMenuClick}>
-                        <subCategory.icon />
-                        {subCategory.title}
-                      </Link>
-                    </SidebarMenuButton>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+      <SidebarContent>
+        <SidebarNavigationClient
+          navigationMenus={DASHBOARD_SIDEBAR_MAP.navigationMenus}
+        />
       </SidebarContent>
+
       <SidebarFooter>
-        <UserAccount user={DASHBOARD_SIDEBAR_MAP.userAccountInfo} />
+        <UserAccountClient user={DASHBOARD_SIDEBAR_MAP.userAccountInfo} />
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 import {
@@ -16,9 +18,9 @@ import {
 } from '@workspace/ui/components/sidebar';
 import { ChevronsUpDown, Plus } from 'lucide-react';
 
-import { type UserJoinedClubs } from '../../_helpers/types';
+import { type UserJoinedClub } from '../../_helpers/types';
 
-export const ClubSwitcher = ({ clubs }: { clubs: UserJoinedClubs[] }) => {
+export const ClubSwitcherClient = ({ clubs }: { clubs: UserJoinedClub[] }) => {
   const { isMobile } = useSidebar();
   const [activeClub, setActiveClub] = React.useState(clubs[0]);
 

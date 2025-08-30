@@ -11,7 +11,7 @@ export type UserAccountInfo = {
   avatar?: string;
 };
 
-export type UserJoinedClubs = {
+export type UserJoinedClub = {
   id: number;
   name: string;
   logo: LucideIcon;
@@ -29,7 +29,7 @@ export type NavigationMenu = {
 };
 
 export type DashboardSidebarData = {
-  userAccountInfo: UserAccountInfo;
-  userJoinedClubs: UserJoinedClubs[];
+  userJoinedClubs: UserJoinedClub[];
   navigationMenus: NavigationMenu[];
+  userAccountInfo: UserAccountInfo;
 };

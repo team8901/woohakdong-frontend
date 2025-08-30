@@ -46,11 +46,6 @@ export const DASHBOARD_HEADER_MAP: Record<string, PathData> = {
 
 // TODO: 현재 하드코딩 된 상태
 export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
-  userAccountInfo: {
-    name: '강동우',
-    email: 'alsdn1360@ajou.ac.kr',
-    // avatar: '/avatars/shadcn.jpg', TODO: 주석 제거 해야 함
-  },
   userJoinedClubs: [
     // TODO: 동아리 정보 가져와서 넣어야 함
     {
@@ -121,4 +116,9 @@ export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
       ],
     },
   ],
+  userAccountInfo: {
+    name: '강동우',
+    email: 'alsdn1360@ajou.ac.kr',
+    // avatar: '/avatars/shadcn.jpg', TODO: 주석 제거 해야 함
+  },
 };
