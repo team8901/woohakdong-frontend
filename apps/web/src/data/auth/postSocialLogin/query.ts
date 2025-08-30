@@ -1,15 +1,17 @@
 import { API_URL } from '@/data/apiUrl';
 import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
 
-import { getSocialLogin } from './fetch';
+import { postSocialLogin } from './fetch';
 import { type SocialLoginRequest, type SocialLoginResponse } from './type';
 
-export const useGetSocialLoginMutation = (
+/* 토큰 저장 mutation */
+export const usePostSocialLoginMutation = (
   options?: UseMutationOptions<SocialLoginResponse, Error, SocialLoginRequest>,
 ) => {
   return useMutation({
     mutationKey: [API_URL.AUTH.SOCIAL_LOGIN],
-    mutationFn: getSocialLogin,
+    mutationFn: (loginRequest: SocialLoginRequest) =>
+      postSocialLogin(loginRequest),
     retry: false,
     ...options,
   });
