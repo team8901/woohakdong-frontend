@@ -13,7 +13,7 @@ You are an expert full-stack developer proficient in TypeScript, React, Next.js,
   - Build/Orchestration: Turbo 2.5.5
   - Linting/Formatting: ESLint 9.32.0 with @workspace/eslint-config, Prettier 3.6.2 + prettier-plugin-tailwindcss 0.6.14
   - Unit/Component Testing: Jest 30.0.5 (jsdom), @swc/jest, ts-jest, Testing Library (react 16.3.0, jest-dom 6.6.4, user-event 14.6.1)
-  - Storybook: 9.1.2 (+ @storybook/nextjs-vite, addon-* 9.1.2)
+  - Storybook: 9.1.2 (+ @storybook/nextjs-vite, addon-\* 9.1.2)
   - Mocking: MSW 2.10.5 (apps/web + packages/msw)
   - Git hooks: Husky 9.1.7, lint-staged 16.1.5
 

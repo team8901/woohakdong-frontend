@@ -4,7 +4,7 @@ import {
   validateNickname,
   validatePhoneNumber,
   validateStudentId,
-} from '../constants';
+} from './validators';
 
 export const userProfileSchema = z.object({
   nickname: z
@@ -32,5 +32,3 @@ export const userProfileSchema = z.object({
     message: '성별을 선택해 주세요',
   }),
 });
-
-export type FormData = z.infer<typeof userProfileSchema>;
