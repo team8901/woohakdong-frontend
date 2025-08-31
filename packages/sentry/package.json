@@ -4,7 +4,10 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./captureAxiosError": "./src/captureAxiosError.ts"
+    "./captureAxiosError": {
+      "import": "./src/captureAxiosError.ts",
+      "types": "./src/captureAxiosError.ts"
+    }
   },
   "dependencies": {
     "@sentry/nextjs": "^7.101.1"
