@@ -10,26 +10,27 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { NAV_MENU_ICONS } from '../../_helpers/constants';
 import { useMobileSidebarClose } from '../../_helpers/hooks/useMobileSidebarClose';
-import { type NavigationMenu } from '../../_helpers/types';
+import { type NavMenu } from '../../_helpers/types';
 
-export const SidebarNavigationClient = ({
-  navigationMenus,
-}: {
-  navigationMenus: NavigationMenu[];
-}) => {
+export const NavClient = ({ navMenus }: { navMenus: NavMenu[] }) => {
   const { handleMenuClick } = useMobileSidebarClose();
   const pathname = usePathname();
 
   return (
     <div>
-      {navigationMenus.map((navigationMenu) => (
-        <SidebarGroup key={navigationMenu.category}>
-          <SidebarGroupLabel>{navigationMenu.category}</SidebarGroupLabel>
+      {navMenus.map((navMenu) => (
+        <SidebarGroup key={navMenu.category}>
+          <SidebarGroupLabel>{navMenu.category}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationMenu.subCategories.map((subCategory) => {
+              {navMenu.subCategories.map((subCategory) => {
                 const isActive = pathname === subCategory.url;
+                const NavMenuIcon =
+                  NAV_MENU_ICONS[
+                    subCategory.icon as keyof typeof NAV_MENU_ICONS
+                  ];
 
                 return (
                   <SidebarMenuButton
@@ -38,7 +39,7 @@ export const SidebarNavigationClient = ({
                     isActive={isActive}
                     tooltip={subCategory.title}>
                     <Link href={subCategory.url} onClick={handleMenuClick}>
-                      <subCategory.icon />
+                      <NavMenuIcon />
                       {subCategory.title}
                     </Link>
                   </SidebarMenuButton>

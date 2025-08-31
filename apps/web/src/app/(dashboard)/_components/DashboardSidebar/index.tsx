@@ -1,5 +1,3 @@
-'use client';
-
 import {
   Sidebar,
   SidebarContent,
@@ -7,12 +5,12 @@ import {
   SidebarHeader,
 } from '@workspace/ui/components/sidebar';
 
+import { ClubSwitcherClient } from '../../_clientBoundary/ClubSwitcherClient';
+import { NavClient } from '../../_clientBoundary/NavClient';
+import { UserAccountClient } from '../../_clientBoundary/UserAccountClient';
 import { DASHBOARD_SIDEBAR_MAP } from '../../_helpers/constants';
-import { ClubSwitcherClient } from '../ClubSwitcherClient';
-import { SidebarNavigationClient } from '../SidebarNavigationClient';
-import { UserAccountClient } from '../UserAccountClient';
 
-export const DashboardSidebarClient = ({
+export const DashboardSidebar = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
   return (
@@ -22,9 +20,7 @@ export const DashboardSidebarClient = ({
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarNavigationClient
-          navigationMenus={DASHBOARD_SIDEBAR_MAP.navigationMenus}
-        />
+        <NavClient navMenus={DASHBOARD_SIDEBAR_MAP.navMenus} />
       </SidebarContent>
 
       <SidebarFooter>

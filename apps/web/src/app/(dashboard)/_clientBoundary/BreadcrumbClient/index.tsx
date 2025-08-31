@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 
 import { getPathData } from '../../_helpers/utils/dashboardHeaderUtils';
 
-export const HeaderBreadcrumbClient = () => {
+export const BreadcrumbClient = () => {
   const pathname = usePathname();
   const headerData = getPathData(pathname);
 

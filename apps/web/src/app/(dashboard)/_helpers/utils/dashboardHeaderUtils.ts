@@ -1,4 +1,4 @@
-import { DASHBOARD_HEADER_MAP as DASHBOARD_HEADER_PATH_MAP } from '../constants';
+import { DASHBOARD_BREADCRUMB_MAP as DASHBOARD_HEADER_PATH_MAP } from '../constants';
 import { type PathData } from '../types';
 
 export const getPathData = (pathname: string): PathData => {

@@ -1,7 +1,7 @@
 import { Separator } from '@workspace/ui/components/separator';
 import { SidebarTrigger } from '@workspace/ui/components/sidebar';
 
-import { HeaderBreadcrumbClient } from '../../_clientBoundary/HeaderBreadcrumbClient';
+import { BreadcrumbClient } from '../../_clientBoundary/BreadcrumbClient';
 
 export const DashboardHeader = () => {
   return (
@@ -12,7 +12,7 @@ export const DashboardHeader = () => {
           orientation="vertical"
           className="mr-2 data-[orientation=vertical]:h-4"
         />
-        <HeaderBreadcrumbClient />
+        <BreadcrumbClient />
       </div>
     </header>
   );

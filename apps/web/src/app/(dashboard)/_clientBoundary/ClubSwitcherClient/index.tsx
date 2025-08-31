@@ -37,7 +37,7 @@ export const ClubSwitcherClient = ({ clubs }: { clubs: UserJoinedClub[] }) => {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <activeClub.logo className="size-4" />
+                {/** TODO: 동아리 이미지로 추가해야 함 */}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{activeClub.name}</span>
@@ -59,7 +59,7 @@ export const ClubSwitcherClient = ({ clubs }: { clubs: UserJoinedClub[] }) => {
                 onClick={() => setActiveClub(team)}
                 className="gap-2 p-2">
                 <div className="flex size-6 items-center justify-center rounded-md border">
-                  <team.logo className="size-3.5 shrink-0" />
+                  {/** TODO: 동아리 이미지로 추가해야 함 */}
                 </div>
                 {team.name}
               </DropdownMenuItem>

@@ -1,35 +1,33 @@
-import { type LucideIcon } from 'lucide-react';
-
 export type PathData = {
   category: string;
   title: string;
 };
 
-export type UserAccountInfo = {
-  name: string;
-  email: string;
-  avatar?: string;
-};
-
 export type UserJoinedClub = {
   id: number;
   name: string;
-  logo: LucideIcon;
+  logo?: string; // TODO: 동아리 로고 이미지로 변경해야 함
 };
 
 export type SubCategory = {
   title: string;
-  icon: LucideIcon;
+  icon: string;
   url: string;
 };
 
-export type NavigationMenu = {
+export type NavMenu = {
   category: string;
   subCategories: SubCategory[];
 };
 
+export type UserAccountInfo = {
+  name: string;
+  email: string;
+  avatar?: string; // TODO: 회원 프로필 이미지로 변경해야 함
+};
+
 export type DashboardSidebarData = {
   userJoinedClubs: UserJoinedClub[];
-  navigationMenus: NavigationMenu[];
+  navMenus: NavMenu[];
   userAccountInfo: UserAccountInfo;
 };

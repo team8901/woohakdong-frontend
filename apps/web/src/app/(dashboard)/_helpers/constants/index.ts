@@ -1,10 +1,7 @@
 import {
-  AudioWaveform,
   Calendar,
   ClipboardClock,
   ClipboardList,
-  Command,
-  GalleryVerticalEnd,
   Info,
   Megaphone,
   NotebookPen,
@@ -13,7 +10,17 @@ import {
 
 import { type DashboardSidebarData, type PathData } from '../types';
 
-export const DASHBOARD_HEADER_MAP: Record<string, PathData> = {
+export const NAV_MENU_ICONS = {
+  Megaphone,
+  NotebookPen,
+  Calendar,
+  UsersRound,
+  ClipboardList,
+  ClipboardClock,
+  Info,
+} as const;
+
+export const DASHBOARD_BREADCRUMB_MAP: Record<string, PathData> = {
   '/notice': {
     category: '소식',
     title: '공지사항',
@@ -51,36 +58,33 @@ export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
     {
       id: 1,
       name: 'Do-IT!',
-      logo: GalleryVerticalEnd,
     },
     {
       id: 2,
       name: '우학동',
-      logo: AudioWaveform,
     },
     {
       id: 3,
       name: '볼랜드',
-      logo: Command,
     },
   ],
-  navigationMenus: [
+  navMenus: [
     {
       category: '소식',
       subCategories: [
         {
           title: '공지사항',
-          icon: Megaphone,
+          icon: 'Megaphone',
           url: '/notice',
         },
         {
           title: '활동 기록',
-          icon: NotebookPen,
+          icon: 'NotebookPen',
           url: '/activity',
         },
         {
           title: '일정',
-          icon: Calendar,
+          icon: 'Calendar',
           url: '/schedule',
         },
       ],
@@ -90,17 +94,17 @@ export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
       subCategories: [
         {
           title: '회원',
-          icon: UsersRound,
+          icon: 'UsersRound',
           url: '/member',
         },
         {
           title: '물품',
-          icon: ClipboardList,
+          icon: 'ClipboardList',
           url: '/item',
         },
         {
           title: '물품 대여 내역',
-          icon: ClipboardClock,
+          icon: 'ClipboardClock',
           url: '/item-history',
         },
       ],
@@ -110,7 +114,7 @@ export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
       subCategories: [
         {
           title: '동아리 정보',
-          icon: Info,
+          icon: 'Info',
           url: '/club-info',
         },
       ],
@@ -119,6 +123,5 @@ export const DASHBOARD_SIDEBAR_MAP: DashboardSidebarData = {
   userAccountInfo: {
     name: '강동우',
     email: 'alsdn1360@ajou.ac.kr',
-    // avatar: '/avatars/shadcn.jpg', TODO: 주석 제거 해야 함
   },
 };
