@@ -1,5 +1,5 @@
-import { setAccessToken } from '@/app/login/_helpers/utils/manageTokenUtil';
-import { checkProfileAndRedirect } from '@/app/login/_helpers/utils/redirectPageUtil';
+import { setAccessToken } from '@/_shared/helpers/utils/manageToken';
+import { checkProfileAndRedirect } from '@/app/login/_helpers/utils/redirectPage';
 import { usePostSocialLoginMutation } from '@/data/auth/postSocialLogin/query';
 import { useRouter } from 'next/navigation';
 
@@ -15,7 +15,7 @@ export const useAuthorizationFlow = () => {
     onSuccess: async (data) => {
       setAccessToken(data.accessToken);
 
-      console.log('✅ 액세스 토큰 및 리프레쉬 토큰 발급 및 저장 성공');
+      console.log('✅ 액세스 토큰, 리프레쉬 토큰 발급 및 저장 성공');
 
       await checkProfileAndRedirect(router);
     },

@@ -1,17 +1,15 @@
 import { Button } from '@workspace/ui/components/button';
 import { Loader2Icon, LogOutIcon } from 'lucide-react';
 
-export interface SignUpCardFooterProps {
-  onQuit: () => void;
-  isFormValid: boolean;
-  isSubmitting: boolean;
-}
-
 export const SignUpCardFooter = ({
   onQuit,
   isFormValid,
   isSubmitting,
-}: SignUpCardFooterProps) => {
+}: {
+  onQuit: () => void;
+  isFormValid: boolean;
+  isSubmitting: boolean;
+}) => {
   return (
     <div className="flex w-full items-center justify-between gap-6">
       <Button

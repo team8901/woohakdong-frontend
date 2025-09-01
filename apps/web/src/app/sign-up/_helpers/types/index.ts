@@ -9,4 +9,4 @@ export type UserProfile = {
   gender: 'MALE' | 'FEMALE';
 };
 
-export type FormData = z.infer<typeof userProfileSchema>;
+export type UserProfileFormData = z.infer<typeof userProfileSchema>;

@@ -16,7 +16,7 @@ export const checkProfileAndRedirect = async (
 
     console.log('✅ 프로필 정보 조회 성공');
 
-    router.replace('/');
+    router.replace('/notice');
   } catch (err) {
     if (isAxiosError(err)) {
       if (err.response?.status === 404) {

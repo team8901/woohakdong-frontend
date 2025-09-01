@@ -18,13 +18,13 @@ import {
 } from '@workspace/ui/components/select';
 
 import { GENDER_OPTIONS } from '../../_helpers/constants';
-import { type FormData } from '../../_helpers/utils/zodSchemas';
+import { type UserProfileFormData } from '../../_helpers/types';
 
-type SignUpFormProps = {
-  form: UseFormReturn<FormData>;
-};
-
-export const SignUpCardContent = ({ form }: SignUpFormProps) => {
+export const SignUpCardContent = ({
+  form,
+}: {
+  form: UseFormReturn<UserProfileFormData>;
+}) => {
   return (
     <div className="flex flex-col gap-6">
       {/* 성별 선택 */}
@@ -112,7 +112,7 @@ export const SignUpCardContent = ({ form }: SignUpFormProps) => {
                   type="tel"
                   inputMode="tel"
                   placeholder="010-1234-5678"
-                  autoComplete="off"
+                  autoComplete="on"
                   value={formatPhoneNumber(field.value || '')}
                   onChange={handlePhoneNumberChange}
                 />

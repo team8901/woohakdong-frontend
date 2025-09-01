@@ -2,17 +2,20 @@ import { useForm, type UseFormReturn } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { type FormData, type UserProfile } from '../types';
+import { type UserProfile, type UserProfileFormData } from '../types';
 import { userProfileSchema } from '../utils/zodSchemas';
+import { useRegisterProfile } from './useRegisterProfile';
 
-export const useSignUpForm = (): {
-  form: UseFormReturn<FormData>;
+export const useSignUpFlow = (): {
+  form: UseFormReturn<UserProfileFormData>;
   isFormValid: boolean;
   isSubmitting: boolean;
+  onSubmit: (data: UserProfileFormData) => Promise<void>;
   onQuit: () => Promise<void>;
-  onSubmit: (data: FormData) => Promise<void>;
 } => {
-  const form = useForm<FormData>({
+  const registerProfileMutation = useRegisterProfile();
+
+  const form = useForm<UserProfileFormData>({
     resolver: zodResolver(userProfileSchema),
     mode: 'onChange',
     defaultValues: {
@@ -23,18 +26,7 @@ export const useSignUpForm = (): {
     },
   });
 
-  const onQuit = async (): Promise<void> => {
-    try {
-      form.clearErrors();
-      form.reset();
-      // TODO: 회원가입 취소 또는 로그아웃 로직
-      console.log('회원가입 취소');
-    } catch (error) {
-      console.error('로그아웃 중 오류 발생:', error);
-    }
-  };
-
-  const onSubmit = async (data: FormData): Promise<void> => {
+  const onSubmit = async (data: UserProfileFormData): Promise<void> => {
     try {
       const userProfile: UserProfile = {
         nickname: data.nickname,
@@ -43,19 +35,27 @@ export const useSignUpForm = (): {
         gender: data.gender,
       };
 
-      console.log('서버로 전송할 데이터:', userProfile);
-
-      // TODO: 서버로 전송하는 부분 추가
+      await registerProfileMutation.mutateAsync(userProfile);
     } catch (error) {
-      console.error('프로필 제출 중 오류 발생:', error);
+      console.error('🚨 프로필 제출 중 오류 발생:', error);
       // TODO: 에러 토스트 표시
+    }
+  };
+
+  const onQuit = async (): Promise<void> => {
+    try {
+      form.clearErrors();
+      form.reset();
+      // TODO: 회원가입 취소 또는 로그아웃 로직
+    } catch (error) {
+      console.error('🚨 로그아웃 중 오류 발생:', error);
     }
   };
 
   return {
     form,
-    onQuit,
     onSubmit,
+    onQuit,
     isFormValid: form.formState.isValid,
     isSubmitting: form.formState.isSubmitting,
   };

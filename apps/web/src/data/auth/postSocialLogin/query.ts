@@ -12,7 +12,6 @@ export const usePostSocialLoginMutation = (
     mutationKey: [API_URL.AUTH.SOCIAL_LOGIN],
     mutationFn: (loginRequest: SocialLoginRequest) =>
       postSocialLogin(loginRequest),
-    retry: false,
     ...options,
   });
 };
