@@ -15,7 +15,7 @@ export const SignUpCardFooter = ({
   return (
     <div className="flex w-full items-center justify-between gap-6">
       <Button
-        variant="outline"
+        variant="secondary"
         type="button"
         onClick={onQuit}
         disabled={isSubmitting}

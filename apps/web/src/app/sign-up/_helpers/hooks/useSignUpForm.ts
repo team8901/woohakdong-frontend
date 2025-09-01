@@ -2,18 +2,16 @@ import { useForm, type UseFormReturn } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { type UserProfile } from '../constants';
-import { type FormData, userProfileSchema } from '../utils/zodSchemas';
+import { type FormData, type UserProfile } from '../types';
+import { userProfileSchema } from '../utils/zodSchemas';
 
-type UseSignUpFormReturn = {
+export const useSignUpForm = (): {
   form: UseFormReturn<FormData>;
   isFormValid: boolean;
   isSubmitting: boolean;
   onQuit: () => Promise<void>;
   onSubmit: (data: FormData) => Promise<void>;
-};
-
-export const useSignUpForm = (): UseSignUpFormReturn => {
+} => {
   const form = useForm<FormData>({
     resolver: zodResolver(userProfileSchema),
     mode: 'onChange',
