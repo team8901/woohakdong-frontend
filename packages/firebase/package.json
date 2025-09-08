@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
   "exports": {
     "./auth": "./src/auth.ts",
     "./firebase-config": "./src/firebase-config.ts"
@@ -11,6 +15,7 @@
     "firebase": "^12.1.0"
   },
   "devDependencies": {
+    "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "typescript": "^5.9.2"
   }
