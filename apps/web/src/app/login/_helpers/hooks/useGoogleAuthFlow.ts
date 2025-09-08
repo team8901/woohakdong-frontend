@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAuthorizationFlow } from '@/app/login/_helpers/hooks/useAuthorizationFlow';
 import { signInWithGoogle } from '@workspace/firebase/auth';
 
-export const useGoogleLoginFlow = () => {
+export const useGoogleAuthFlow = () => {
   const [isLoading, setIsLoading] = useState(false);
   const authorizationMutation = useAuthorizationFlow();
 

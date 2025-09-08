@@ -9,7 +9,7 @@ const USER_TYPE = {
 
 type UserType = (typeof USER_TYPE)[keyof typeof USER_TYPE];
 
-const DEFAULT_USER_TYPE = USER_TYPE.준회원;
+const DEFAULT_USER_TYPE = USER_TYPE.비회원;
 
 /** 권한별 허용 경로 매핑 */
 const USER_TYPE_ALLOWED_PATH: Record<

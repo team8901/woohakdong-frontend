@@ -4,10 +4,10 @@ import { Button } from '@workspace/ui/components/button';
 import { GoogleIcon } from '@workspace/ui/icons/google-icon';
 import { Loader2Icon } from 'lucide-react';
 
-import { useGoogleLoginFlow } from '../../_helpers/hooks/useGoogleLoginFlow';
+import { useGoogleAuthFlow } from '../../_helpers/hooks/useGoogleAuthFlow';
 
 export const GoogleLoginButtonClient = () => {
-  const { loginWithGoogle, isLoading } = useGoogleLoginFlow();
+  const { loginWithGoogle, isLoading } = useGoogleAuthFlow();
 
   return (
     <Button

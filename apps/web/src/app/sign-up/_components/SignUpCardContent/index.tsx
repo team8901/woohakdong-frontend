@@ -70,8 +70,8 @@ export const SignUpCardContent = ({
               />
             </FormControl>
             <FormDescription className="flex flex-col">
-              <span>• 2자 이상 20자 이내로 입력해 주세요</span>
-              <span>• 한글, 영문, 숫자, (_), (-)만 사용 가능해요</span>
+              <span>• 2자 이상 20자 이내로 입력해주세요</span>
+              <span>• 한글, 영문, 숫자만 사용 가능해요</span>
             </FormDescription>
             <FormMessage />
           </FormItem>

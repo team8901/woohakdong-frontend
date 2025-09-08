@@ -1,15 +1,12 @@
+import { firebaseAuth } from '@workspace/firebase/firebase-config';
 import {
-  type User,
   GoogleAuthProvider,
+  onAuthStateChanged,
   signInWithPopup,
   signOut,
-  onAuthStateChanged,
+  type User,
   type UserCredential,
 } from 'firebase/auth';
-
-export type { User, UserCredential };
-
-import { firebaseAuth } from '@workspace/firebase/firebase-config';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -29,9 +26,11 @@ export const onAuthStateChange = (callback: (user: User | null) => void) => {
 export const signInWithGoogle = async (): Promise<UserCredential> => {
   try {
     const result = await signInWithPopup(firebaseAuth, googleProvider);
+
     return result;
   } catch (error) {
     console.error('Google 로그인 실패:', error);
+
     throw error;
   }
 };
@@ -44,6 +43,7 @@ export const signOutWithGoogle = async (): Promise<void> => {
     await signOut(firebaseAuth);
   } catch (error) {
     console.error('로그아웃 실패:', error);
+
     throw error;
   }
 };

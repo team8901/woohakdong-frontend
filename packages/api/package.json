@@ -4,15 +4,21 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "jest"
   },
   "exports": {
-    "./axios": "./src/axios.ts"
+    "./axios": "./src/axios.ts",
+    "./interceptors": "./src/interceptors.ts",
+    "./refreshToken": "./src/refreshToken.ts",
+    "./manageToken": "./src/manageToken.ts"
   },
   "dependencies": {
     "axios": "^1.11.0"
   },
   "devDependencies": {
+    "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "typescript": "^5.9.2"
   }
