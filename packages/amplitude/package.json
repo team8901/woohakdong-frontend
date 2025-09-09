@@ -1,0 +1,23 @@
+{
+  "name": "@workspace/amplitude",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./initAmplitude": "./src/initAmplitude.ts",
+    "./trackAmplitudePageView": {
+      "import": "./src/trackAmplitudePageView.ts",
+      "types": "./src/trackAmplitudePageView.ts"
+    },
+    "./trackAmplitudeEvent": {
+      "import": "./src/trackAmplitudeEvent.ts",
+      "types": "./src/trackAmplitudeEvent.ts"
+    }
+  },
+  "dependencies": {
+    "@amplitude/analytics-browser": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.9"
+  }
+}
