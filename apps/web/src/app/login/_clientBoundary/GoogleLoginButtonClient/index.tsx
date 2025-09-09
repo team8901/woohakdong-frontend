@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/eventTracker/trackEvent';
 import { Button } from '@workspace/ui/components/button';
 import { GoogleIcon } from '@workspace/ui/icons/google-icon';
 import { Loader2Icon } from 'lucide-react';
@@ -9,12 +10,22 @@ import { useGoogleLogin } from '../../_helpers/hooks/useGoogleLogin';
 export const GoogleLoginButtonClient = () => {
   const { loginWithGoogle, isLoading } = useGoogleLogin();
 
+  const handleButtonClick = () => {
+    // TODO: user_type 같은 공통 프로퍼티는 자동 수집되도록 하기
+    trackEvent('google_login_click', {
+      user_type: 'unknown',
+      timestamp: new Date().toISOString(),
+    });
+
+    loginWithGoogle();
+  };
+
   return (
     <Button
       variant="outline"
       type="button"
       className="w-full"
-      onClick={loginWithGoogle}
+      onClick={handleButtonClick}
       disabled={isLoading}
       aria-busy={isLoading}>
       {isLoading ? (
