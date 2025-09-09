@@ -14,7 +14,6 @@ export const GoogleLoginButtonClient = () => {
     // TODO: user_type 같은 공통 프로퍼티는 자동 수집되도록 하기
     trackEvent('google_login_click', {
       user_type: 'unknown',
-      timestamp: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' }),
     });
 
     loginWithGoogle();
