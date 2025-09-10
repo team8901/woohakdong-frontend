@@ -1,16 +1,15 @@
 import { getAccessToken, refreshAccessToken } from '@workspace/api/manageToken';
-import type {
-  AxiosError,
-  AxiosInstance,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
+import {
+  type AxiosError,
+  AxiosHeaders,
+  type AxiosInstance,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
 } from 'axios';
 
 /**
  * Axios 인터셉터 설정
  * @param api Axios 인스턴스
- * @param getAccessToken 현재 액세스 토큰을 지연 조회하는 함수
- * @param setAccessToken 액세스 토큰을 저장/갱신하는 함수
  */
 export const setupInterceptors = (api: AxiosInstance): void => {
   // Request 인터셉터
@@ -19,7 +18,7 @@ export const setupInterceptors = (api: AxiosInstance): void => {
       const accessToken = getAccessToken();
 
       if (accessToken) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+        config.headers.set('Authorization', `Bearer ${accessToken}`);
       }
 
       return config;
@@ -28,7 +27,6 @@ export const setupInterceptors = (api: AxiosInstance): void => {
   );
 
   // 동시 401 발생 시 단일 리프레시 호출을 공유하기 위한 Promise
-  // Promise to handle concurrent 401 errors and share a single refresh token call
   let refreshTokenPromise: Promise<string | null> | null = null;
 
   // Response 인터셉터
@@ -76,10 +74,10 @@ export const setupInterceptors = (api: AxiosInstance): void => {
       }
 
       // 새 토큰으로 Authorization 헤더 갱신 후 원 요청 재시도
-      originalRequest.headers = {
-        ...(originalRequest.headers ?? {}),
-        Authorization: `Bearer ${newAccessToken}`,
-      } as any;
+      originalRequest.headers = new AxiosHeaders(originalRequest.headers).set(
+        'Authorization',
+        `Bearer ${newAccessToken}`,
+      );
 
       return api.request(originalRequest);
     },
