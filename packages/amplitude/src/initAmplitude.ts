@@ -11,10 +11,9 @@ export const initAmplitude = () => {
   amplitude.init(apiKey, undefined, {
     defaultTracking: {
       /**
-       * 기본 페이지 뷰 이벤트 비활성화
-       * - 대신 커스텀 페이지 뷰 추적 사용 (trackAmplitudePageView)
+       * 기본 페이지 뷰 이벤트 활성화 (default = true)
        */
-      pageViews: false,
+      pageViews: true,
     },
   });
 };

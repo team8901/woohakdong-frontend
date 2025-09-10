@@ -5,10 +5,6 @@
   "private": true,
   "exports": {
     "./initAmplitude": "./src/initAmplitude.ts",
-    "./trackAmplitudePageView": {
-      "import": "./src/trackAmplitudePageView.ts",
-      "types": "./src/trackAmplitudePageView.ts"
-    },
     "./trackAmplitudeEvent": {
       "import": "./src/trackAmplitudeEvent.ts",
       "types": "./src/trackAmplitudeEvent.ts"
