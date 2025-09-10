@@ -3,21 +3,21 @@ import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
 
 import { postRegisterMyProfile } from './fetch';
 import {
-  type RegsiterMyProfileRequest,
-  type RegsiterMyProfileResponse,
+  type RegisterMyProfileRequest,
+  type RegisterMyProfileResponse,
 } from './type';
 
 /** 유저 프로필 정보 등록 mutation */
 export const usePostRegisterMyProfileMutation = (
   options?: UseMutationOptions<
-    RegsiterMyProfileResponse,
+    RegisterMyProfileResponse,
     Error,
-    RegsiterMyProfileRequest
+    RegisterMyProfileRequest
   >,
 ) => {
   return useMutation({
     mutationKey: [API_URL.USER.REGISTER_MY_PROFILE],
-    mutationFn: (registerRequest: RegsiterMyProfileRequest) =>
+    mutationFn: (registerRequest: RegisterMyProfileRequest) =>
       postRegisterMyProfile(registerRequest),
     ...options,
   });

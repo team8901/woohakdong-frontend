@@ -1,7 +1,9 @@
 import { usePostRegisterMyProfileMutation } from '@/data/user/postRegisterMyProfile/query';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export const useRegisterProfile = () => {
+  const router = useRouter();
+
   const registerProfileMutation = usePostRegisterMyProfileMutation({
     onSuccess: (data) => {
       console.log('✅ 회원가입 완료', data);
