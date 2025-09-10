@@ -1,6 +1,12 @@
 import { amplitude } from './amplitude';
 
 export const initAmplitude = () => {
+  // 개발 환경에서는 Amplitude 비활성화
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Amplitude DEV] Init');
+    return;
+  }
+
   const apiKey = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
 
   if (!apiKey) {
