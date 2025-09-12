@@ -1,5 +1,5 @@
 import { checkProfileAndRedirect } from '@/app/login/_helpers/utils/redirectPage';
-import { usePostSocialLoginMutation } from '@/data/auth/postSocialLogin/query';
+import { usePostSocialLoginMutation } from '@/data/auth/postSocialLogin/mutation';
 import { setAccessToken } from '@workspace/api/manageToken';
 import { useRouter } from 'next/navigation';
 

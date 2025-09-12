@@ -1,3 +1,4 @@
+import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { getMyProfile } from '@/data/user/getMyProfile/fetch';
 import { isAxiosError } from '@workspace/api/axios';
 import { type AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
@@ -15,13 +16,13 @@ export const checkProfileAndRedirect = async (
 
     console.log('✅ 프로필 정보 조회 성공');
 
-    router.replace('/notice');
+    router.replace(APP_PATH.DASHBOARD.NOTICE);
   } catch (err) {
     if (isAxiosError(err)) {
       if (err.response?.status === 404) {
         console.log('⚠️ 프로필 정보 없음');
 
-        router.replace('/sign-up');
+        router.replace(APP_PATH.SIGN_UP);
       }
     } else {
       throw err;

@@ -50,7 +50,7 @@ export const refreshAccessToken = async (
   } catch (error) {
     console.error('🔥 Access Token 재발급 실패', error);
 
-    setAccessToken(null);
+    clearAccessToken();
 
     return null;
   }

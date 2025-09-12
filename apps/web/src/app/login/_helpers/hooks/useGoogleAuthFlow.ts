@@ -9,7 +9,7 @@ import { signInWithGoogle } from '@workspace/firebase/auth';
  */
 export const useGoogleAuthFlow = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const authorizationMutation = useAuthorizationFlow();
+  const { mutateAsync: authorizationMutation } = useAuthorizationFlow();
 
   const loginWithGoogle = async () => {
     setIsLoading(true);
@@ -20,7 +20,7 @@ export const useGoogleAuthFlow = () => {
 
       console.log('✅ Google 로그인 성공');
 
-      await authorizationMutation.mutateAsync({
+      await authorizationMutation({
         provider: 'google',
         providerAccessToken: firebaseIdToken,
       });

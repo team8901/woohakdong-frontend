@@ -1,10 +1,10 @@
-export type RegisterMyProfileRequest = {
+export type RegisterProfileRequest = {
   nickname: string;
   phoneNumber: string;
   studentId: string;
   gender: string;
 };
 
-export type RegisterMyProfileResponse = {
+export type RegisterProfileResponse = {
   userProfileId: number;
 };

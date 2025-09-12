@@ -9,6 +9,6 @@ export const API_URL = {
   },
   USER: {
     MY_PROFILE: '/api/users/profiles/me',
-    REGISTER_MY_PROFILE: '/api/users/profiles',
+    REGISTER_PROFILE: '/api/users/profiles',
   },
 };

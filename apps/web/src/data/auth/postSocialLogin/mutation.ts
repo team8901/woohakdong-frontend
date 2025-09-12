@@ -1,7 +1,7 @@
 import { API_URL } from '@/data/apiUrl';
 import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
 
-import { postSocialLogin } from './fetch';
+import { postSocialLogin } from './post';
 import { type SocialLoginRequest, type SocialLoginResponse } from './type';
 
 /* 토큰 저장 mutation */

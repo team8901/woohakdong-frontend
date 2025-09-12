@@ -1,4 +1,4 @@
-import { useForm, type UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -6,14 +6,8 @@ import { type UserProfile, type UserProfileFormData } from '../types';
 import { userProfileSchema } from '../utils/zodSchemas';
 import { useRegisterProfile } from './useRegisterProfile';
 
-export const useSignUpFlow = (): {
-  form: UseFormReturn<UserProfileFormData>;
-  isFormValid: boolean;
-  isSubmitting: boolean;
-  onSubmit: (data: UserProfileFormData) => Promise<void>;
-  onQuit: () => Promise<void>;
-} => {
-  const registerProfileMutation = useRegisterProfile();
+export const useSignUpFlow = () => {
+  const { mutateAsync: registerProfileMutation } = useRegisterProfile();
 
   const form = useForm<UserProfileFormData>({
     resolver: zodResolver(userProfileSchema),
@@ -35,10 +29,11 @@ export const useSignUpFlow = (): {
         gender: data.gender,
       };
 
-      await registerProfileMutation.mutateAsync(userProfile);
+      await registerProfileMutation(userProfile);
     } catch (error) {
       console.error('🚨 프로필 제출 중 오류 발생:', error);
-      // TODO: 에러 토스트 표시
+
+      alert('프로필 완성 중에 오류가 발생했어요 🥲 다시 시도해주세요');
     }
   };
 
