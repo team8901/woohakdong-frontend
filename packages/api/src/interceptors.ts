@@ -1,3 +1,4 @@
+import { REFRESH_URL } from '@workspace/api/_helpers';
 import { getAccessToken, refreshAccessToken } from '@workspace/api/manageToken';
 import {
   type AxiosError,
@@ -46,7 +47,7 @@ export const setupInterceptors = (api: AxiosInstance): void => {
       // 리프레시 엔드포인트 자체가 401이면 루프 방지 차원에서 재시도하지 않음
       const isRefreshCall =
         typeof originalRequest.url === 'string' &&
-        originalRequest.url.includes('/api/auth/refresh');
+        originalRequest.url.includes(REFRESH_URL);
 
       if (isRefreshCall) {
         return Promise.reject(error);

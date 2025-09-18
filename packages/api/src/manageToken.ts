@@ -1,3 +1,4 @@
+import { REFRESH_URL } from '@workspace/api/_helpers';
 import { type AxiosInstance } from 'axios';
 
 let accessToken: string | null = null;
@@ -36,9 +37,7 @@ export const refreshAccessToken = async (
   try {
     console.log('🔄 Access Token 재발급 시도');
 
-    const { data } = await api.post<{ accessToken: string }>(
-      '/api/auth/refresh',
-    );
+    const { data } = await api.post<{ accessToken: string }>(REFRESH_URL);
 
     console.log('✨ Access Token 재발급 성공');
 

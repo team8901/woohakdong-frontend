@@ -12,14 +12,10 @@
     "./axios": "./src/axios.ts",
     "./interceptors": "./src/interceptors.ts",
     "./refreshToken": "./src/refreshToken.ts",
-    "./manageToken": "./src/manageToken.ts"
+    "./manageToken": "./src/manageToken.ts",
+    "./_helpers": "./src/_helpers/constants/index.ts"
   },
   "dependencies": {
     "axios": "^1.11.0"
-  },
-  "devDependencies": {
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
-    "typescript": "^5.9.2"
   }
 }

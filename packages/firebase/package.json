@@ -13,10 +13,5 @@
   },
   "dependencies": {
     "firebase": "^12.1.0"
-  },
-  "devDependencies": {
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
-    "typescript": "^5.9.2"
   }
 }

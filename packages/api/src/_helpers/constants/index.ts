@@ -1,0 +1,1 @@
+export const REFRESH_URL = '/api/auth/refresh';
