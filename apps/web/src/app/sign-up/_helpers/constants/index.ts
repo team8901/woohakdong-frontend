@@ -5,7 +5,7 @@ export const PHONE_NUMBER_REGEX = /^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$/;
 export const STUDENT_ID_REGEX = /^[0-9]{9,11}$/;
 
 // 닉네임 정규식 (한글, 영문, 숫자, 일부 특수문자 허용)
-export const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9._-]+$/;
+export const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9]+$/;
 
 // 성별 옵션 상수
 export const GENDER_OPTIONS = [
