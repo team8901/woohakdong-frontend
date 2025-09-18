@@ -1,5 +1,9 @@
 import { REFRESH_URL } from '@workspace/api/_helpers';
-import { getAccessToken, refreshAccessToken } from '@workspace/api/manageToken';
+import {
+  clearAccessToken,
+  getAccessToken,
+  refreshAccessToken,
+} from '@workspace/api/manageToken';
 import {
   type AxiosError,
   AxiosHeaders,
@@ -44,12 +48,18 @@ export const setupInterceptors = (api: AxiosInstance): void => {
         return Promise.reject(error);
       }
 
-      // 리프레시 엔드포인트 자체가 401이면 루프 방지 차원에서 재시도하지 않음
+      // 리프레시 엔드포인트 자체가 401 이면 로그인 페이지로 이동
       const isRefreshCall =
         typeof originalRequest.url === 'string' &&
         originalRequest.url.includes(REFRESH_URL);
 
       if (isRefreshCall) {
+        clearAccessToken();
+
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+
         return Promise.reject(error);
       }
 
