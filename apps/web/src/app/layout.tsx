@@ -1,6 +1,7 @@
 import '@workspace/ui/globals.css';
 
 import { ProviderClient } from '@/_shared/clientBoundary/ProviderClient';
+import { InitEventTracker } from '@/eventTracker/InitEventTracker';
 import { EnableMockClient } from '@/mock/browser';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
@@ -25,7 +26,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * 서버에서 렌더링된 HTML과 클라이언트에서의 초기 렌더링이 정확히 일치하지 않을 수 있는 경우, 이를 방지하기 위해 suppressHydrationWarning을 사용
+ * 서버에서 렌더링된 HTML과 클라이언트에서의 초기 렌더링이 정확히 일치하지 않을 수 있는 경우,
+ * 이를 방지하기 위해 suppressHydrationWarning을 사용합니다.
  * @see https://ui.shadcn.com/docs/dark-mode/next
  */
 export default function RootLayout({
@@ -38,6 +40,7 @@ export default function RootLayout({
       <body className={`${pretendard.variable} ${jua.variable} antialiased`}>
         <ProviderClient>
           <EnableMockClient />
+          <InitEventTracker />
           {children}
         </ProviderClient>
       </body>
