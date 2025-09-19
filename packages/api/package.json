@@ -10,7 +10,8 @@
     "./axios": "./src/axios.ts"
   },
   "dependencies": {
-    "axios": "^1.11.0"
+    "axios": "^1.11.0",
+    "@workspace/sentry": "workspace:*"
   },
   "devDependencies": {
     "@workspace/typescript-config": "workspace:*",
