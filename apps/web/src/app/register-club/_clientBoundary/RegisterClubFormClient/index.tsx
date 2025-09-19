@@ -34,7 +34,7 @@ export const RegisterClubFormClient = () => {
 
   return (
     <Form {...form}>
-      <form>
+      <form onSubmit={(e) => e.preventDefault()}>
         <div className="flex flex-col gap-6">
           <CardContent>
             <RegisterClubCardContent form={form} />
