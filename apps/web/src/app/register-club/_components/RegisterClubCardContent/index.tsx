@@ -1,6 +1,6 @@
 import { type UseFormReturn } from 'react-hook-form';
 
-import { type RegisterClubFormData } from '@/app/register-club/_clientBoundary/RegisterClubFormClient';
+import { type RegisterClubFormData } from '@/app/register-club/_helpers/hooks/useRegisterClubForm';
 import {
   FormControl,
   FormDescription,
@@ -14,7 +14,7 @@ import { Textarea } from '@workspace/ui/components/textarea';
 import { Image, UploadIcon } from 'lucide-react';
 
 type Props = {
-  form: UseFormReturn<RegisterClubFormData>; // TODO: form 타입 정의
+  form: UseFormReturn<RegisterClubFormData>;
 };
 
 export const RegisterClubCardContent = ({ form }: Props) => {
