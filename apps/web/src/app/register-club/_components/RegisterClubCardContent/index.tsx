@@ -39,7 +39,7 @@ export const RegisterClubCardContent = ({
                 className="hidden"
                 id="clubProfileImage"
                 type="file"
-                accept="image/png, image/jpeg, image/jpg"
+                accept="image/png, image/jpeg"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
 

@@ -30,11 +30,7 @@ export const useImage = () => {
     }
 
     // 파일 업로드 시 모든 파일 (*.*) 선택 방지 위해 이미지 type을 한 번 더 검증
-    if (
-      file.type !== 'image/png' &&
-      file.type !== 'image/jpeg' &&
-      file.type !== 'image/jpg'
-    ) {
+    if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
       alert('JPG 혹은 PNG 확장자의 이미지만 등록 가능해요');
 
       return;
