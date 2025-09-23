@@ -7,19 +7,34 @@ import { CardContent, CardFooter } from '@workspace/ui/components/card';
 import { Form } from '@workspace/ui/components/form';
 
 export const RegisterClubFormClient = () => {
-  // TODO: isFormValid, isSubmitting, onQuit, onSubmit 추가
-  const { form } = useRegisterClubForm();
+  const {
+    form,
+    isFormValid,
+    isSubmitting,
+    imagePreviewUrl,
+    onGoBack,
+    onSubmit,
+    onChangeImage,
+  } = useRegisterClubForm();
 
   return (
     <Form {...form}>
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-6">
           <CardContent>
-            <RegisterClubCardContent form={form} />
+            <RegisterClubCardContent
+              form={form}
+              imagePreviewUrl={imagePreviewUrl}
+              onChangeImage={onChangeImage}
+            />
           </CardContent>
 
           <CardFooter>
-            <RegisterClubCardFooter />
+            <RegisterClubCardFooter
+              isFormValid={isFormValid}
+              isSubmitting={isSubmitting}
+              onGoBack={onGoBack}
+            />
           </CardFooter>
         </div>
       </form>

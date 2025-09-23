@@ -6,9 +6,13 @@ export const API_URL = {
   },
   CLUB: {
     CLUB_INFO_SEARCH: '/api/clubs/search',
+    REGISTER_CLUB: '/api/clubs',
   },
   USER: {
     MY_PROFILE: '/api/users/profiles/me',
     REGISTER_PROFILE: '/api/users/profiles',
+  },
+  UTIL: {
+    PRESIGNED_URL: '/utils/images/presigned-url',
   },
 };

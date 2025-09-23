@@ -1,4 +1,4 @@
-export type ImageToS3RequestData = {
+export type ImageToS3Request = {
   s3ImageUrl: string;
-  fileBytes: ArrayBuffer;
+  image: ArrayBuffer;
 };

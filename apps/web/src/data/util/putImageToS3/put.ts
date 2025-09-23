@@ -1,14 +1,12 @@
-import { type ImageToS3RequestData } from '@/data/util/putImageToS3/type';
+import { type ImageToS3Request } from '@/data/util/putImageToS3/type';
 
-export const putImageToS3 = async ({
-  s3ImageUrl,
-  fileBytes,
-}: ImageToS3RequestData) => {
+/** S3에 이미지 업로드 */
+export const putImageToS3 = async ({ s3ImageUrl, image }: ImageToS3Request) => {
   await fetch(s3ImageUrl, {
     method: 'PUT',
     headers: {
       'Content-Type': 'multipart/form-data',
     },
-    body: fileBytes,
+    body: image,
   });
 };
