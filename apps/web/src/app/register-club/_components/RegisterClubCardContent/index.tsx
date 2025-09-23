@@ -23,14 +23,14 @@ export const RegisterClubCardContent = ({ form }: Props) => {
       {/* 로고 업로드 */}
       <FormField
         control={form.control}
-        name="clubLogoImageUrl"
+        name="clubProfileImageUrl"
         render={({ field }) => (
           <FormItem>
             <FormLabel>로고</FormLabel>
             <FormControl>
               <Input
                 className="hidden"
-                id="clubLogoImageUrl"
+                id="clubProfileImageUrl"
                 type="file"
                 accept="image/png, image/jpeg"
                 {...field}
@@ -45,7 +45,7 @@ export const RegisterClubCardContent = ({ form }: Props) => {
               {/* 업로드 버튼 */}
               <div className="flex flex-col gap-2">
                 <label
-                  htmlFor="clubLogoImageUrl"
+                  htmlFor="clubProfileImageUrl"
                   className="flex w-[116px] cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm transition-all hover:bg-gray-100">
                   <UploadIcon size={16} />
                   로고 업로드

@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 
 export const registerClubSchema = z.object({
-  clubLogoImageUrl: z.string().trim(),
+  clubProfileImageUrl: z.string().trim(),
   clubName: z.string().trim(),
   clubEnglishName: z.string().trim(),
   clubDescription: z.string().trim(),
@@ -17,7 +17,7 @@ export const useRegisterClubForm = () => {
     resolver: zodResolver(registerClubSchema),
     mode: 'onChange',
     defaultValues: {
-      clubLogoImageUrl: '',
+      clubProfileImageUrl: '',
       clubName: '',
       clubEnglishName: '',
       clubDescription: '',
