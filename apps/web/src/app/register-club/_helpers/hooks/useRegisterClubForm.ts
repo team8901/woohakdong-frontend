@@ -30,7 +30,7 @@ export const registerClubSchema = z.object({
 export type RegisterClubFormData = z.infer<typeof registerClubSchema>;
 
 export const useRegisterClubForm = () => {
-  const { mutate: mutateRegisterClub } = usePostRegisterClubMutation();
+  const { mutateAsync: mutateRegisterClub } = usePostRegisterClubMutation();
   const { imagePreviewUrl, image, onChangeImage } = useImage();
   const router = useRouter();
 
@@ -69,7 +69,7 @@ export const useRegisterClubForm = () => {
         dues: 0, // TODO: 회비 정보 추가
       };
 
-      mutateRegisterClub(club);
+      await mutateRegisterClub(club);
 
       alert('동아리 등록이 완료되었어요!');
       router.push('/notice'); // TODO: 동아리 전용 페이지로 이동
