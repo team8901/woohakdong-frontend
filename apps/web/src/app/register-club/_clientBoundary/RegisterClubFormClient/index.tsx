@@ -1,47 +1,40 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-
 import { RegisterClubCardContent } from '@/app/register-club/_components/RegisterClubCardContent';
 import { RegisterClubCardFooter } from '@/app/register-club/_components/RegisterClubCardFooter';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useRegisterClubForm } from '@/app/register-club/_helpers/hooks/useRegisterClubForm';
 import { CardContent, CardFooter } from '@workspace/ui/components/card';
 import { Form } from '@workspace/ui/components/form';
-import z from 'zod';
-
-// TODO: zod 스키마 구현 및 사용
-export const registerClubSchema = z.object({
-  clubLogoImageUrl: z.string().trim(),
-  clubName: z.string().trim(),
-  clubEnglishName: z.string().trim(),
-  clubDescription: z.string().trim(),
-});
-
-export type RegisterClubFormData = z.infer<typeof registerClubSchema>;
 
 export const RegisterClubFormClient = () => {
-  // TODO: useRegisterClubFormFlow 훅 구현 및 사용
-  const form = useForm<RegisterClubFormData>({
-    resolver: zodResolver(registerClubSchema),
-    mode: 'onChange',
-    defaultValues: {
-      clubLogoImageUrl: '',
-      clubName: '',
-      clubEnglishName: '',
-      clubDescription: '',
-    },
-  });
+  const {
+    form,
+    isFormValid,
+    isSubmitting,
+    imagePreviewUrl,
+    onGoBack,
+    onSubmit,
+    onChangeImage,
+  } = useRegisterClubForm();
 
   return (
     <Form {...form}>
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-6">
           <CardContent>
-            <RegisterClubCardContent form={form} />
+            <RegisterClubCardContent
+              form={form}
+              imagePreviewUrl={imagePreviewUrl}
+              onChangeImage={onChangeImage}
+            />
           </CardContent>
 
           <CardFooter>
-            <RegisterClubCardFooter />
+            <RegisterClubCardFooter
+              isFormValid={isFormValid}
+              isSubmitting={isSubmitting}
+              onGoBack={onGoBack}
+            />
           </CardFooter>
         </div>
       </form>
