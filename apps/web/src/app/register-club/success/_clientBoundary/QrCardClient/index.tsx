@@ -7,6 +7,7 @@ import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { RegisterClubSuccessCardFooter } from '@/app/register-club/success/_components/RegisterClubSuccessCardFooter';
 import { CardContent } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
+import { toPng } from 'html-to-image';
 import { Check, Copy } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -30,17 +31,22 @@ export const QrCardClient = () => {
   }
 
   const onDownloadQr = () => {
-    const canvas = qrCodeRef.current?.querySelector('canvas');
-
-    if (!(canvas instanceof HTMLCanvasElement)) {
+    if (!qrCodeRef.current) {
       return;
     }
 
-    const link = document.createElement('a');
+    toPng(qrCodeRef.current, { cacheBust: true })
+      .then((dataUrl) => {
+        const link = document.createElement('a');
 
-    link.download = `${clubEnglishName}-qrcode.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+        link.download = `${clubEnglishName}-qrcode.png`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.error('QR 코드 다운로드에 실패했습니다.', err);
+        alert('QR 코드 다운로드에 실패했어요. 다시 시도해주세요.');
+      });
   };
 
   const clubUrl = buildUrlWithParams({
@@ -83,7 +89,7 @@ export const QrCardClient = () => {
         <h2 className="text-xs">QR 카드</h2>
         <div
           ref={qrCodeRef}
-          className="flex flex-col items-center gap-4 rounded-2xl border border-gray-200 px-12 py-6">
+          className="flex flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white px-12 py-6">
           <span className="text-primary text-3xl font-bold">
             {clubEnglishName}
           </span>
