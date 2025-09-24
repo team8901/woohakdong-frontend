@@ -1,11 +1,13 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { RegisterClubSuccessCardFooter } from '@/app/register-club/success/_components/RegisterClubSuccessCardFooter';
 import { CardContent } from '@workspace/ui/components/card';
+import { Input } from '@workspace/ui/components/input';
+import { Check, Copy } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
 
@@ -14,6 +16,7 @@ const QR_CODE_SIZE = 183;
 export const QrCardClient = () => {
   const searchParams = useSearchParams();
   const clubEnglishName = searchParams.get('clubEnglishName');
+  const [isCopied, setIsCopied] = useState(false);
 
   const qrCodeRef = useRef<HTMLDivElement>(null);
 
@@ -51,12 +54,53 @@ export const QrCardClient = () => {
     router.replace(clubUrl);
   };
 
+  const onCopy = () => {
+    navigator.clipboard.writeText(clubFullUrl).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  };
+
   return (
-    <CardContent className="flex flex-col items-center gap-4">
-      {/* TODO: 동아리 웹 페이지 주소 복사 기능 추가 */}
-      <div ref={qrCodeRef}>
-        <QRCodeCanvas value={clubFullUrl} size={QR_CODE_SIZE} />
+    <CardContent className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <h2 className="text-xs">동아리 웹 페이지 주소</h2>
+        <div className="relative w-full">
+          <Input value={clubFullUrl} readOnly />
+          <button
+            onClick={onCopy}
+            className="absolute inset-y-0 right-0 flex items-center pr-3">
+            {isCopied ? (
+              <Check className="h-4 w-4 text-green-500" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
+
+      <div className="flex flex-col gap-2">
+        <h2 className="text-xs">QR 카드</h2>
+        <div
+          ref={qrCodeRef}
+          className="flex flex-col items-center gap-4 rounded-2xl border border-gray-200 px-12 py-6">
+          <span className="text-primary text-3xl font-bold">
+            {clubEnglishName}
+          </span>
+          <QRCodeCanvas
+            value={clubFullUrl}
+            size={QR_CODE_SIZE}
+            className="border-primary rounded-2xl border-4 p-4"
+          />
+          <p className="text-center text-sm font-bold">
+            QR 코드를 스캔하면
+            <br />
+            동아리 전용 페이지로 이동해요!
+          </p>
+          <span className="text-xs text-gray-600">우학동 제공</span>
+        </div>
+      </div>
+
       <RegisterClubSuccessCardFooter
         onDownloadQr={onDownloadQr}
         onGoNext={onGoNext}
