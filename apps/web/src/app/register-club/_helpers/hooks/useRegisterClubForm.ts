@@ -73,7 +73,9 @@ export const useRegisterClubForm = () => {
       await mutateRegisterClub(club);
 
       alert('동아리 등록이 완료되었어요!');
-      router.push(APP_PATH.DASHBOARD.NOTICE); // TODO: 동아리 전용 페이지로 이동
+      router.push(
+        `${APP_PATH.REGISTER_CLUB.SUCCESS}?clubEnglishName=${data.clubEnglishName}`,
+      );
     } catch (error) {
       console.error('동아리 가입 중 오류 발생:', error);
       alert('동아리 등록에 실패했어요. 다시 시도해주세요.');
