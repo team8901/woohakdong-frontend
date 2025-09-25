@@ -4,6 +4,7 @@ import {
   getAccessToken,
   refreshAccessToken,
 } from '@workspace/api/manageToken';
+import { captureAxiosError } from '@workspace/sentry/captureAxiosError';
 import {
   type AxiosError,
   AxiosHeaders,
@@ -31,10 +32,13 @@ export const setupInterceptors = (api: AxiosInstance): void => {
     (error: AxiosError) => Promise.reject(error),
   );
 
+  // Response 인터셉터(API 에러 센트리 캡쳐)
+  api.interceptors.response.use(undefined, captureAxiosError);
+
   // 동시 401 발생 시 단일 리프레시 호출을 공유하기 위한 Promise
   let refreshTokenPromise: Promise<string | null> | null = null;
 
-  // Response 인터셉터
+  // Response 인터셉터(액세스토큰 재발급 처리)
   api.interceptors.response.use(
     (response: AxiosResponse) => response,
     async (error: AxiosError) => {
