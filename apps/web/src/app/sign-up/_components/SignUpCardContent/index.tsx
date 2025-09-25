@@ -1,5 +1,3 @@
-import { type UseFormReturn } from 'react-hook-form';
-
 import {
   FormControl,
   FormDescription,
@@ -18,13 +16,9 @@ import {
 } from '@workspace/ui/components/select';
 
 import { GENDER_OPTIONS } from '../../_helpers/constants';
-import { type FormData } from '../../_helpers/utils/zodSchemas';
+import { type SignupCardContentProps } from '../../_helpers/types';
 
-type SignUpFormProps = {
-  form: UseFormReturn<FormData>;
-};
-
-export const SignUpCardContent = ({ form }: SignUpFormProps) => {
+export const SignUpCardContent = ({ form }: SignupCardContentProps) => {
   return (
     <div className="flex flex-col gap-6">
       {/* 성별 선택 */}
@@ -70,8 +64,8 @@ export const SignUpCardContent = ({ form }: SignUpFormProps) => {
               />
             </FormControl>
             <FormDescription className="flex flex-col">
-              <span>• 2자 이상 20자 이내로 입력해 주세요</span>
-              <span>• 한글, 영문, 숫자, (_), (-)만 사용 가능해요</span>
+              <span>• 2자 이상 20자 이내로 입력해주세요</span>
+              <span>• 한글, 영문, 숫자만 사용 가능해요</span>
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -112,7 +106,7 @@ export const SignUpCardContent = ({ form }: SignUpFormProps) => {
                   type="tel"
                   inputMode="tel"
                   placeholder="010-1234-5678"
-                  autoComplete="off"
+                  autoComplete="on"
                   value={formatPhoneNumber(field.value || '')}
                   onChange={handlePhoneNumberChange}
                 />

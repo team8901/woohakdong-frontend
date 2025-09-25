@@ -4,7 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@workspace/ui/*": ["../../packages/ui/src/*"]
+      "@workspace/ui/*": ["../../packages/ui/src/*"],
+      "@workspace/api/*": ["../../packages/api/src/*"],
+      "@workspace/firebase/*": ["../../packages/firebase/src/*"]
     },
     "plugins": [
       {

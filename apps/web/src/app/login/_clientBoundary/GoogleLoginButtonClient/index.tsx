@@ -5,10 +5,10 @@ import { Button } from '@workspace/ui/components/button';
 import { GoogleIcon } from '@workspace/ui/icons/google-icon';
 import { Loader2Icon } from 'lucide-react';
 
-import { useGoogleLogin } from '../../_helpers/hooks/useGoogleLogin';
+import { useGoogleAuthFlow } from '../../_helpers/hooks/useGoogleAuthFlow';
 
 export const GoogleLoginButtonClient = () => {
-  const { loginWithGoogle, isLoading } = useGoogleLogin();
+  const { loginWithGoogle, isLoading } = useGoogleAuthFlow();
 
   const handleButtonClick = () => {
     // TODO: user_type 같은 공통 프로퍼티는 자동 수집되도록 하기
