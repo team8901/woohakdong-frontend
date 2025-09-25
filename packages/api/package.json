@@ -16,6 +16,7 @@
     "./_helpers": "./src/_helpers/constants/index.ts"
   },
   "dependencies": {
-    "axios": "^1.11.0"
+    "axios": "^1.11.0",
+    "@workspace/sentry": "workspace:*"
   }
 }

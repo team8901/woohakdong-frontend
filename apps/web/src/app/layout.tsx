@@ -1,6 +1,7 @@
 import '@workspace/ui/globals.css';
 
 import { ProviderClient } from '@/_shared/clientBoundary/ProviderClient';
+import { InitEventTracker } from '@/eventTracker/InitEventTracker';
 import { EnableMockClient } from '@/mock/browser';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body className={`${pretendard.variable} ${jua.variable} antialiased`}>
         <ProviderClient>
           <EnableMockClient />
+          <InitEventTracker />
           {children}
         </ProviderClient>
       </body>
