@@ -2,6 +2,7 @@ export const APP_PATH = {
   HOME: '/',
   LOGIN: '/login',
   SIGN_UP: '/sign-up',
+  REGISTER_CLUB: '/register-club',
   DASHBOARD: {
     NOTICE: '/notice',
     ACTIVITY: '/activity',
