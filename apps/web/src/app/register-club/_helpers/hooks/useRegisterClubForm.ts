@@ -20,7 +20,8 @@ export const registerClubSchema = z.object({
     .string()
     .trim()
     .min(1, '동아리 영문명을 입력해주세요')
-    .max(20, '동아리 영문명은 최대 20자까지 입력 가능해요'),
+    .max(20, '동아리 영문명은 최대 20자까지 입력 가능해요')
+    .regex(/^[a-zA-Z\s]*$/, '동아리 영문명은 영어만 입력 가능해요'),
   clubDescription: z
     .string()
     .trim()
