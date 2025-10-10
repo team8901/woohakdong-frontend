@@ -73,13 +73,10 @@ export const RegisterClubCardContent = ({
                   로고 업로드
                 </label>
                 <span className="text-xs text-gray-500">
-                  권장: 256x256px 이하, png or jpeg
+                  권장: 256x256px 이하, png or jpeg (5MB 이하)
                 </span>
               </div>
             </div>
-            <FormDescription className="flex flex-col">
-              {/* TODO: 로고 유효성 검사 안내 문구 추가 */}
-            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -102,7 +99,7 @@ export const RegisterClubCardContent = ({
               />
             </FormControl>
             <FormDescription className="flex flex-col">
-              {/* TODO: 동아리명 유효성 검사 안내 문구 추가 */}
+              <span>• 20자 이내로 입력해주세요</span>
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -126,7 +123,9 @@ export const RegisterClubCardContent = ({
               />
             </FormControl>
             <FormDescription className="flex flex-col">
-              {/* TODO: 동아리 영문명 유효성 검사 안내 문구 추가 */}
+              <span>• 20자 이내로 입력해주세요</span>
+              <span>• 영문, 숫자만 사용 가능해요</span>
+              <span>• 추후 URL 주소로 사용돼요 </span>
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -149,7 +148,7 @@ export const RegisterClubCardContent = ({
               />
             </FormControl>
             <FormDescription className="flex flex-col">
-              {/* TODO: 설명 유효성 검사 안내 문구 추가 */}
+              <span>• 500자 이내로 입력해주세요</span>
             </FormDescription>
             <FormMessage />
           </FormItem>

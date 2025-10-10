@@ -6,7 +6,7 @@ import { type UserProfile, type UserProfileFormData } from '../types';
 import { userProfileSchema } from '../utils/zodSchemas';
 import { useRegisterProfile } from './useRegisterProfile';
 
-export const useSignUpFlow = () => {
+export const useEnterProfile = () => {
   const { mutateAsync: registerProfileMutation } = useRegisterProfile();
 
   const form = useForm<UserProfileFormData>({
