@@ -85,11 +85,11 @@ export const QrCardClient = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <h2 className="text-xs">QR 카드</h2>
+      <div className="flex flex-col items-center gap-2">
+        <h2 className="self-start text-xs">QR 카드</h2>
         <div
           ref={qrCodeRef}
-          className="flex flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white px-12 py-6">
+          className="flex w-[285px] flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white px-12 py-6">
           <span className="text-primary text-3xl font-bold">
             {clubEnglishName}
           </span>
