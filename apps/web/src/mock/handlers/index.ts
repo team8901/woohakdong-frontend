@@ -1,5 +1,5 @@
 import { mockGetClubInfoSearch } from '@/mock/handlers/club/getClubInfoSearch/mockGetClubInfoSearch';
-import { mockPostRegisterClub } from '@/mock/handlers/club/postRegisterClub/mockGetClubInfoSearch';
+import { mockPostRegisterClub } from '@/mock/handlers/club/postRegisterClub/mockPostRegisterClub';
 import { mockGetS3ImageUrl } from '@/mock/handlers/util/getS3ImageUrl/mockGetS3ImageUrl';
 import { createMockHandler } from '@workspace/msw/createMockHandler';
 
