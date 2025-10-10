@@ -15,7 +15,21 @@ export const useAuthorizationFlow = () => {
       // 액세스 토큰 저장 (HttpOnly RefreshToken은 쿠키로 처리됨)
       setAccessToken(data.accessToken);
 
-      console.log('✅ 액세스 토큰, 리프레쉬 토큰 발급 및 저장 성공');
+      // 유저 권한(준회원) 쿠키 설정
+      try {
+        await fetch('/api/auth/roles', {
+          method: 'POST',
+        });
+      } catch (error) {
+        console.error(
+          '❌ 유저 권한(준회원) 등록 중 에러가 발생했습니다.',
+          error,
+        );
+      }
+
+      console.log(
+        '✅ 액세스 토큰, 리프레쉬 토큰, 유저 권한 쿠키 발급 및 저장 성공',
+      );
 
       await checkProfileAndRedirect(router);
     },

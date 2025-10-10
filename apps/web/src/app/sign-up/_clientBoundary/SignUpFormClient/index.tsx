@@ -5,10 +5,11 @@ import { Form } from '@workspace/ui/components/form';
 
 import { SignUpCardContent } from '../../_components/SignUpCardContent';
 import { SignUpCardFooter } from '../../_components/SignUpCardFooter';
-import { useSignUpFlow } from '../../_helpers/hooks/useSignUpFlow';
+import { useEnterProfile } from '../../_helpers/hooks/useSignUpFlow';
 
 export const SignUpFormClient = () => {
-  const { form, onSubmit, onQuit, isFormValid, isSubmitting } = useSignUpFlow();
+  const { form, onSubmit, onQuit, isFormValid, isSubmitting } =
+    useEnterProfile();
 
   return (
     <Form {...form}>

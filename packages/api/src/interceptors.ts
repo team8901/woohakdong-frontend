@@ -1,4 +1,10 @@
-import { getAccessToken, refreshAccessToken } from '@workspace/api/manageToken';
+import { REFRESH_URL } from '@workspace/api/_helpers';
+import {
+  clearAccessToken,
+  getAccessToken,
+  refreshAccessToken,
+} from '@workspace/api/manageToken';
+import { captureAxiosError } from '@workspace/sentry/captureAxiosError';
 import {
   type AxiosError,
   AxiosHeaders,
@@ -26,10 +32,13 @@ export const setupInterceptors = (api: AxiosInstance): void => {
     (error: AxiosError) => Promise.reject(error),
   );
 
+  // Response 인터셉터(API 에러 센트리 캡쳐)
+  api.interceptors.response.use(undefined, captureAxiosError);
+
   // 동시 401 발생 시 단일 리프레시 호출을 공유하기 위한 Promise
   let refreshTokenPromise: Promise<string | null> | null = null;
 
-  // Response 인터셉터
+  // Response 인터셉터(액세스토큰 재발급 처리)
   api.interceptors.response.use(
     (response: AxiosResponse) => response,
     async (error: AxiosError) => {
@@ -43,12 +52,18 @@ export const setupInterceptors = (api: AxiosInstance): void => {
         return Promise.reject(error);
       }
 
-      // 리프레시 엔드포인트 자체가 401이면 루프 방지 차원에서 재시도하지 않음
+      // 리프레시 엔드포인트 자체가 401 이면 로그인 페이지로 이동
       const isRefreshCall =
         typeof originalRequest.url === 'string' &&
-        originalRequest.url.includes('/api/auth/refresh');
+        originalRequest.url.includes(REFRESH_URL);
 
       if (isRefreshCall) {
+        clearAccessToken();
+
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+
         return Promise.reject(error);
       }
 
