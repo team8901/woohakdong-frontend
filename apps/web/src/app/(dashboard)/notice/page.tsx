@@ -36,7 +36,7 @@ const NoticePage = () => {
           {/* TODO: 테스트 후 동아리 등록 버튼 제거 */}
           <Button
             type="button"
-            onClick={() => router.push(APP_PATH.REGISTER_CLUB)}>
+            onClick={() => router.push(APP_PATH.REGISTER_CLUB.HOME)}>
             동아리 등록 페이지로 이동
           </Button>
         </div>
