@@ -21,7 +21,7 @@ export const CommunicationFeaturesSectionClient = () => {
               알려야하는 정보도 투명하게
             </h3>
             <p className="text-muted-foreground mt-1 md:mt-4 md:text-xl">
-              회비 사용 내역부터 일정, 모임까지 쉽게 공유할 수 있어요.
+              활동기록부터 일정, 공지사항까지 쉽게 공유할 수 있어요.
             </p>
           </motion.div>
           <motion.div
