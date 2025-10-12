@@ -19,7 +19,7 @@ const jua = localFont({
 });
 
 export const metadata: Metadata = {
-  title: '우학동 - 랜딩',
+  title: '우학동 : 우리 학교 동아리',
   description: '우학동 랜딩 페이지',
 };
 
