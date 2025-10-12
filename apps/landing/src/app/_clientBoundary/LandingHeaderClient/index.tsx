@@ -2,6 +2,20 @@
 
 import { useEffect, useState } from 'react';
 
+import { handleScrollToSection } from '@/app/_helpers/utils/handleScroll';
+import { Button } from '@workspace/ui/components/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@workspace/ui/components/dialog';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -22,14 +36,6 @@ export const LandingHeaderClient = () => {
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleScrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId);
-
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <header
@@ -58,13 +64,34 @@ export const LandingHeaderClient = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            <NavigationMenuItem>
-              <NavigationMenuLink
-                className={`${navigationMenuTriggerStyle()} text-primary hover:bg-primary/10 hover:text-primary cursor-pointer font-bold`}
-                onClick={() => {}}>
+            <Dialog>
+              <DialogTrigger
+                className={`${navigationMenuTriggerStyle()} text-primary hover:bg-primary/10 hover:text-primary cursor-pointer font-bold`}>
                 사전 등록
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>사전 등록</DialogTitle>
+                  <DialogDescription>
+                    이메일 주소를 입력하시면 출시 소식을 알려드려요!
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid w-full max-w-sm items-center gap-2">
+                  <Label htmlFor="email">이메일 주소</Label>
+                  <Input
+                    type="email"
+                    id="email"
+                    placeholder="8901.dev@gmail.com"
+                  />
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">취소</Button>
+                  </DialogClose>
+                  <Button type="submit">등록하기</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </NavigationMenuList>
         </NavigationMenu>
       </div>
