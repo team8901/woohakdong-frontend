@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
+import { usePreRegistrationFlow } from '@/app/_helpers/hooks/usePreRegistrationFlow';
+import { useScrollCheck } from '@/app/_helpers/hooks/useScrollCheck';
 import { handleScrollToSection } from '@/app/_helpers/utils/handleScroll';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -25,17 +25,21 @@ import {
 } from '@workspace/ui/components/navigation-menu';
 
 export const LandingHeaderClient = () => {
-  const [isScrolled, setScrolled] = useState(false);
+  const isScrolled = useScrollCheck();
+  const {
+    email,
+    setEmail,
+    isSubmitting,
+    submitStatus,
+    submitEmail,
+    resetForm,
+  } = usePreRegistrationFlow();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 0);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const handleDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      resetForm();
+    }
+  };
 
   return (
     <header
@@ -64,32 +68,58 @@ export const LandingHeaderClient = () => {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            <Dialog>
+            <Dialog onOpenChange={handleDialogOpenChange}>
               <DialogTrigger
                 className={`${navigationMenuTriggerStyle()} text-primary hover:bg-primary/10 hover:text-primary cursor-pointer font-bold`}>
                 사전 등록
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>사전 등록</DialogTitle>
-                  <DialogDescription>
-                    이메일 주소를 입력하시면 출시 소식을 알려드려요!
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid w-full max-w-sm items-center gap-2">
-                  <Label htmlFor="email">이메일 주소</Label>
-                  <Input
-                    type="email"
-                    id="email"
-                    placeholder="8901.dev@gmail.com"
-                  />
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline">취소</Button>
-                  </DialogClose>
-                  <Button type="submit">등록하기</Button>
-                </DialogFooter>
+                <form onSubmit={submitEmail}>
+                  <DialogHeader>
+                    <DialogTitle>사전 등록</DialogTitle>
+                    <DialogDescription>
+                      이메일 주소를 입력하시면 출시 소식을 알려드려요!
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="grid w-full max-w-sm items-center gap-2 py-4">
+                    <Label htmlFor="email">이메일 주소</Label>
+                    <Input
+                      type="email"
+                      id="email"
+                      placeholder="8901.dev@gmail.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={isSubmitting}
+                      required
+                    />
+                  </div>
+
+                  {submitStatus && (
+                    <div
+                      className={`mb-4 rounded-md p-3 text-sm ${
+                        submitStatus.type === 'success'
+                          ? 'bg-green-50 text-green-800'
+                          : 'bg-red-50 text-red-800'
+                      }`}>
+                      {submitStatus.message}
+                    </div>
+                  )}
+
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={isSubmitting}>
+                        닫기
+                      </Button>
+                    </DialogClose>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? '등록 중...' : '등록하기'}
+                    </Button>
+                  </DialogFooter>
+                </form>
               </DialogContent>
             </Dialog>
           </NavigationMenuList>

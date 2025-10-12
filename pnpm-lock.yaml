@@ -65,6 +65,9 @@ importers:
 
   apps/landing:
     dependencies:
+      '@workspace/firebase':
+        specifier: workspace:*
+        version: link:../../packages/firebase
       '@workspace/ui':
         specifier: workspace:*
         version: link:../../packages/ui
