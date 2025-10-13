@@ -70,7 +70,7 @@ export const LandingHeaderClient = () => {
 
             <Dialog onOpenChange={handleDialogOpenChange}>
               <DialogTrigger
-                className={`${navigationMenuTriggerStyle()} text-primary hover:bg-primary/10 hover:text-primary cursor-pointer font-bold`}>
+                className={`${navigationMenuTriggerStyle()} text-primary hover:bg-primary/10 hover:text-primary cursor-pointer`}>
                 사전 등록
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
@@ -81,7 +81,6 @@ export const LandingHeaderClient = () => {
                       이메일 주소를 입력하시면 출시 소식을 알려드려요!
                     </DialogDescription>
                   </DialogHeader>
-
                   <div className="grid w-full max-w-sm items-center gap-2 py-4">
                     <Label htmlFor="email">이메일 주소</Label>
                     <Input
@@ -93,19 +92,17 @@ export const LandingHeaderClient = () => {
                       disabled={isSubmitting}
                       required
                     />
+                    {submitStatus && (
+                      <div
+                        className={`rounded-md p-3 text-sm ${
+                          submitStatus.type === 'success'
+                            ? 'bg-green-800/10 text-green-800'
+                            : 'bg-red-800/10 text-red-800'
+                        }`}>
+                        {submitStatus.message}
+                      </div>
+                    )}
                   </div>
-
-                  {submitStatus && (
-                    <div
-                      className={`mb-4 rounded-md p-3 text-sm ${
-                        submitStatus.type === 'success'
-                          ? 'bg-green-50 text-green-800'
-                          : 'bg-red-50 text-red-800'
-                      }`}>
-                      {submitStatus.message}
-                    </div>
-                  )}
-
                   <DialogFooter>
                     <DialogClose asChild>
                       <Button

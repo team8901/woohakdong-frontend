@@ -7,7 +7,7 @@ type SubmitStatus = {
   message: string;
 } | null;
 
-export function usePreRegistrationFlow() {
+export const usePreRegistrationFlow = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
@@ -51,4 +51,4 @@ export function usePreRegistrationFlow() {
     submitEmail,
     resetForm,
   };
-}
+};
