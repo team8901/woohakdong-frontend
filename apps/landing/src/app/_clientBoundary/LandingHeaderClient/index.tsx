@@ -3,6 +3,7 @@
 import { usePreRegistrationFlow } from '@/app/_helpers/hooks/usePreRegistrationFlow';
 import { useScrollCheck } from '@/app/_helpers/hooks/useScrollCheck';
 import { handleScrollToSection } from '@/app/_helpers/utils/handleScroll';
+import { trackEvent } from '@/eventTracker/trackEvent';
 import { Button } from '@workspace/ui/components/button';
 import {
   Dialog,
@@ -41,6 +42,10 @@ export const LandingHeaderClient = () => {
     }
   };
 
+  const handleNavigationCtaClick = () => {
+    trackEvent('navigation_cta_click');
+  };
+
   return (
     <header
       className={`bg-background fixed left-0 top-0 z-10 w-full px-6 py-3 transition-all duration-200 ease-in-out ${isScrolled ? 'shadow-2xs border-border border-b' : 'border-background border-b'}`}>
@@ -70,7 +75,8 @@ export const LandingHeaderClient = () => {
 
             <Dialog onOpenChange={handleDialogOpenChange}>
               <DialogTrigger
-                className={`${navigationMenuTriggerStyle()} text-primary hover:bg-primary/10 hover:text-primary cursor-pointer font-bold`}>
+                className={`${navigationMenuTriggerStyle()} text-primary hover:bg-primary/10 hover:text-primary cursor-pointer font-bold`}
+                onClick={handleNavigationCtaClick}>
                 사전 등록
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">

@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@workspace/amplitude": "workspace:*",
     "@workspace/ui": "workspace:*",
     "@workspace/firebase": "workspace:*",
     "framer-motion": "^12.23.24",
