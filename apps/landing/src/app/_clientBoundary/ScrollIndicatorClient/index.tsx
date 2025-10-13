@@ -1,7 +1,9 @@
+'use client';
+
 import { handleScrollToSection } from '@/app/_helpers/utils/handleScroll';
 import { ChevronDownIcon } from 'lucide-react';
 
-export const ScrollIndicator = () => {
+export const ScrollIndicatorClient = () => {
   return (
     <div className="absolute bottom-8 left-1/2 -translate-x-1/2 transform">
       <button

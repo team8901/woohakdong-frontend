@@ -1,5 +1,9 @@
 'use client';
 
+import {
+  FADE_IN_UP_IMAGE_ANIMATION,
+  FADE_IN_UP_TEXT_ANIMATION,
+} from '@/app/_helpers/constants/animations';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -12,11 +16,8 @@ export const RegisterFeaturesSectionClient = () => {
         </h2>
         <div className="flex flex-col gap-8 md:flex-row md:justify-between">
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="md-w-1/3 md:mt-24 md:gap-4">
+            {...FADE_IN_UP_TEXT_ANIMATION}
+            className="md:mt-24 md:w-1/3 md:gap-4">
             <h3 className="text-foreground text-2xl font-semibold md:text-4xl">
               <p>일단 간단하게</p>
               <p>동아리 등록부터</p>
@@ -27,10 +28,7 @@ export const RegisterFeaturesSectionClient = () => {
             </div>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            viewport={{ once: true }}
+            {...FADE_IN_UP_IMAGE_ANIMATION}
             className="flex w-full md:w-2/3">
             <Image
               src="/feature_images/register_1.webp"

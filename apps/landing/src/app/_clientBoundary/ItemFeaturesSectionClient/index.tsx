@@ -1,5 +1,9 @@
 'use client';
 
+import {
+  FADE_IN_UP_IMAGE_ANIMATION,
+  FADE_IN_UP_TEXT_ANIMATION,
+} from '@/app/_helpers/constants/animations';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -13,10 +17,7 @@ export const ItemFeaturesSectionClient = () => {
         {/* 물품 등록 기능 소개 부분 */}
         <div className="mb-6 flex flex-col gap-8 md:mb-20 md:flex-row md:justify-between">
           <motion.div
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            viewport={{ once: true }}
+            {...FADE_IN_UP_IMAGE_ANIMATION}
             className="order-2 flex w-full md:order-1 md:w-2/3">
             <Image
               src="/feature_images/item_1.webp"
@@ -34,11 +35,8 @@ export const ItemFeaturesSectionClient = () => {
             />
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="md-w-1/3 order-1 md:order-2 md:mt-24 md:gap-4">
+            {...FADE_IN_UP_TEXT_ANIMATION}
+            className="order-1 md:order-2 md:mt-24 md:w-1/3 md:gap-4">
             <h3 className="text-foreground text-2xl font-semibold md:text-4xl">
               <p>물품도 한 눈에</p>
             </h3>
@@ -51,11 +49,8 @@ export const ItemFeaturesSectionClient = () => {
         {/* 물품 대여 기능 소개 부분 */}
         <div className="flex flex-col gap-8 md:flex-row md:justify-between">
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="md-w-1/3 order-1 md:order-2 md:mt-24 md:gap-4">
+            {...FADE_IN_UP_TEXT_ANIMATION}
+            className="order-1 md:order-2 md:mt-24 md:w-1/3 md:gap-4">
             <h3 className="text-foreground text-2xl font-semibold md:text-4xl">
               <p>대여 내역 관리까지</p>
             </h3>
@@ -65,10 +60,7 @@ export const ItemFeaturesSectionClient = () => {
             </div>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            viewport={{ once: true }}
+            {...FADE_IN_UP_IMAGE_ANIMATION}
             className="order-2 flex w-full md:w-2/3">
             <Image
               src="/feature_images/item_3.webp"
