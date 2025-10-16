@@ -65,6 +65,9 @@ importers:
 
   apps/landing:
     dependencies:
+      '@workspace/amplitude':
+        specifier: workspace:*
+        version: link:../../packages/amplitude
       '@workspace/firebase':
         specifier: workspace:*
         version: link:../../packages/firebase

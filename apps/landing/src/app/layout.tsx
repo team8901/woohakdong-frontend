@@ -1,5 +1,6 @@
 import '@workspace/ui/globals.css';
 
+import { InitEventTracker } from '@/eventTracker/InitEventTracker';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { ThemeProvider } from 'next-themes';
@@ -32,6 +33,7 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className={`${pretendard.variable} ${jua.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <InitEventTracker />
           {children}
         </ThemeProvider>
       </body>
