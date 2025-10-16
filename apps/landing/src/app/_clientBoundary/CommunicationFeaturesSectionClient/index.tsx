@@ -1,22 +1,23 @@
 'use client';
 
+import {
+  FADE_IN_UP_IMAGE_ANIMATION,
+  FADE_IN_UP_TEXT_ANIMATION,
+} from '@/app/_helpers/constants/animations';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 export const CommunicationFeaturesSectionClient = () => {
   return (
-    <section id="feature_communication" className="bg-background py-20 md:py-24">
+    <section
+      id="feature_communication"
+      className="bg-background py-20 md:py-24">
       <div className="container mx-auto max-w-5xl px-6">
         <h2 className="text-primary mb-12 text-lg font-semibold md:text-2xl">
           공유
         </h2>
         <div className="flex flex-col gap-8 md:text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 60 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="md-w-1/3 md:gap-4">
+          <motion.div {...FADE_IN_UP_TEXT_ANIMATION} className="md:gap-4">
             <h3 className="text-foreground text-2xl font-semibold md:text-4xl">
               알려야하는 정보도 투명하게
             </h3>
@@ -25,10 +26,7 @@ export const CommunicationFeaturesSectionClient = () => {
             </p>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            viewport={{ once: true }}
+            {...FADE_IN_UP_IMAGE_ANIMATION}
             className="scrollbar-hide flex w-full flex-nowrap justify-between overflow-x-auto scroll-smooth">
             <Image
               src="/feature_images/communication_1.webp"

@@ -3,14 +3,19 @@
 import { useEffect, useState } from 'react';
 import { ReactTyped } from 'react-typed';
 
-import { ScrollIndicator } from '@/app/_components/ScrollIndicator';
+import { ScrollIndicatorClient } from '@/app/_clientBoundary/ScrollIndicatorClient';
+
+const SHOW_FIRST_TEXT_DELAY_MS = 400;
 
 export const HomeSectionClient = () => {
   const [showFirst, setShowFirst] = useState(false);
   const [showSecond, setShowSecond] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowFirst(true), 400);
+    const timer = setTimeout(
+      () => setShowFirst(true),
+      SHOW_FIRST_TEXT_DELAY_MS,
+    );
 
     return () => clearTimeout(timer);
   }, []);
@@ -41,7 +46,7 @@ export const HomeSectionClient = () => {
           />
         )}
       </h1>
-      <ScrollIndicator />
+      <ScrollIndicatorClient />
     </section>
   );
 };
