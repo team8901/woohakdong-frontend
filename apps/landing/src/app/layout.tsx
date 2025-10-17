@@ -1,5 +1,9 @@
 import '@workspace/ui/globals.css';
 
+import {
+  SERVICE_DESCRIPTION,
+  SERVICE_FULL_NAME,
+} from '@/app/_helpers/constants/service';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { ThemeProvider } from 'next-themes';
@@ -19,8 +23,8 @@ const jua = localFont({
 });
 
 export const metadata: Metadata = {
-  title: '우학동 : 우리 학교 동아리',
-  description: '우학동 랜딩 페이지',
+  title: SERVICE_FULL_NAME,
+  description: SERVICE_DESCRIPTION,
 };
 
 export default function RootLayout({

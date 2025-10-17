@@ -1,5 +1,6 @@
 'use client';
 
+import { SERVICE_NAME } from '@/app/_helpers/constants/service';
 import { usePreRegistrationFlow } from '@/app/_helpers/hooks/usePreRegistrationFlow';
 import { useScrollCheck } from '@/app/_helpers/hooks/useScrollCheck';
 import { handleScrollToSection } from '@/app/_helpers/utils/handleScroll';
@@ -48,7 +49,7 @@ export const LandingHeaderClient = () => {
         <h1
           className="font-jua text-foreground cursor-pointer text-xl"
           onClick={() => handleScrollToSection('home')}>
-          우학동
+          {SERVICE_NAME}
         </h1>
         <NavigationMenu>
           <NavigationMenuList>
