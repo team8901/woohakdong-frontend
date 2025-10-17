@@ -1,6 +1,7 @@
-import { delay, http, HttpResponse, JsonBodyType } from 'msw';
-import { MockApiResponse } from './types.js';
 import { getBaseURL } from '@workspace/api/axios';
+import { delay, http, HttpResponse, type JsonBodyType } from 'msw';
+
+import { type MockApiResponse } from './types.js';
 
 /**
  * 특정 목데이터와 response key 를 받아서 MSW 핸들러를 생성하는 함수

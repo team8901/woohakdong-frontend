@@ -9,6 +9,7 @@
   },
   "exports": {
     "./auth": "./src/auth.ts",
+    "./firestore": "./src/firestore.ts",
     "./firebase-config": "./src/firebase-config.ts"
   },
   "dependencies": {
