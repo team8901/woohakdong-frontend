@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ReactTyped } from 'react-typed';
 
 import { ScrollIndicatorClient } from '@/app/_clientBoundary/ScrollIndicatorClient';
+import { SERVICE_NAME } from '@/app/_helpers/constants/service';
 
 const SHOW_FIRST_TEXT_DELAY_MS = 400;
 
@@ -38,7 +39,7 @@ export const HomeSectionClient = () => {
           <ReactTyped
             strings={[
               '저희가',
-              '<span class="text-primary">우학동이 대신 해 드릴게요</span>',
+              `<span class="text-primary">${SERVICE_NAME}이 대신 해 드릴게요</span>`,
             ]}
             typeSpeed={55}
             backSpeed={30}
