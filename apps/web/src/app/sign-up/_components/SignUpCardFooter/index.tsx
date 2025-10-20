@@ -1,5 +1,6 @@
 import { Button } from '@workspace/ui/components/button';
-import { Loader2Icon, LogOutIcon } from 'lucide-react';
+import { Spinner } from '@workspace/ui/components/spinner';
+import { LogOutIcon } from 'lucide-react';
 
 import { type SignupCardFooterProps } from '../../_helpers/types';
 
@@ -25,7 +26,7 @@ export const SignUpCardFooter = ({
         aria-label="프로필 완성하기">
         {isSubmitting ? (
           <>
-            <Loader2Icon className="animate-spin" />
+            <Spinner />
             완성 중...
           </>
         ) : (
