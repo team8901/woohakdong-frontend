@@ -13,7 +13,7 @@ type Story = StoryObj<typeof meta>;
 
 export const 기본: Story = {
   args: {
-    onQuit: () => {},
+    onQuit: async () => {},
     isFormValid: true,
     isSubmitting: false,
   },
@@ -21,7 +21,7 @@ export const 기본: Story = {
 
 export const 폼_검증_안됨: Story = {
   args: {
-    onQuit: () => {},
+    onQuit: async () => {},
     isFormValid: false,
     isSubmitting: false,
   },
@@ -29,7 +29,7 @@ export const 폼_검증_안됨: Story = {
 
 export const 제출중: Story = {
   args: {
-    onQuit: () => {},
+    onQuit: async () => {},
     isFormValid: true,
     isSubmitting: true,
   },
