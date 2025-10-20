@@ -20,8 +20,7 @@ export const FaqSection = () => {
               비용이 어떻게 되나요?
             </h3>
             <p className="text-foreground text-sm md:text-base">
-              첫 6개월 이용은 무료로 이용이 가능하며, 이후 6개월마다 기본 요금
-              3만원과 현재 가입되어 있는 동아리 회원 수 1명 당 500원의 추가
+              첫 1년은 무료로 이용이 가능하며, 이후 6개월마다 사용량에 따라
               요금이 부과돼요.
             </p>
           </div>
