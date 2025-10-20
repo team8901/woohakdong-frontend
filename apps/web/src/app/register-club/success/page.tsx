@@ -1,5 +1,5 @@
-import { QrCardClient } from '@/app/register-club/success/_clientBoundary/QrCardClient';
 import { RegisterClubSuccessCardHeader } from '@/app/register-club/success/_components/RegisterClubSuccessCardHeader';
+import { QrCardSuspense } from '@/app/register-club/success/_suspense/QrCardSuspense';
 import { Card } from '@workspace/ui/components/card';
 
 const RegisterClubSuccessPage = () => {
@@ -8,7 +8,7 @@ const RegisterClubSuccessPage = () => {
       <div className="mx-auto flex w-full max-w-lg flex-col">
         <Card>
           <RegisterClubSuccessCardHeader />
-          <QrCardClient />
+          <QrCardSuspense />
         </Card>
       </div>
     </div>
