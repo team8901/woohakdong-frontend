@@ -1,5 +1,6 @@
 import { Button } from '@workspace/ui/components/button';
-import { ArrowLeftIcon, Loader2Icon } from 'lucide-react';
+import { Spinner } from '@workspace/ui/components/spinner';
+import { ArrowLeftIcon } from 'lucide-react';
 
 type Props = {
   isFormValid: boolean;
@@ -29,7 +30,7 @@ export const RegisterClubCardFooter = ({
         aria-label="동아리 등록하기">
         {isSubmitting ? (
           <>
-            <Loader2Icon className="animate-spin" />
+            <Spinner />
             등록 중...
           </>
         ) : (
