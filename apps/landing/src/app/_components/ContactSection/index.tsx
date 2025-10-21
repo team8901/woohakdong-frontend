@@ -12,7 +12,7 @@ export const ContactSection = () => {
             <h3 className="font-jua text-foreground mb-4 text-xl">
               {SERVICE_NAME}
             </h3>
-            <>
+            <div className="space-y-0.5">
               <div className="text-foreground flex items-center justify-center md:justify-start">
                 <MailIcon className="size-5" />
                 <Button variant="link" className="text-foreground" asChild>
@@ -36,7 +36,7 @@ export const ContactSection = () => {
                   </a>
                 </Button>
               </div>
-            </>
+            </div>
           </div>
           <div className="text-muted-foreground text-center md:text-right">
             © 2025 {SERVICE_NAME}. All rights reserved.

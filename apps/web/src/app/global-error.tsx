@@ -1,15 +1,16 @@
 'use client'; // NOTE: Error boundaries must be Client Components
 
 import { Button } from '@workspace/ui/components/button';
+import { Card, CardContent } from '@workspace/ui/components/card';
 import { RefreshCcwIcon, SirenIcon } from 'lucide-react';
 
 const SUPPORT_MAIL = '8901.dev@gmail.com';
 
 /**
- * web 서비스의 global error 를 핸들링하는 Error boundary
+ * global error 를 핸들링하는 Error boundary
  * @see https://nextjs.org/docs/app/getting-started/error-handling
  */
-const GlobalError = () => {
+const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
   return (
     // NOTE: global-error must include html and body tags
     <html lang="ko">
@@ -42,6 +43,23 @@ const GlobalError = () => {
               <a href={`mailto:${SUPPORT_MAIL}`}>{SUPPORT_MAIL}</a>
             </Button>
           </div>
+
+          {/* Error Details (Development only) */}
+          {process.env.NODE_ENV === 'development' && error.message && (
+            <Card className="bg-muted max-w-5xl text-left">
+              <CardContent>
+                <p className="text-foreground mb-2 text-sm">Error Details:</p>
+                <p className="text-muted-foreground bg-background/50 break-words rounded border p-2 font-mono text-sm">
+                  {error.message}
+                </p>
+                {error.digest && (
+                  <p className="text-muted-foreground mt-2 font-mono text-xs">
+                    Error ID: {error.digest}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </body>
     </html>
