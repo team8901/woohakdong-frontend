@@ -30,11 +30,7 @@ export const metadata: Metadata = {
  * 이를 방지하기 위해 suppressHydrationWarning을 사용합니다.
  * @see https://ui.shadcn.com/docs/dark-mode/next
  */
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${pretendard.variable} ${jua.variable} antialiased`}>
@@ -46,4 +42,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

@@ -1,4 +1,5 @@
 import { SERVICE_NAME } from '@/app/_helpers/constants/service';
+import { Button } from '@workspace/ui/components/button';
 import { MailIcon } from 'lucide-react';
 import Image from 'next/image';
 
@@ -11,12 +12,14 @@ export const ContactSection = () => {
             <h3 className="font-jua text-foreground mb-4 text-xl">
               {SERVICE_NAME}
             </h3>
-            <div className="space-y-3">
-              <div className="text-foreground flex items-center justify-center gap-3 md:justify-start">
+            <>
+              <div className="text-foreground flex items-center justify-center md:justify-start">
                 <MailIcon className="size-5" />
-                <a href="mailto:8901.dev@gmail.com">8901.dev@gmail.com</a>
+                <Button variant="link" className="text-foreground" asChild>
+                  <a href="mailto:8901.dev@gmail.com">8901.dev@gmail.com</a>
+                </Button>
               </div>
-              <div className="text-foreground flex items-center justify-center gap-3 md:justify-start">
+              <div className="text-foreground flex items-center justify-center md:justify-start">
                 <Image
                   src="/icons/github-mark.svg"
                   alt="GitHub"
@@ -24,14 +27,16 @@ export const ContactSection = () => {
                   height={20}
                   className="size-5"
                 />
-                <a
-                  href="https://github.com/team8901"
-                  target="_blank"
-                  rel="noopener noreferrer">
-                  https://github.com/team8901
-                </a>
+                <Button variant="link" className="text-foreground" asChild>
+                  <a
+                    href="https://github.com/team8901"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    https://github.com/team8901
+                  </a>
+                </Button>
               </div>
-            </div>
+            </>
           </div>
           <div className="text-muted-foreground text-center md:text-right">
             © 2025 {SERVICE_NAME}. All rights reserved.
