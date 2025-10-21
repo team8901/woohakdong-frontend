@@ -1,4 +1,8 @@
-import { SERVICE_NAME } from '@/app/_helpers/constants/service';
+import {
+  GITHUB_URL,
+  SERVICE_NAME,
+  SUPPORT_MAIL,
+} from '@/app/_helpers/constants/service';
 import { Button } from '@workspace/ui/components/button';
 import { MailIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -16,7 +20,7 @@ export const ContactSection = () => {
               <div className="text-foreground flex items-center justify-center md:justify-start">
                 <MailIcon className="size-5" />
                 <Button variant="link" className="text-foreground" asChild>
-                  <a href="mailto:8901.dev@gmail.com">8901.dev@gmail.com</a>
+                  <a href={`mailto:${SUPPORT_MAIL}`}>{SUPPORT_MAIL}</a>
                 </Button>
               </div>
               <div className="text-foreground flex items-center justify-center md:justify-start">
@@ -29,10 +33,10 @@ export const ContactSection = () => {
                 />
                 <Button variant="link" className="text-foreground" asChild>
                   <a
-                    href="https://github.com/team8901"
+                    href={GITHUB_URL}
                     target="_blank"
                     rel="noopener noreferrer">
-                    https://github.com/team8901
+                    {GITHUB_URL}
                   </a>
                 </Button>
               </div>
