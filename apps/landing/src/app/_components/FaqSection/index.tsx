@@ -20,8 +20,7 @@ export const FaqSection = () => {
               비용이 어떻게 되나요?
             </h3>
             <p className="text-foreground text-sm md:text-base">
-              첫 1년은 무료로 이용이 가능하며, 이후 6개월마다 사용량에 따라
-              요금이 부과돼요.
+              사전등록 기간에 등록된 동아리에 한해 100% 무료로 이용가능해요.
             </p>
           </div>
         </div>
