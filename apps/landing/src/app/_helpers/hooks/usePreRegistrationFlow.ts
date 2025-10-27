@@ -1,6 +1,11 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
-import { savePreRegistrationEmail } from '@workspace/firebase/firestore';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { savePreRegistrationInfo } from '@workspace/firebase/firestore';
+
+import { type PreRegistrationInfoFormData } from '../types';
+import { preRegistrationInfoSchema } from '../utils/zodSchemas';
 
 type SubmitStatus = {
   type: 'success' | 'error';
@@ -8,23 +13,32 @@ type SubmitStatus = {
 } | null;
 
 export const usePreRegistrationFlow = () => {
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm<PreRegistrationInfoFormData>({
+    resolver: zodResolver(preRegistrationInfoSchema),
+    mode: 'onChange',
+    defaultValues: {
+      email: '',
+      schoolName: '',
+      clubCategory: undefined,
+    },
+  });
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
 
-  const submitEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const onSubmit = async (data: PreRegistrationInfoFormData): Promise<void> => {
     setSubmitStatus(null);
 
     try {
-      await savePreRegistrationEmail(email);
+      await savePreRegistrationInfo(
+        data.email,
+        data.schoolName,
+        data.clubCategory,
+      );
 
       setSubmitStatus({
         type: 'success',
         message: '사전 등록이 완료되었어요!',
       });
-      setEmail('');
+      form.reset();
     } catch (error) {
       setSubmitStatus({
         type: 'error',
@@ -33,22 +47,21 @@ export const usePreRegistrationFlow = () => {
             ? error.message
             : '알 수 없는 오류가 발생했어요.',
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  const resetForm = () => {
-    setEmail('');
+  const onQuit = async (): Promise<void> => {
+    form.clearErrors();
+    form.reset();
     setSubmitStatus(null);
   };
 
   return {
-    email,
-    setEmail,
-    isSubmitting,
+    form,
+    onSubmit,
+    onQuit,
     submitStatus,
-    submitEmail,
-    resetForm,
+    isFormValid: form.formState.isValid,
+    isSubmitting: form.formState.isSubmitting,
   };
 };

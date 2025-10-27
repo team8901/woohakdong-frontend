@@ -1,3 +1,5 @@
+import { type UseFormReturn } from 'react-hook-form';
+
 import {
   FormControl,
   FormDescription,
@@ -15,10 +17,14 @@ import {
   SelectValue,
 } from '@workspace/ui/components/select';
 
-import { GENDER_OPTIONS } from '../../_helpers/constants';
-import { type SignupCardContentProps } from '../../_helpers/types';
+import { GENDER_OPTIONS } from '../../_helpers/constants/regex';
+import { type UserProfileFormData } from '../../_helpers/types';
 
-export const SignUpCardContent = ({ form }: SignupCardContentProps) => {
+type SignUpCardContentProps = {
+  form: UseFormReturn<UserProfileFormData>;
+};
+
+export const SignUpCardContent = ({ form }: SignUpCardContentProps) => {
   return (
     <div className="flex flex-col gap-6">
       {/* 성별 선택 */}

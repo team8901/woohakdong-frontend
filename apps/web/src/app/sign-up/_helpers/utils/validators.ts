@@ -2,7 +2,7 @@ import {
   NICKNAME_REGEX,
   PHONE_NUMBER_REGEX,
   STUDENT_ID_REGEX,
-} from '../constants';
+} from '../constants/regex';
 
 export const validatePhoneNumber = (phoneNumber: string): boolean => {
   return PHONE_NUMBER_REGEX.test(phoneNumber);
