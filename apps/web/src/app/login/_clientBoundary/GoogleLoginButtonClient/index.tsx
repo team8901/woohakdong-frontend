@@ -2,8 +2,8 @@
 
 import { trackEvent } from '@/eventTracker/trackEvent';
 import { Button } from '@workspace/ui/components/button';
+import { Spinner } from '@workspace/ui/components/spinner';
 import { GoogleIcon } from '@workspace/ui/icons/google-icon';
-import { Loader2Icon } from 'lucide-react';
 
 import { useGoogleAuthFlow } from '../../_helpers/hooks/useGoogleAuthFlow';
 
@@ -29,7 +29,7 @@ export const GoogleLoginButtonClient = () => {
       aria-busy={isLoading}>
       {isLoading ? (
         <>
-          <Loader2Icon className="animate-spin" />
+          <Spinner />
           <p>로그인 중...</p>
         </>
       ) : (
