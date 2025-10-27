@@ -18,7 +18,7 @@ export const ContactSection = () => {
           <h2 className="font-jua text-2xl">
             지금 사전 등록하고 가장 먼저 새로운 소식을 받아보세요!
           </h2>
-          <PreRegistrationDialogClient>
+          <PreRegistrationDialogClient trackingEventName="contact_cta_click">
             <Button size="lg">사전 등록하기</Button>
           </PreRegistrationDialogClient>
         </div>
