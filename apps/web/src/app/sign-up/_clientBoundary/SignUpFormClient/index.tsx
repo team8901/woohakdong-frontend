@@ -17,7 +17,6 @@ export const SignUpFormClient = () => {
           <CardContent>
             <SignUpCardContent form={form} />
           </CardContent>
-
           <CardFooter>
             <SignUpCardFooter
               onQuit={onQuit}

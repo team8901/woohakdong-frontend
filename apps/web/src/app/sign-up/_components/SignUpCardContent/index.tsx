@@ -52,7 +52,6 @@ export const SignUpCardContent = ({ form }: SignUpCardContentProps) => {
           </FormItem>
         )}
       />
-
       {/* 닉네임 입력 */}
       <FormField
         control={form.control}
@@ -77,7 +76,6 @@ export const SignUpCardContent = ({ form }: SignUpCardContentProps) => {
           </FormItem>
         )}
       />
-
       {/* 휴대폰 번호 입력 */}
       <FormField
         control={form.control}
@@ -125,7 +123,6 @@ export const SignUpCardContent = ({ form }: SignUpCardContentProps) => {
           );
         }}
       />
-
       {/* 학번 입력 */}
       <FormField
         control={form.control}
