@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 import { CLUB_CATEGORY_OPTIONS } from '@/app/_helpers/constants/regex';
 import { usePreRegistrationFlow } from '@/app/_helpers/hooks/usePreRegistrationFlow';
@@ -34,14 +34,12 @@ import {
 } from '@workspace/ui/components/select';
 
 type PreRegistrationDialogClientProps = {
-  children: ReactNode;
   trackingEventName?: string;
 };
 
-export const PreRegistrationDialogClient = ({
-  children,
-  trackingEventName = 'pre_registration_dialog_open',
-}: PreRegistrationDialogClientProps) => {
+export const PreRegistrationDialogClient: FC<
+  PropsWithChildren<PreRegistrationDialogClientProps>
+> = ({ children, trackingEventName = 'pre_registration_dialog_open' }) => {
   const { form, onSubmit, onQuit, submitStatus, isFormValid, isSubmitting } =
     usePreRegistrationFlow();
 
