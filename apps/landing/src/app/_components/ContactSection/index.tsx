@@ -4,13 +4,25 @@ import {
   SUPPORT_MAIL,
 } from '@/app/_helpers/constants/service';
 import { Button } from '@workspace/ui/components/button';
+import { Separator } from '@workspace/ui/components/separator';
 import { MailIcon } from 'lucide-react';
 import Image from 'next/image';
+
+import { PreRegistrationDialogClient } from '../../_clientBoundary/PreRegistrationDialogClient';
 
 export const ContactSection = () => {
   return (
     <section id="contact" className="bg-background py-20 md:py-24">
-      <div className="container mx-auto max-w-5xl px-6">
+      <div className="container mx-auto flex max-w-5xl flex-col gap-16 px-6">
+        <div className="flex flex-col items-center gap-4 text-center md:flex-row md:justify-between">
+          <h2 className="font-jua text-2xl">
+            지금 사전 등록하고 가장 먼저 새로운 소식을 받아보세요!
+          </h2>
+          <PreRegistrationDialogClient trackingEventName="contact_cta_click">
+            <Button size="lg">사전 등록하기</Button>
+          </PreRegistrationDialogClient>
+        </div>
+        <Separator />
         <div className="grid gap-8 md:grid-cols-2">
           <div className="text-center md:text-left">
             <h3 className="font-jua text-foreground mb-4 text-xl">
@@ -42,7 +54,7 @@ export const ContactSection = () => {
               </div>
             </div>
           </div>
-          <div className="text-muted-foreground text-center md:text-right">
+          <div className="text-muted-foreground text-center text-sm md:text-right">
             © 2025 {SERVICE_NAME}. All rights reserved.
           </div>
         </div>

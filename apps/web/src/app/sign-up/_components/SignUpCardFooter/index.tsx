@@ -2,13 +2,17 @@ import { Button } from '@workspace/ui/components/button';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { LogOutIcon } from 'lucide-react';
 
-import { type SignupCardFooterProps } from '../../_helpers/types';
+type SignUpCardFooterProps = {
+  onQuit: () => Promise<void>;
+  isFormValid: boolean;
+  isSubmitting: boolean;
+};
 
 export const SignUpCardFooter = ({
   onQuit,
   isFormValid,
   isSubmitting,
-}: SignupCardFooterProps) => {
+}: SignUpCardFooterProps) => {
   return (
     <div className="flex w-full items-center justify-between gap-6">
       <Button

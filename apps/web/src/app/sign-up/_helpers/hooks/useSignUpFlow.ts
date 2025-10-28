@@ -2,11 +2,18 @@ import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { type UserProfile, type UserProfileFormData } from '../types';
+import { type UserProfileFormData } from '../types';
 import { userProfileSchema } from '../utils/zodSchemas';
 import { useRegisterProfile } from './useRegisterProfile';
 
-export const useEnterProfile = () => {
+type UserProfile = {
+  nickname: string;
+  phoneNumber: string;
+  studentId: string;
+  gender: 'MALE' | 'FEMALE';
+};
+
+export const useSignUpFlow = () => {
   const { mutateAsync: registerProfileMutation } = useRegisterProfile();
 
   const form = useForm<UserProfileFormData>({
