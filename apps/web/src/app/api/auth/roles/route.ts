@@ -8,15 +8,14 @@ export const POST = async () => {
       { status: 200 },
     );
 
-    // 유저 권한(준회원) 쿠키 설정: 7일
+    // 유저 권한(준회원) 쿠키 설정: 30일
     setCookie('userRole', '준회원', {
       path: '/',
       res: response,
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: 30 * 24 * 60 * 60,
       httpOnly: true,
       sameSite: 'strict',
-      // TODO: 개발 환경에서 secure 옵션 제거
-      // secure: true,
+      secure: true,
     });
 
     return response;
@@ -35,15 +34,14 @@ export const PUT = async () => {
       { status: 200 },
     );
 
-    // 유저 권한(정회원) 쿠키 설정: 7일
+    // 유저 권한(정회원) 쿠키 설정: 30일
     setCookie('userRole', '정회원', {
       path: '/',
       res: response,
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: 30 * 24 * 60 * 60,
       httpOnly: true,
       sameSite: 'strict',
-      // TODO: 개발 환경에서 secure 옵션 제거
-      // secure: true,
+      secure: true,
     });
 
     return response;

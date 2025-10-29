@@ -1,82 +1,67 @@
+import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { type NextRequest, NextResponse } from 'next/server';
 
-/** 권한별 유저 타입 */
-const USER_ROLE = {
-  비회원: 'GUEST',
-  준회원: 'ASSOCIATE_USER',
-  정회원: 'REGULAR_USER',
-} as const;
+type UserRole = '준회원' | '정회원';
 
-type userRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
+const createRedirectResponse = (
+  request: NextRequest,
+  pathname: string,
+): NextResponse => {
+  const url = request.nextUrl.clone();
 
-const DEFAULT_USER_ROLE = USER_ROLE.비회원;
+  url.pathname = pathname;
 
-/** 권한별 허용 경로 매핑 */
-const USER_ROLE_ALLOWED_PATH: Record<
-  userRole,
-  [string, ...(string | RegExp)[]]
-> = {
-  [USER_ROLE.비회원]: ['/login', '/sign-up'],
-  [USER_ROLE.준회원]: ['/login', '/club-list'],
-  [USER_ROLE.정회원]: [
-    '/login',
-    '/join-club',
-    '/club-list',
-    /^\/clubs\/[^/]+$/, // /clubs/{clubEnglishName} 패턴 허용 (clubEnglishName 한 개 하위 경로)
-  ],
+  return NextResponse.redirect(url);
 };
 
-const DEFAULT_PATH = USER_ROLE_ALLOWED_PATH[DEFAULT_USER_ROLE];
+const getDefaultPageByRole = (userRole: UserRole): string => {
+  return userRole === '준회원' ? APP_PATH.SIGN_UP : APP_PATH.DASHBOARD.NOTICE;
+};
 
-export const middleware = (req: NextRequest) => {
-  /** 현재 유저 타입 */
-  const userRole = (req.cookies.get('userRole')?.value ??
-    DEFAULT_USER_ROLE) as userRole;
+export const middleware = (request: NextRequest) => {
+  const { pathname } = request.nextUrl;
 
-  const url = req.nextUrl.clone();
-  const pathname = url.pathname;
+  const userRole = request.cookies.get('userRole')?.value as
+    | UserRole
+    | undefined;
 
-  /** 허용 경로 목록 */
-  const allowedPaths = USER_ROLE_ALLOWED_PATH[userRole] ?? DEFAULT_PATH;
+  const isLoginPage = pathname === APP_PATH.LOGIN;
+  const isSignUpPage = pathname === APP_PATH.SIGN_UP;
 
-  /**
-   * 권한별 허용 경로인지 여부
-   * - 문자열 경로는 정확 일치 혹은 startsWith
-   * - RegExp는 테스트
-   */
-  const isAllowedPath = allowedPaths.some((path) => {
-    if (typeof path === 'string') {
-      return pathname === path || pathname.startsWith(path + '/');
+  // 로그인 페이지 접근 시 처리
+  if (isLoginPage) {
+    // 이미 로그인한 사용자는 권한에 따라 리다이렉트
+    if (userRole) {
+      return createRedirectResponse(request, getDefaultPageByRole(userRole));
     }
 
-    if (path instanceof RegExp) {
-      return path.test(pathname);
-    }
-
-    return false;
-  });
-
-  if (!isAllowedPath) {
-    /** 접근 불가하면 권한별 첫 허용 경로로 리다이렉트 */
-    const redirectTo = USER_ROLE_ALLOWED_PATH[userRole]
-      ? USER_ROLE_ALLOWED_PATH[userRole][0]
-      : DEFAULT_PATH[0];
-
-    url.pathname = redirectTo;
-
-    return NextResponse.redirect(url);
+    // 로그인하지 않은 사용자는 로그인할 수 있도록 접근 허용
+    return NextResponse.next();
   }
 
+  // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
+  if (!userRole) {
+    return createRedirectResponse(request, APP_PATH.LOGIN);
+  }
+
+  // 준회원은 sign-up 페이지로만 접근 가능
+  if (userRole === '준회원' && !isSignUpPage) {
+    return createRedirectResponse(request, APP_PATH.SIGN_UP);
+  }
+
+  // 그 외 모든 경우 접근 허용
   return NextResponse.next();
 };
 
-/** 미들웨어가 matcher 경로에서만 동작하도록 설정 */
 export const config = {
   matcher: [
-    '/login',
-    '/sign-up',
-    '/join-club',
-    '/club-list',
-    '/clubs/:path*', // /clubs 하위 모든 경로에 대해 동작
+    /*
+     * 다음 경로를 제외한 모든 경로에 미들웨어 적용:
+     * - api (API 라우트)
+     * - _next/static (정적 파일)
+     * - _next/image (이미지 최적화 파일)
+     * - favicon.ico (파비콘)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
