@@ -25,6 +25,7 @@ export const middleware = (request: NextRequest) => {
     | UserRole
     | undefined;
 
+  const isRootPage = pathname === '/';
   const isLoginPage = pathname === APP_PATH.LOGIN;
   const isSignUpPage = pathname === APP_PATH.SIGN_UP;
 
@@ -42,6 +43,11 @@ export const middleware = (request: NextRequest) => {
   // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
   if (!userRole) {
     return createRedirectResponse(request, APP_PATH.LOGIN);
+  }
+
+  // 루트 페이지 접근 시 권한에 따라 리다이렉트
+  if (isRootPage) {
+    return createRedirectResponse(request, getDefaultPageByRole(userRole));
   }
 
   // 준회원은 sign-up 페이지로만 접근 가능

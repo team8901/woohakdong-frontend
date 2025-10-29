@@ -1,5 +1,7 @@
 import '@workspace/ui/globals.css';
 
+import type { PropsWithChildren } from 'react';
+
 import { ProviderClient } from '@/_shared/clientBoundary/ProviderClient';
 import { InitEventTracker } from '@/eventTracker/InitEventTracker';
 import { EnableMockClient } from '@/mock/browser';
@@ -30,7 +32,7 @@ export const metadata: Metadata = {
  * 이를 방지하기 위해 suppressHydrationWarning을 사용합니다.
  * @see https://ui.shadcn.com/docs/dark-mode/next
  */
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
+const RootLayout = ({ children }: PropsWithChildren) => {
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${pretendard.variable} ${jua.variable} antialiased`}>

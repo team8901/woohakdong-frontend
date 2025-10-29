@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { type MyProfileResponse } from '@/data/user/getMyProfile/type';
 
+import { ChangeUserRoleButton } from './ChangeUserRoleButton';
 import { TestButton } from './TestButton';
 
 const NoticePage = () => {
@@ -24,7 +25,10 @@ const NoticePage = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <TestButton onDataReceived={handleDataReceived} />
+      <div className="flex gap-2">
+        <TestButton onDataReceived={handleDataReceived} />
+        <ChangeUserRoleButton />
+      </div>
 
       {hasError && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">

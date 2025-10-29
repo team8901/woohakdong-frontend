@@ -1,3 +1,5 @@
+import type { PropsWithChildren } from 'react';
+
 import {
   SidebarInset,
   SidebarProvider,
@@ -7,11 +9,7 @@ import { cookies } from 'next/headers';
 import { DashboardHeader } from './_components/DashboardHeader';
 import { DashboardSidebar } from './_components/DashboardSidebar';
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+const DashboardLayout = async ({ children }: PropsWithChildren) => {
   // 새로고침해도 사이드바 상태를 유지하기 위해 쿠키에서 값을 가져옴
   const cookieStore = await cookies();
   const sidebarCookie = cookieStore.get('sidebar_state')?.value;
@@ -28,4 +26,6 @@ export default async function DashboardLayout({
       </SidebarProvider>
     </div>
   );
-}
+};
+
+export default DashboardLayout;
