@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@workspace/ui/components/select';
-import { CircleXIcon, SearchIcon } from 'lucide-react';
+import { CircleXIcon, PlusIcon, SearchIcon } from 'lucide-react';
 
 export const NoticeHeaderClient = () => {
   const [filterType, setFilterType] = useState('title');
@@ -31,7 +31,7 @@ export const NoticeHeaderClient = () => {
           공지사항
         </h1>
         <p className="text-muted-foreground text-sm md:text-base">
-          중요한 공지사항과 새로운 소식을 확인하세요
+          중요한 공지사항과 새로운 소식을 확인해보세요
         </p>
       </div>
 
@@ -80,11 +80,17 @@ export const NoticeHeaderClient = () => {
         </div>
       </div>
 
-      {/** @todo 전체 공지사항 개수나 검색한 공지사항 개수 연결해야 함*/}
-      <p className="text-muted-foreground text-sm md:text-base">
-        <span className="text-foreground font-semibold">{0}</span> 개 공지사항
-        조회됨
-      </p>
+      <div className="flex items-center justify-between">
+        {/** @todo 전체 공지사항 개수나 검색한 공지사항 개수 연결해야 함*/}
+        <p className="text-muted-foreground text-sm md:text-base">
+          <span className="text-foreground font-semibold">{0}</span> 개 조회됨
+        </p>
+        {/** @todo 공지사항 등록 기능 연동해야 함*/}
+        <Button type="button">
+          <PlusIcon />
+          공지사항 등록
+        </Button>
+      </div>
     </div>
   );
 };
