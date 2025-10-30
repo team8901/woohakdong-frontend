@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { trackEvent } from '@/eventTracker/trackEvent';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { savePreRegistrationInfo } from '@workspace/firebase/firestore';
 
@@ -25,6 +26,7 @@ export const usePreRegistrationFlow = () => {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>(null);
 
   const onSubmit = async (data: PreRegistrationInfoFormData): Promise<void> => {
+    trackEvent('pre_registration_form_submit');
     setSubmitStatus(null);
 
     try {
@@ -51,6 +53,7 @@ export const usePreRegistrationFlow = () => {
   };
 
   const onQuit = async (): Promise<void> => {
+    trackEvent('pre_registration_form_quit');
     form.clearErrors();
     form.reset();
     setSubmitStatus(null);
