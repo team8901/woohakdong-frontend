@@ -3,7 +3,6 @@
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { HomeIcon, RefreshCcwIcon, SirenIcon } from 'lucide-react';
-import Link from 'next/link';
 
 const SUPPORT_MAIL = '8901.dev@gmail.com';
 
@@ -12,6 +11,20 @@ const SUPPORT_MAIL = '8901.dev@gmail.com';
  * @see https://nextjs.org/docs/app/getting-started/error-handling
  */
 const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
+  const deleteUserRoleCookie = async () => {
+    try {
+      await fetch('/api/auth/roles', {
+        method: 'DELETE',
+      });
+
+      console.log('✅ 유저 권한 쿠키 삭제 완료');
+
+      window.location.reload();
+    } catch (error) {
+      console.error('❌ 유저 권한 쿠키 삭제 중 에러가 발생했습니다.', error);
+    }
+  };
+
   return (
     // NOTE: global-error must include html and body tags
     <html lang="ko">
@@ -26,11 +39,13 @@ const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
             페이지를 새로고침 하거나 잠시 후 다시 시도해 주세요.
           </p>
           <div className="flex w-full max-w-sm flex-col gap-3">
-            <Button variant="outline" size="lg" className="w-full" asChild>
-              <Link href={process.env.NEXT_PUBLIC_APP_URL || '/'}>
-                <HomeIcon />
-                로그인 화면으로 돌아가기
-              </Link>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={deleteUserRoleCookie}>
+              <HomeIcon />
+              로그인 화면으로 돌아가기
             </Button>
             <Button
               variant="outline"
