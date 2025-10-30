@@ -32,7 +32,7 @@ export const NoticeCardClient = ({ notice }: NoticeCardClientProps) => {
   return (
     <Card className="hover:bg-muted gap-4 transition-colors">
       {notice.isPinned && (
-        <Badge variant="secondary" className="bg-primary/15 text-primary ml-6">
+        <Badge className="bg-primary/15 text-primary ml-6">
           <PinIcon />
           고정됨
         </Badge>
@@ -40,8 +40,8 @@ export const NoticeCardClient = ({ notice }: NoticeCardClientProps) => {
 
       <CardHeader className="flex flex-row">
         <div className="flex-1">
-          <CardTitle>{notice.title}</CardTitle>
-          <CardDescription className="text-muted-foreground flex items-center gap-2">
+          <CardTitle className="line-clamp-2">{notice.title}</CardTitle>
+          <CardDescription className="text-muted-foreground flex items-center gap-2 leading-relaxed">
             <p>{notice.updatedAt}</p>
             <p>{notice.writer} 작성</p>
           </CardDescription>
@@ -64,7 +64,7 @@ export const NoticeCardClient = ({ notice }: NoticeCardClientProps) => {
       </CardHeader>
 
       <CardContent>
-        <p className="text-pretty">{notice.content}</p>
+        <p className="line-clamp-4">{notice.content}</p>
       </CardContent>
     </Card>
   );
