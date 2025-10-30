@@ -14,6 +14,7 @@ const createRedirectResponse = (
   return NextResponse.redirect(url);
 };
 
+/** @todo: 지금은 notice 페이지로 이동하게 했지만, 후에 다른 페이지로 변경할 필요가 있을 것 같음 */
 const getDefaultPageByRole = (userRole: UserRole): string => {
   return userRole === '준회원' ? APP_PATH.SIGN_UP : APP_PATH.DASHBOARD.NOTICE;
 };
@@ -21,9 +22,11 @@ const getDefaultPageByRole = (userRole: UserRole): string => {
 export const middleware = (request: NextRequest) => {
   const { pathname } = request.nextUrl;
 
-  const userRole = request.cookies.get('userRole')?.value as
-    | UserRole
-    | undefined;
+  const userRoleValue = request.cookies.get('userRole')?.value;
+  const userRole: UserRole | undefined =
+    userRoleValue === '준회원' || userRoleValue === '정회원'
+      ? (userRoleValue as UserRole)
+      : undefined;
 
   const isRootPage = pathname === '/';
   const isLoginPage = pathname === APP_PATH.LOGIN;

@@ -6,7 +6,7 @@ import { isAxiosError } from '@workspace/api/axios';
  * @returns Promise<void>
  */
 
-export const checkProfileAndRedirect = async (): Promise<void> => {
+export const setUserRoleAndRefresh = async (): Promise<void> => {
   try {
     await getMyProfile();
 

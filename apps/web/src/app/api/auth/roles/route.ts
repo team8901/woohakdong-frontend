@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+const THIRTY_DAYS = 30 * 24 * 60 * 60;
+
 export const POST = async () => {
   try {
     const response = NextResponse.json(
@@ -11,7 +13,7 @@ export const POST = async () => {
     // 유저 권한(준회원) 쿠키 설정: 30일
     (await cookies()).set('userRole', '준회원', {
       path: '/',
-      maxAge: 30 * 24 * 60 * 60,
+      maxAge: THIRTY_DAYS,
       httpOnly: true,
       sameSite: 'strict',
       secure: true,
@@ -36,7 +38,7 @@ export const PUT = async () => {
     // 유저 권한(정회원) 쿠키 설정: 30일
     (await cookies()).set('userRole', '정회원', {
       path: '/',
-      maxAge: 30 * 24 * 60 * 60,
+      maxAge: THIRTY_DAYS,
       httpOnly: true,
       sameSite: 'strict',
       secure: true,

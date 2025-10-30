@@ -1,4 +1,4 @@
-import { checkProfileAndRedirect } from '@/app/login/_helpers/utils/redirectPage';
+import { setUserRoleAndRefresh } from '@/app/login/_helpers/utils/userRoleSetUp';
 import { usePostSocialLoginMutation } from '@/data/auth/postSocialLogin/mutation';
 import { setAccessToken } from '@workspace/api/manageToken';
 
@@ -15,7 +15,7 @@ export const useAuthorizationFlow = () => {
       console.log('✅ 액세스 토큰, 리프레쉬 토큰 발급 및 저장 성공');
 
       // 프로필 조회 후 프로필 여부에 따라 쿠키 설정 및 리다이렉트
-      await checkProfileAndRedirect();
+      await setUserRoleAndRefresh();
     },
   });
 
