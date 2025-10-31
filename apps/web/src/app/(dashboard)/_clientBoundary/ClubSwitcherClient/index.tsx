@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,12 +18,14 @@ import {
   useSidebar,
 } from '@workspace/ui/components/sidebar';
 import { ChevronsUpDown, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { type UserJoinedClub } from '../../_helpers/types';
 
 export const ClubSwitcherClient = ({ clubs }: { clubs: UserJoinedClub[] }) => {
   const { isMobile } = useSidebar();
   const [activeClub, setActiveClub] = React.useState(clubs[0]);
+  const router = useRouter();
 
   if (!activeClub) {
     return null;
@@ -65,7 +68,9 @@ export const ClubSwitcherClient = ({ clubs }: { clubs: UserJoinedClub[] }) => {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
+            <DropdownMenuItem
+              onClick={() => router.push(APP_PATH.REGISTER_CLUB.HOME)}
+              className="gap-2 p-2">
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />
               </div>

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { getMyProfile } from '@/data/user/getMyProfile/fetch';
 import { type MyProfileResponse } from '@/data/user/getMyProfile/type';
 import { Button } from '@workspace/ui/components/button';
+import { Spinner } from '@workspace/ui/components/spinner';
 
 interface TestButtonProps {
   onDataReceived: (data: MyProfileResponse | null) => void;
@@ -30,7 +31,8 @@ export const TestButton = ({ onDataReceived }: TestButtonProps) => {
 
   return (
     <Button onClick={handleClick} disabled={isLoading}>
-      {isLoading ? '로딩 중...' : '프로필 정보 가져오기'}
+      {isLoading && <Spinner />}
+      {isLoading ? '로딩 중...' : '프로필 정보 가져오기(토큰 여부 테스트 용도)'}
     </Button>
   );
 };
