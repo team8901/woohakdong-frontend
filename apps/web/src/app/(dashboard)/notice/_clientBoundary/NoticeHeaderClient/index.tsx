@@ -26,7 +26,7 @@ export const NoticeHeaderClient = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-1">
+      <div className="hidden flex-col md:flex">
         <h1 className="text-xl font-bold tracking-tight md:text-2xl">
           공지사항
         </h1>
@@ -82,7 +82,7 @@ export const NoticeHeaderClient = () => {
 
       <div className="flex items-center justify-between">
         {/** @todo 전체 공지사항 개수나 검색한 공지사항 개수 연결해야 함*/}
-        <p className="text-muted-foreground text-sm md:text-base">
+        <p className="text-muted-foreground">
           <span className="text-foreground font-semibold">{0}</span> 개 조회됨
         </p>
         {/** @todo 공지사항 등록 기능 연동해야 함*/}

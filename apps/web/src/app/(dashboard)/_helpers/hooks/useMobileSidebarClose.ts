@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import { useSidebar } from '@workspace/ui/components/sidebar';
 
 /**
@@ -8,11 +10,11 @@ import { useSidebar } from '@workspace/ui/components/sidebar';
 export const useMobileSidebarClose = () => {
   const { isMobile, setOpenMobile } = useSidebar();
 
-  const handleMenuClick = () => {
+  const handleMenuClick = useCallback(() => {
     if (isMobile) {
       setOpenMobile(false);
     }
-  };
+  }, [isMobile, setOpenMobile]);
 
   return { handleMenuClick };
 };

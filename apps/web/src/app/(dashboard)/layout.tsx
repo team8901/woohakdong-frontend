@@ -21,7 +21,7 @@ const DashboardLayout = async ({ children }: PropsWithChildren) => {
         <DashboardSidebar />
         <SidebarInset>
           <DashboardHeader />
-          <div className="flex-1 p-5">{children}</div>
+          <div className="flex flex-1 flex-col p-4 md:p-8">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </div>

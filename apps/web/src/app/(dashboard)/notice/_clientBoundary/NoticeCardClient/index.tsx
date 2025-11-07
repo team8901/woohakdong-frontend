@@ -39,9 +39,9 @@ export const NoticeCardClient = ({ notice }: NoticeCardClientProps) => {
       )}
 
       <CardHeader className="flex flex-row">
-        <div className="flex-1">
+        <div className="flex-1 flex-col space-y-1">
           <CardTitle className="line-clamp-2">{notice.title}</CardTitle>
-          <CardDescription className="text-muted-foreground flex items-center gap-2 leading-relaxed">
+          <CardDescription className="text-muted-foreground flex items-center gap-2">
             <p>{notice.updatedAt}</p>
             <p>{notice.writer} 작성</p>
           </CardDescription>
@@ -64,7 +64,7 @@ export const NoticeCardClient = ({ notice }: NoticeCardClientProps) => {
       </CardHeader>
 
       <CardContent>
-        <p className="line-clamp-4">{notice.content}</p>
+        <p className="line-clamp-3 md:line-clamp-4">{notice.content}</p>
       </CardContent>
     </Card>
   );

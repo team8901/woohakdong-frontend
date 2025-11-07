@@ -24,28 +24,16 @@ export const onAuthStateChange = (callback: (user: User | null) => void) => {
  * @returns Promise<UserCredential> - 로그인된 사용자 정보
  */
 export const signInWithGoogle = async (): Promise<UserCredential> => {
-  try {
-    const result = await signInWithPopup(firebaseAuth, googleProvider);
+  const result = await signInWithPopup(firebaseAuth, googleProvider);
 
-    return result;
-  } catch (error) {
-    console.error('Google 로그인 실패:', error);
-
-    throw error;
-  }
+  return result;
 };
 
 /**
  * 로그아웃
  */
 export const signOutWithGoogle = async (): Promise<void> => {
-  try {
-    await signOut(firebaseAuth);
-  } catch (error) {
-    console.error('로그아웃 실패:', error);
-
-    throw error;
-  }
+  await signOut(firebaseAuth);
 };
 
 /**
