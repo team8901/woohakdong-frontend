@@ -1,6 +1,7 @@
 import { type UseFormReturn } from 'react-hook-form';
 
 import { type RegisterClubFormData } from '@/app/register-club/_helpers/hooks/useRegisterClubForm';
+import { Button } from '@workspace/ui/components/button';
 import {
   FormControl,
   FormDescription,
@@ -51,7 +52,7 @@ export const RegisterClubCardContent = ({
             </FormControl>
             <div className="flex items-center gap-4">
               {/* 이미지 미리보기 */}
-              <div className="flex h-[128px] w-[128px] shrink-0 items-center justify-center rounded-full border border-gray-200">
+              <div className="border-border flex h-[128px] w-[128px] shrink-0 items-center justify-center rounded-full border">
                 {imagePreviewUrl ? (
                   <Image
                     src={imagePreviewUrl}
@@ -61,20 +62,24 @@ export const RegisterClubCardContent = ({
                     height={128}
                   />
                 ) : (
-                  <ImageIcon color="gray" size={20} />
+                  <ImageIcon className="text-muted-foreground" size={20} />
                 )}
               </div>
               {/* 업로드 버튼 */}
               <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="clubProfileImage"
-                  className="flex w-[116px] cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm transition-all hover:bg-gray-100">
-                  <UploadIcon size={16} />
+                <Button
+                  variant="outline"
+                  className="w-fit"
+                  type="button"
+                  onClick={() =>
+                    document.getElementById('clubProfileImage')?.click()
+                  }>
+                  <UploadIcon />
                   로고 업로드
-                </label>
-                <span className="text-xs text-gray-500">
-                  권장: 256x256px 이하, png or jpeg (5MB 이하)
-                </span>
+                </Button>
+                <FormDescription className="text-xs">
+                  <span>권장: 256x256px 이하, png or jpeg (5MB 이하)</span>
+                </FormDescription>
               </div>
             </div>
             <FormMessage />

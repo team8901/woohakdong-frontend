@@ -37,9 +37,9 @@ export const NoticeHeaderClient = () => {
 
       <div className="flex flex-col gap-3 md:flex-row">
         <div className="grid gap-2">
-          <Label htmlFor="keyword">키워드</Label>
+          <Label htmlFor="filterType">키워드</Label>
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-full md:w-[160px]">
+            <SelectTrigger id="filterType" className="w-full md:w-[160px]">
               <SelectValue placeholder="키워드 선택" />
             </SelectTrigger>
             <SelectContent>
@@ -54,6 +54,7 @@ export const NoticeHeaderClient = () => {
           <div className="flex flex-col gap-2 md:flex-row">
             <div className="relative w-full">
               <Input
+                id="search"
                 type="text"
                 inputMode="search"
                 placeholder="검색어를 입력해주세요"
