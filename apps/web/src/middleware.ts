@@ -1,7 +1,7 @@
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { type NextRequest, NextResponse } from 'next/server';
 
-type UserRole = '준회원' | '정회원';
+type UserRole = 'ASSOCIATE' | 'REGULAR';
 
 const createRedirectResponse = (
   request: NextRequest,
@@ -16,7 +16,9 @@ const createRedirectResponse = (
 
 /** @todo: 지금은 notice 페이지로 이동하게 했지만, 후에 다른 페이지로 변경할 필요가 있을 것 같음 */
 const getDefaultPageByRole = (userRole: UserRole): string => {
-  return userRole === '준회원' ? APP_PATH.SIGN_UP : APP_PATH.DASHBOARD.NOTICE;
+  return userRole === 'ASSOCIATE'
+    ? APP_PATH.SIGN_UP
+    : APP_PATH.DASHBOARD.NOTICE;
 };
 
 export const middleware = (request: NextRequest) => {
@@ -24,7 +26,7 @@ export const middleware = (request: NextRequest) => {
 
   const userRoleValue = request.cookies.get('userRole')?.value;
   const userRole: UserRole | undefined =
-    userRoleValue === '준회원' || userRoleValue === '정회원'
+    userRoleValue === 'ASSOCIATE' || userRoleValue === 'REGULAR'
       ? (userRoleValue as UserRole)
       : undefined;
 
@@ -54,7 +56,7 @@ export const middleware = (request: NextRequest) => {
   }
 
   // 준회원은 sign-up 페이지로만 접근 가능
-  if (userRole === '준회원' && !isSignUpPage) {
+  if (userRole === 'ASSOCIATE' && !isSignUpPage) {
     return createRedirectResponse(request, APP_PATH.SIGN_UP);
   }
 
