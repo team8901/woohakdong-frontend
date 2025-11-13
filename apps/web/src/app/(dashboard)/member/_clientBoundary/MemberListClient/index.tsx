@@ -14,40 +14,11 @@ export const MemberListClient = ({ initialData }: Props) => {
   // TODO: useSuspenseQuery
   const members: string[] = initialData;
 
-  // FIXME: 내보내진 상태가 너무 많음. 줄일 수 있는 방법이 있을까?
-  const {
-    nameQuery,
-    departmentQuery,
-    roleQuery,
-    genderQuery,
-    sortOption,
-    handleNameQueryChange,
-    handleNameQueryClear,
-    handleDepartmentQueryChange,
-    handleDepartmentQueryClear,
-    handleRoleChange,
-    handleGenderChange,
-    handleSortOptionChange,
-    handleSearch,
-  } = useMemberFilter();
+  const { filters, handlers } = useMemberFilter();
 
   return (
     <div className="space-y-6">
-      <MemberFilter
-        nameQuery={nameQuery}
-        departmentQuery={departmentQuery}
-        roleQuery={roleQuery}
-        genderQuery={genderQuery}
-        sortOption={sortOption}
-        handleNameQueryChange={handleNameQueryChange}
-        handleNameQueryClear={handleNameQueryClear}
-        handleDepartmentQueryChange={handleDepartmentQueryChange}
-        handleDepartmentQueryClear={handleDepartmentQueryClear}
-        handleRoleChange={handleRoleChange}
-        handleGenderChange={handleGenderChange}
-        handleSortOptionChange={handleSortOptionChange}
-        handleSearch={handleSearch}
-      />
+      <MemberFilter filters={filters} handlers={handlers} />
       <div>
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground">

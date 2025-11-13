@@ -58,18 +58,22 @@ export const useMemberFilter = () => {
   };
 
   return {
-    nameQuery,
-    departmentQuery,
-    roleQuery,
-    genderQuery,
-    sortOption,
-    handleNameQueryChange,
-    handleNameQueryClear,
-    handleDepartmentQueryChange,
-    handleDepartmentQueryClear,
-    handleRoleChange,
-    handleGenderChange,
-    handleSortOptionChange,
-    handleSearch,
+    filters: {
+      nameQuery,
+      departmentQuery,
+      roleQuery,
+      genderQuery,
+      sortOption,
+    },
+    handlers: {
+      handleNameQueryChange,
+      handleNameQueryClear,
+      handleDepartmentQueryChange,
+      handleDepartmentQueryClear,
+      handleRoleChange,
+      handleGenderChange,
+      handleSortOptionChange,
+      handleSearch,
+    },
   };
 };
