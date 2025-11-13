@@ -4,7 +4,8 @@ import { Button } from '@workspace/ui/components/button';
 import { DownloadIcon } from 'lucide-react';
 
 type Props = {
-  members: unknown[];
+  // TODO: 타입 변경
+  members: string[];
 };
 
 export const ExportButtonClient = ({ members }: Props) => {
