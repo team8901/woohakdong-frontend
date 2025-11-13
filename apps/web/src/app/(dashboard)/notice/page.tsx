@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 
-import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { type MyProfileResponse } from '@/data/user/getMyProfile/type';
-import { Button } from '@workspace/ui/components/button';
-import { useRouter } from 'next/navigation';
 
+import { ChangeUserRoleButton } from './ChangeUserRoleButton';
 import { TestButton } from './TestButton';
 
 const NoticePage = () => {
@@ -14,8 +12,6 @@ const NoticePage = () => {
     null,
   );
   const [hasError, setHasError] = useState(false);
-
-  const router = useRouter();
 
   const handleDataReceived = (data: MyProfileResponse | null) => {
     if (data) {
@@ -29,17 +25,9 @@ const NoticePage = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="mb-4 text-2xl font-bold">공지사항 페이지</h1>
-        <div className="flex flex-col items-start gap-4">
-          <TestButton onDataReceived={handleDataReceived} />
-          {/* TODO: 테스트 후 동아리 등록 버튼 제거 */}
-          <Button
-            type="button"
-            onClick={() => router.push(APP_PATH.REGISTER_CLUB.HOME)}>
-            동아리 등록 페이지로 이동
-          </Button>
-        </div>
+      <div className="flex gap-2">
+        <TestButton onDataReceived={handleDataReceived} />
+        <ChangeUserRoleButton />
       </div>
 
       {hasError && (

@@ -2,7 +2,7 @@
 
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
-import { RefreshCcwIcon, SirenIcon } from 'lucide-react';
+import { HomeIcon, RefreshCcwIcon, SirenIcon } from 'lucide-react';
 
 const SUPPORT_MAIL = '8901.dev@gmail.com';
 
@@ -11,6 +11,20 @@ const SUPPORT_MAIL = '8901.dev@gmail.com';
  * @see https://nextjs.org/docs/app/getting-started/error-handling
  */
 const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
+  const deleteUserRoleCookie = async () => {
+    try {
+      await fetch('/api/auth/roles', {
+        method: 'DELETE',
+      });
+
+      console.log('✅ 유저 권한 쿠키 삭제 완료');
+
+      window.location.reload();
+    } catch (error) {
+      console.error('❌ 유저 권한 쿠키 삭제 중 에러가 발생했습니다.', error);
+    }
+  };
+
   return (
     // NOTE: global-error must include html and body tags
     <html lang="ko">
@@ -24,16 +38,26 @@ const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
           <p className="text-muted-foreground text-center text-sm leading-relaxed">
             페이지를 새로고침 하거나 잠시 후 다시 시도해 주세요.
           </p>
-          <Button
-            variant="outline"
-            size="lg"
-            className="max-w-3xs w-full"
-            onClick={() => {
-              window.location.reload();
-            }}>
-            <RefreshCcwIcon />
-            다시 시도하기
-          </Button>
+          <div className="flex w-full max-w-sm flex-col gap-3">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={deleteUserRoleCookie}>
+              <HomeIcon />
+              로그인 화면으로 돌아가기
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={() => {
+                window.location.reload();
+              }}>
+              <RefreshCcwIcon />
+              다시 시도하기
+            </Button>
+          </div>
           <div className="flex flex-col justify-center">
             <p className="text-muted-foreground mx-auto text-center text-sm leading-relaxed">
               문제가 계속된다면, 아래의 이메일로 문의해 주시면 빠르게 해결해
