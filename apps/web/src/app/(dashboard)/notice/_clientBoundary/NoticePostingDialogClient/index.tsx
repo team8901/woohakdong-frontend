@@ -35,31 +35,25 @@ export const NoticePostingDialogClient = ({
   const { form, onSubmit, onQuit, isFormValid, isSubmitting } =
     useNoticePostingFlow();
 
-  const handleDialogOpenChange = (open: boolean) => {
-    if (!open) {
-      onQuit();
-    }
-  };
-
   const handleTriggerClick = () => {
     trackEvent(trackingEventName);
   };
 
   return (
-    <Dialog onOpenChange={handleDialogOpenChange}>
+    <Dialog>
       <DialogTrigger asChild onClick={handleTriggerClick}>
         <Button type="button">
           <PlusIcon />
           공지사항 등록
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>공지사항 등록</DialogTitle>
             </DialogHeader>
-            <div className="grid w-full max-w-lg items-center gap-6 py-4">
+            <div className="grid w-full items-center gap-6 py-4">
               {/* 제목 입력 */}
               <FormField
                 control={form.control}
@@ -71,7 +65,7 @@ export const NoticePostingDialogClient = ({
                       <Input
                         type="text"
                         inputMode="text"
-                        placeholder="공지사항 제목"
+                        placeholder="공지사항 제목을 입력해주세요"
                         {...field}
                       />
                     </FormControl>
@@ -88,7 +82,8 @@ export const NoticePostingDialogClient = ({
                     <FormLabel>내용</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="회원들에게 동아리 새로운 공지사항을 알려주세요"
+                        className="h-[calc(25vh)]"
+                        placeholder="공지사항 내용을 입력해주세요"
                         {...field}
                       />
                     </FormControl>
