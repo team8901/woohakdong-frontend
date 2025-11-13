@@ -1,5 +1,6 @@
 type Props = {
-  members: unknown[];
+  // TODO: 타입 변경
+  members: string[];
 };
 
 export const MemberTable = ({ members }: Props) => {
@@ -7,7 +8,7 @@ export const MemberTable = ({ members }: Props) => {
   return (
     <>
       {members.map((member) => (
-        <>row {member}</>
+        <div key={member}>row {member}</div>
       ))}
     </>
   );
