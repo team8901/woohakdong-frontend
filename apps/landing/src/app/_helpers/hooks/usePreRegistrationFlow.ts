@@ -3,9 +3,11 @@ import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { savePreRegistrationInfo } from '@workspace/firebase/firestore';
+import { type z } from 'zod';
 
-import { type PreRegistrationInfoFormData } from '../types';
 import { preRegistrationInfoSchema } from '../utils/zodSchemas';
+
+type PreRegistrationInfoFormData = z.infer<typeof preRegistrationInfoSchema>;
 
 type SubmitStatus = {
   type: 'success' | 'error';

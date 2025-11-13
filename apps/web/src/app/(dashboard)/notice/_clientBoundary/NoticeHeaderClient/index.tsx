@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { getAuthTest } from '@/data/auth/getAuthTest/fetch';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
@@ -12,7 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@workspace/ui/components/select';
-import { CircleXIcon, PlusIcon, SearchIcon } from 'lucide-react';
+import { CircleXIcon, SearchIcon } from 'lucide-react';
+
+import { NoticePostingDialogClient } from '../NoticePostingDialogClient';
 
 export const NoticeHeaderClient = () => {
   const [filterType, setFilterType] = useState('title');
@@ -22,6 +25,18 @@ export const NoticeHeaderClient = () => {
 
   const handleClearSearch = () => {
     setSearchKeyword('');
+  };
+
+  const handleAuthTest = async () => {
+    try {
+      const result = await getAuthTest();
+
+      console.log('Auth Test Result:', result);
+      alert(`테스트 성공: ${JSON.stringify(result)}`);
+    } catch (error) {
+      console.error('Auth Test Error:', error);
+      alert('테스트 실패');
+    }
   };
 
   return (
@@ -86,11 +101,11 @@ export const NoticeHeaderClient = () => {
         <p className="text-muted-foreground">
           <span className="text-foreground font-semibold">{0}</span> 개 조회됨
         </p>
-        {/** @todo 공지사항 등록 기능 연동해야 함*/}
-        <Button type="button">
-          <PlusIcon />
-          공지사항 등록
+        <Button variant="outline" type="button" onClick={handleAuthTest}>
+          테스트 버튼
         </Button>
+        {/** @todo 공지사항 등록 기능 연동해야 함*/}
+        <NoticePostingDialogClient />
       </div>
     </div>
   );
