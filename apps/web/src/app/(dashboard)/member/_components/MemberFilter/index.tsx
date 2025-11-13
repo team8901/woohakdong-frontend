@@ -57,11 +57,11 @@ export const MemberFilter = ({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="search">검색</Label>
+        <Label>검색</Label>
         <div className="flex flex-col gap-2 md:flex-row">
           <div className="relative w-full">
             <Input
-              id="search"
+              id="nameQuery"
               type="text"
               inputMode="search"
               placeholder="회원명 검색"
@@ -82,7 +82,7 @@ export const MemberFilter = ({
           </div>
           <div className="relative w-full">
             <Input
-              id="search"
+              id="departmentQuery"
               type="text"
               inputMode="search"
               placeholder="학과 검색"
