@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 
+import { useToast } from '@/_shared/helpers/hooks/useToast';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { type UserProfileFormData } from '../types';
@@ -15,6 +16,7 @@ type UserProfile = {
 
 export const useSignUpFlow = () => {
   const { mutateAsync: registerProfileMutation } = useRegisterProfile();
+  const { showToast } = useToast();
 
   const form = useForm<UserProfileFormData>({
     resolver: zodResolver(userProfileSchema),
@@ -40,7 +42,10 @@ export const useSignUpFlow = () => {
     } catch (error) {
       console.error('🚨 프로필 제출 중 오류 발생:', error);
 
-      alert('프로필 완성 중에 오류가 발생했어요 🥲 다시 시도해주세요');
+      showToast({
+        message: '프로필 완성 중에 오류가 발생했어요 🥲 다시 시도해주세요',
+        type: 'error',
+      });
     }
   };
 

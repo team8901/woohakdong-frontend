@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useToast } from '@/_shared/helpers/hooks/useToast';
 import { useAuthorizationFlow } from '@/app/login/_helpers/hooks/useAuthorizationFlow';
 import { signInWithGoogle } from '@workspace/firebase/auth';
 
@@ -9,6 +10,7 @@ import { signInWithGoogle } from '@workspace/firebase/auth';
  */
 export const useGoogleAuthFlow = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
   const { mutateAsync: authorizationMutation } = useAuthorizationFlow();
 
   const loginWithGoogle = async () => {
@@ -27,7 +29,10 @@ export const useGoogleAuthFlow = () => {
     } catch (err) {
       console.error('🚨 Google 로그인 실패 또는 토큰 처리 중 오류:', err);
 
-      alert('Google 로그인에 실패했어요 🫠 다시 시도해주세요');
+      showToast({
+        message: 'Google 로그인에 실패했어요. 다시 시도해주세요.',
+        type: 'error',
+      });
     } finally {
       setIsLoading(false);
     }

@@ -5,6 +5,7 @@ import type { PropsWithChildren } from 'react';
 import { ProviderClient } from '@/_shared/clientBoundary/ProviderClient';
 import { InitEventTracker } from '@/eventTracker/InitEventTracker';
 import { EnableMockClient } from '@/mock/browser';
+import { Toaster } from '@workspace/ui/components/sonner';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 
@@ -39,6 +40,7 @@ const RootLayout = ({ children }: PropsWithChildren) => {
         <ProviderClient>
           <EnableMockClient />
           <InitEventTracker />
+          <Toaster />
           {children}
         </ProviderClient>
       </body>
