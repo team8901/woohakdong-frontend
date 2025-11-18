@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useToast } from '@/_shared/helpers/hooks/useToast';
+import { showToast } from '@/_shared/helpers/utils/showToast';
 import { readFileForBytes } from '@/app/register-club/_helpers/utils/readFileForBytes';
 import { readFileForPreview } from '@/app/register-club/_helpers/utils/readFileForPreview';
 
@@ -10,7 +10,6 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 export const useImage = () => {
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
   const [image, setImage] = useState<ArrayBuffer | null>(null);
-  const { showToast } = useToast();
 
   const onChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

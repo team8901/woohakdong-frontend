@@ -1,11 +1,9 @@
 'use client';
 
-import { useToast } from '@/_shared/helpers/hooks/useToast';
+import { showToast } from '@/_shared/helpers/utils/showToast';
 import { Button } from '@workspace/ui/components/button';
 
 export const SonnerTestButton = () => {
-  const { showToast } = useToast();
-
   return (
     <div className="flex gap-2">
       <Button

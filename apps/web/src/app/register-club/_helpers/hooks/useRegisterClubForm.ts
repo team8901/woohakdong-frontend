@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
-import { useToast } from '@/_shared/helpers/hooks/useToast';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
+import { showToast } from '@/_shared/helpers/utils/showToast';
 import { useImage } from '@/app/register-club/_helpers/hooks/useImage';
 import { uploadImageToS3 } from '@/app/register-club/_helpers/utils/uploadImageToS3';
 import { usePostRegisterClubMutation } from '@/data/club/postRegisterClub/mutation';
@@ -37,7 +37,6 @@ export const useRegisterClubForm = () => {
   const { mutateAsync: mutateRegisterClub } = usePostRegisterClubMutation();
   const { imagePreviewUrl, image, onChangeImage } = useImage();
   const router = useRouter();
-  const { showToast } = useToast();
 
   const form = useForm<RegisterClubFormData>({
     resolver: zodResolver(registerClubSchema),
@@ -77,7 +76,7 @@ export const useRegisterClubForm = () => {
       await mutateRegisterClub(club);
 
       showToast({
-        message: '동아리 등록이 완료되었어요!',
+        message: '동아리 등록이 완료되었어요',
         type: 'success',
       });
 
@@ -90,7 +89,7 @@ export const useRegisterClubForm = () => {
     } catch (error) {
       console.error('동아리 가입 중 오류 발생:', error);
       showToast({
-        message: '동아리 등록에 실패했어요. 다시 시도해주세요.',
+        message: '동아리 등록에 실패했어요',
         type: 'error',
       });
     }

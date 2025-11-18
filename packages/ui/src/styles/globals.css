@@ -232,25 +232,29 @@ body {
   .toast-info {
     --normal-bg: color-mix(in oklab, var(--primary) 10%, var(--background));
     --normal-text: var(--primary);
-    --normal-border: var(--primary);
+    --normal-border: color-mix(in oklab, var(--primary) 20%, var(--background));
     --border-radius: var(--radius);
   }
   .toast-success {
     --normal-bg: color-mix(in oklab, var(--success) 10%, var(--background));
     --normal-text: var(--success);
-    --normal-border: var(--success);
+    --normal-border: color-mix(in oklab, var(--success) 20%, var(--background));
     --border-radius: var(--radius);
   }
   .toast-warning {
     --normal-bg: color-mix(in oklab, var(--caution) 10%, var(--background));
     --normal-text: var(--caution);
-    --normal-border: var(--caution);
+    --normal-border: color-mix(in oklab, var(--caution) 20%, var(--background));
     --border-radius: var(--radius);
   }
   .toast-error {
     --normal-bg: color-mix(in oklab, var(--destructive) 10%, var(--background));
     --normal-text: var(--destructive);
-    --normal-border: var(--destructive);
+    --normal-border: color-mix(
+      in oklab,
+      var(--destructive) 20%,
+      var(--background)
+    );
     --border-radius: var(--radius);
   }
 }
