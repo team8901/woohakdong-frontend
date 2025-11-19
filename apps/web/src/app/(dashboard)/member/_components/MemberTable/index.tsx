@@ -14,47 +14,42 @@ export const MemberTable = ({ members }: Props) => {
         <tr>
           <th
             scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-            ID
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
             이름
           </th>
           <th
             scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
             역할
           </th>
           <th
             scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
             성별
           </th>
           <th
             scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
             전화번호
           </th>
           <th
             scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
             이메일
           </th>
           <th
             scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
             학과
           </th>
           <th
             scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
             학번
           </th>
           <th
             scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
             가입일
           </th>
         </tr>
@@ -62,9 +57,6 @@ export const MemberTable = ({ members }: Props) => {
       <tbody className="divide-y divide-gray-200 bg-white">
         {members.map((member) => (
           <tr key={member.id}>
-            <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-              {member.id}
-            </td>
             <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
               {member.name}
             </td>
