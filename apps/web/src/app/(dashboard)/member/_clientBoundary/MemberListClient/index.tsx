@@ -4,22 +4,23 @@ import { ExportButtonClient } from '@/app/(dashboard)/member/_clientBoundary/Exp
 import { MemberFilter } from '@/app/(dashboard)/member/_components/MemberFilter';
 import { MemberTable } from '@/app/(dashboard)/member/_components/MemberTable';
 import { useMemberFilter } from '@/app/(dashboard)/member/_helpers/hooks/useMemberFilter';
+import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
 
 type Props = {
   // TODO: 타입 변경
-  initialData: string[];
+  initialData: ClubMembersResponse[];
 };
 
 export const MemberListClient = ({ initialData }: Props) => {
   // TODO: useSuspenseQuery
-  const members: string[] = initialData;
+  const members: ClubMembersResponse[] = initialData;
 
   const { filters, handlers } = useMemberFilter();
 
   return (
     <div className="space-y-6">
       <MemberFilter filters={filters} handlers={handlers} />
-      <div>
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground">
             <span className="text-foreground font-semibold">
