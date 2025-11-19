@@ -25,8 +25,6 @@ export const useItemHistoryFilter = () => {
     CLUB_ITEM_SORT_OPTION.최신순,
   );
 
-  const handleSearch = () => {};
-
   const handleNameQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNameQuery(e.target.value);
   };
@@ -73,7 +71,6 @@ export const useItemHistoryFilter = () => {
       handleCategoryChange,
       handleRentalStatusChange,
       handleSortOptionChange,
-      handleSearch,
     },
   };
 };

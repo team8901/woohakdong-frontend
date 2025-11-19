@@ -41,7 +41,6 @@ type Props = {
       value: ClubItemHistoryRentalStatus | DefaultOption,
     ) => void;
     handleSortOptionChange: (value: ClubItemSortOption) => void;
-    handleSearch: () => void;
   };
 };
 
