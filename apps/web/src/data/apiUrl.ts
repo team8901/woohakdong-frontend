@@ -7,6 +7,7 @@ export const API_URL = {
   CLUB: {
     CLUB_INFO_SEARCH: '/api/clubs/search',
     REGISTER_CLUB: '/api/clubs',
+    CLUB_MEMBERS: '/api/clubs/:clubId/members',
   },
   USER: {
     MY_PROFILE: '/api/users/profiles/me',
