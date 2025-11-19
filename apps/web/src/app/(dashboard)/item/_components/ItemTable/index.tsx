@@ -1,5 +1,6 @@
 import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
 import { CLUB_ITEM_CATEGORY } from '@/app/(dashboard)/item/_helpers/constants/clubItemCategory';
+import { getRentalStatusText } from '@/app/(dashboard)/item/_helpers/utils/getRentalStatusText';
 import { type ClubItemResponse } from '@/data/club/getClubItems/type';
 
 type Props = {
@@ -58,11 +59,7 @@ export const ItemTable = ({ items }: Props) => {
                 {item.location}
               </td>
               <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {item.using
-                  ? '대여 중'
-                  : item.available
-                    ? '대여 가능'
-                    : '대여 잠금'}
+                {getRentalStatusText(item)}
               </td>
               {/* TODO: 대여자 필드 추가되면 활성화 */}
               {/* <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
