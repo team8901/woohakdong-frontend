@@ -7,7 +7,6 @@ import { type ClubMemberRole } from '@/app/(dashboard)/member/_helpers/constants
  */
 export type ClubMembersRequest = {
   clubId: number;
-  assignedTerm: string;
 };
 
 /**
@@ -24,5 +23,4 @@ export type ClubMembersResponse = {
   studentNumber: string;
   role: ClubMemberRole;
   joinedDate: string;
-  assignedTerm: string;
 };

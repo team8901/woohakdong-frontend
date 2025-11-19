@@ -13,7 +13,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230001',
       role: 'OFFICER',
       joinedDate: '2023-03-01',
-      assignedTerm: '2023-1',
     },
     {
       id: 2,
@@ -25,7 +24,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230002',
       role: 'PRESIDENT',
       joinedDate: '2023-03-02',
-      assignedTerm: '2023-1',
     },
     {
       id: 3,
@@ -37,7 +35,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230003',
       role: 'SECRETARY',
       joinedDate: '2023-03-03',
-      assignedTerm: '2023-1',
     },
     {
       id: 4,
@@ -49,7 +46,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230004',
       role: 'VICEPRESIDENT',
       joinedDate: '2023-03-04',
-      assignedTerm: '2023-1',
     },
     {
       id: 5,
@@ -61,7 +57,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230005',
       role: 'MEMBER',
       joinedDate: '2023-03-05',
-      assignedTerm: '2023-1',
     },
     {
       id: 6,
@@ -73,7 +68,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230006',
       role: 'MEMBER',
       joinedDate: '2023-03-06',
-      assignedTerm: '2023-1',
     },
     {
       id: 7,
@@ -85,7 +79,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230001',
       role: 'MEMBER',
       joinedDate: '2023-03-01',
-      assignedTerm: '2023-1',
     },
     {
       id: 8,
@@ -97,7 +90,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230002',
       role: 'MEMBER',
       joinedDate: '2023-03-02',
-      assignedTerm: '2023-1',
     },
     {
       id: 9,
@@ -109,7 +101,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230003',
       role: 'MEMBER',
       joinedDate: '2023-03-03',
-      assignedTerm: '2023-1',
     },
     {
       id: 10,
@@ -121,7 +112,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230004',
       role: 'MEMBER',
       joinedDate: '2023-03-04',
-      assignedTerm: '2023-1',
     },
     {
       id: 11,
@@ -133,7 +123,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230005',
       role: 'MEMBER',
       joinedDate: '2023-03-05',
-      assignedTerm: '2023-1',
     },
     {
       id: 12,
@@ -145,7 +134,6 @@ export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
       studentNumber: '20230006',
       role: 'MEMBER',
       joinedDate: '2023-03-06',
-      assignedTerm: '2023-1',
     },
   ],
 };
