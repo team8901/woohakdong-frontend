@@ -1,12 +1,14 @@
 import { useState } from 'react';
 
-import { readFileForBytes } from '@/app/register-club/_helpers/utils/readFileForBytes';
-import { readFileForPreview } from '@/app/register-club/_helpers/utils/readFileForPreview';
+import { readFileForBytes } from '@/_shared/helpers/utils/readFileForBytes';
+import { readFileForPreview } from '@/_shared/helpers/utils/readFileForPreview';
 
-const MAX_IMAGE_LENGTH = 1;
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+type Props = {
+  maxImageLength: number;
+  maxFileSize: number;
+};
 
-export const useImage = () => {
+export const useImage = ({ maxImageLength, maxFileSize }: Props) => {
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
   const [image, setImage] = useState<ArrayBuffer | null>(null);
 
@@ -17,8 +19,8 @@ export const useImage = () => {
       return;
     }
 
-    if (files.length > MAX_IMAGE_LENGTH) {
-      alert('이미지는 한 개만 등록 가능해요');
+    if (files.length > maxImageLength) {
+      alert(`이미지는 ${maxImageLength}개만 등록 가능해요`);
 
       return;
     }
@@ -37,8 +39,10 @@ export const useImage = () => {
     }
 
     // 파일 용량 제한 검증
-    if (file.size > MAX_FILE_SIZE) {
-      alert('이미지 파일 용량은 5MB 이하만 등록 가능해요');
+    if (file.size > maxFileSize) {
+      alert(
+        `이미지 파일 용량은 ${maxFileSize / 1024 / 1024}MB 이하만 등록 가능해요`,
+      );
 
       return;
     }
@@ -47,5 +51,10 @@ export const useImage = () => {
     readFileForBytes(file, setImage);
   };
 
-  return { imagePreviewUrl, image, onChangeImage };
+  const clearImage = () => {
+    setImagePreviewUrl('');
+    setImage(null);
+  };
+
+  return { imagePreviewUrl, image, onChangeImage, clearImage };
 };

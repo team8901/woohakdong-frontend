@@ -12,15 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@workspace/ui/components/select';
-import { CircleXIcon, SearchIcon } from 'lucide-react';
+import { CircleXIcon } from 'lucide-react';
 
 import { NoticePostingDialogClient } from '../NoticePostingDialogClient';
 
 export const NoticeHeaderClient = () => {
   const [filterType, setFilterType] = useState('title');
   const [searchKeyword, setSearchKeyword] = useState('');
-
-  const handleSearch = () => {};
 
   const handleClearSearch = () => {
     setSearchKeyword('');
@@ -38,10 +36,10 @@ export const NoticeHeaderClient = () => {
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row">
-        <div className="grid gap-2">
+        <div className="grid flex-1 gap-2">
           <Label htmlFor="filterType">키워드</Label>
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger id="filterType" className="w-full md:w-[160px]">
+            <SelectTrigger id="filterType" className="w-full">
               <SelectValue placeholder="키워드 선택" />
             </SelectTrigger>
             <SelectContent>
@@ -51,34 +49,28 @@ export const NoticeHeaderClient = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="grid flex-1 gap-2">
+        <div className="flex-5 grid gap-2">
           <Label htmlFor="search">검색어</Label>
-          <div className="flex flex-col gap-2 md:flex-row">
-            <div className="relative w-full">
-              <Input
-                id="search"
-                type="text"
-                inputMode="search"
-                placeholder="검색어를 입력해주세요"
-                value={searchKeyword}
-                className="pr-9"
-                onChange={(e) => setSearchKeyword(e.target.value)}
-              />
-              {searchKeyword && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleClearSearch}
-                  className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent">
-                  <CircleXIcon />
-                  <span className="sr-only">검색어 초기화</span>
-                </Button>
-              )}
-            </div>
-            <Button type="submit" variant="secondary" onClick={handleSearch}>
-              <SearchIcon />
-              검색
-            </Button>
+          <div className="relative w-full">
+            <Input
+              id="search"
+              type="text"
+              inputMode="search"
+              placeholder="검색어를 입력해주세요"
+              value={searchKeyword}
+              className="pr-9"
+              onChange={(e) => setSearchKeyword(e.target.value)}
+            />
+            {searchKeyword && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleClearSearch}
+                className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent">
+                <CircleXIcon />
+                <span className="sr-only">검색어 초기화</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

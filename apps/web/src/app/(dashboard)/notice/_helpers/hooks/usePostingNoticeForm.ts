@@ -3,11 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type z } from 'zod';
 
-import { noticePostingSchema } from '../utils/zodSchemas';
+import { noticePostingSchema } from '../../[id]/zodSchemas';
 
 type NoticePostingFormData = z.infer<typeof noticePostingSchema>;
 
-export const useNoticePostingFlow = () => {
+export const usePostingNoticeForm = () => {
   const form = useForm<NoticePostingFormData>({
     resolver: zodResolver(noticePostingSchema),
     mode: 'onChange',

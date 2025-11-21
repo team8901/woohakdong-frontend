@@ -1,7 +1,9 @@
+import { ActivityHeaderClient } from './_clientBoundary/ActivityHeaderClient';
+
 const ActivityPage = () => {
   return (
-    <div>
-      <h1>Activity</h1>
+    <div className="space-y-6">
+      <ActivityHeaderClient />
     </div>
   );
 };

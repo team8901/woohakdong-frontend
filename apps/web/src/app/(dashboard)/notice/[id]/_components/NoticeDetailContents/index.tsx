@@ -20,7 +20,7 @@ export const NoticeDetailContents = ({ notice }: { notice: Notice }) => {
           </h1>
 
           <div className="text-muted-foreground flex items-center gap-2">
-            <p>{notice.updatedAt}</p>
+            <p>{notice.createdAt}</p>
             <p>{notice.writer} 작성</p>
           </div>
         </div>

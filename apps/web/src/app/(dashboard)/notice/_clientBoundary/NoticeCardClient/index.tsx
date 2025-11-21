@@ -54,7 +54,7 @@ export const NoticeCardClient = ({ notice }: props) => {
         <div className="flex-1 flex-col space-y-1">
           <CardTitle className="line-clamp-2">{notice.title}</CardTitle>
           <CardDescription className="text-muted-foreground flex items-center gap-2">
-            <p>{notice.updatedAt}</p>
+            <p>{notice.createdAt}</p>
             <p>{notice.writer} 작성</p>
           </CardDescription>
         </div>

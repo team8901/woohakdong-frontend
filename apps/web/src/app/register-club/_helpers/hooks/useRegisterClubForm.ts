@@ -1,14 +1,17 @@
 import { useForm } from 'react-hook-form';
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
+import { useImage } from '@/_shared/helpers/hooks/useImage';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
-import { useImage } from '@/app/register-club/_helpers/hooks/useImage';
 import { uploadImageToS3 } from '@/app/register-club/_helpers/utils/uploadImageToS3';
 import { usePostRegisterClubMutation } from '@/data/club/postRegisterClub/mutation';
 import { type RegisterClubRequest } from '@/data/club/postRegisterClub/type';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import z from 'zod';
+
+const MAX_IMAGE_LENGTH = 1;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const registerClubSchema = z.object({
   clubProfileImage: z.instanceof(File).optional(),
@@ -34,7 +37,10 @@ export type RegisterClubFormData = z.infer<typeof registerClubSchema>;
 
 export const useRegisterClubForm = () => {
   const { mutateAsync: mutateRegisterClub } = usePostRegisterClubMutation();
-  const { imagePreviewUrl, image, onChangeImage } = useImage();
+  const { imagePreviewUrl, image, onChangeImage } = useImage({
+    maxImageLength: MAX_IMAGE_LENGTH,
+    maxFileSize: MAX_FILE_SIZE,
+  });
   const router = useRouter();
 
   const form = useForm<RegisterClubFormData>({
