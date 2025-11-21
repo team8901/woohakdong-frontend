@@ -47,7 +47,9 @@ export const NoticePostingDialogClient = ({
           공지사항 등록
         </Button>
       </DialogTrigger>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent
+        className="max-h-[90vh] max-w-[95vw] overflow-auto md:max-w-lg"
+        onInteractOutside={(e) => e.preventDefault()}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>

@@ -80,7 +80,9 @@ export const ActivityPostingDialogClient = ({
           활동 기록 등록
         </Button>
       </DialogTrigger>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        className="max-h-[90vh] max-w-[95vw] overflow-auto md:max-w-lg">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
