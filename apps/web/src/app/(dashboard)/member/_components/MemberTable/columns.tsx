@@ -43,10 +43,12 @@ export const columns: ColumnDef<ClubMembersResponse>[] = [
     ),
   },
   {
-    accessorKey: 'role',
+    accessorKey: 'clubMemberRole',
     header: '역할',
     cell: ({ row }) => (
-      <span>{getKeyByValue(CLUB_MEMBER_ROLE, row.getValue('role'))}</span>
+      <span>
+        {getKeyByValue(CLUB_MEMBER_ROLE, row.getValue('clubMemberRole'))}
+      </span>
     ),
   },
   {
@@ -74,15 +76,15 @@ export const columns: ColumnDef<ClubMembersResponse>[] = [
     cell: ({ row }) => <span>{row.getValue('major')}</span>,
   },
   {
-    accessorKey: 'studentNumber',
+    accessorKey: 'studentId',
     header: '학번',
-    cell: ({ row }) => <span>{row.getValue('studentNumber')}</span>,
+    cell: ({ row }) => <span>{row.getValue('studentId')}</span>,
   },
   {
-    accessorKey: 'joinedDate',
+    accessorKey: 'clubJoinDate',
     header: '가입일',
     cell: ({ row }) => (
-      <span className="text-gray-600">{row.getValue('joinedDate')}</span>
+      <span className="text-gray-600">{row.getValue('clubJoinDate')}</span>
     ),
   },
 ];

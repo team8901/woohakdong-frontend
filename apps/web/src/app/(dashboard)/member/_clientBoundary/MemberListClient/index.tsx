@@ -44,7 +44,9 @@ export const MemberListClient = ({ initialData }: Props) => {
 
     // Apply role filter
     if (roleQuery !== DEFAULT_OPTION) {
-      filtered = filtered.filter((member) => member.role === roleQuery);
+      filtered = filtered.filter(
+        (member) => member.clubMemberRole === roleQuery,
+      );
     }
 
     // Apply gender filter
@@ -56,7 +58,8 @@ export const MemberListClient = ({ initialData }: Props) => {
     filtered = [...filtered].sort((a, b) => {
       if (sortOption === CLUB_MEMBER_SORT_OPTION.가입일) {
         return (
-          new Date(b.joinedDate).getTime() - new Date(a.joinedDate).getTime()
+          new Date(b.clubJoinDate).getTime() -
+          new Date(a.clubJoinDate).getTime()
         );
       }
 
