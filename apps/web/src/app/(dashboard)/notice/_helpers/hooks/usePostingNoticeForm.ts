@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type z } from 'zod';
 
-import { noticePostingSchema } from '../../[id]/zodSchemas';
+import { noticePostingSchema } from '../utils/zodSchemas';
 
 type NoticePostingFormData = z.infer<typeof noticePostingSchema>;
 

@@ -186,7 +186,14 @@ export const ActivityPostingDialogClient = ({
                                 : 'text-muted-foreground'
                             }>
                             {field.value
-                              ? new Date(field.value).toLocaleDateString()
+                              ? new Date(field.value).toLocaleDateString(
+                                  'ko-KR',
+                                  {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                  },
+                                )
                               : '날짜를 선택해주세요'}
                             <ChevronDownIcon className="size-4 opacity-50" />
                           </Button>

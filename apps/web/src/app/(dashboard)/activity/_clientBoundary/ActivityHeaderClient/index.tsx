@@ -53,8 +53,20 @@ export const ActivityHeaderClient = () => {
                 <Button variant="trigger" id="dates">
                   {range?.from && range?.to
                     ? range.from.getTime() === range.to.getTime()
-                      ? range.from.toLocaleDateString()
-                      : `${range.from.toLocaleDateString()} ~ ${range.to.toLocaleDateString()}`
+                      ? range.from.toLocaleDateString('ko-KR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })
+                      : `${range.from.toLocaleDateString('ko-KR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })} ~ ${range.to.toLocaleDateString('ko-KR', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}`
                     : '전체'}
                   <ChevronDownIcon className="size-4 opacity-50" />
                 </Button>

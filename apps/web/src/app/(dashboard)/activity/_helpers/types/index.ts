@@ -1,3 +1,12 @@
+import {
+  BeerIcon,
+  CircleEllipsisIcon,
+  FlameKindlingIcon,
+  LampDeskIcon,
+  type LucideIcon,
+  PresentationIcon,
+} from 'lucide-react';
+
 export type Activity = {
   id: number;
   title: string;
@@ -9,4 +18,12 @@ export type Activity = {
   activityDate: string;
   tag: string;
   activityImages: string[];
+};
+
+export const tagIconMap: Record<string, LucideIcon> = {
+  스터디: LampDeskIcon,
+  회식: BeerIcon,
+  회의: PresentationIcon,
+  기타: CircleEllipsisIcon,
+  MT: FlameKindlingIcon,
 };
