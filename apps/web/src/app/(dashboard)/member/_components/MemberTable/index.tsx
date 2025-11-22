@@ -1,89 +1,100 @@
-import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
-import { CLUB_MEMBER_GENDER } from '@/app/(dashboard)/member/_helpers/constants/clubMemberGender';
-import { CLUB_MEMBER_ROLE } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
+'use client';
+
+import { useEffect, useState } from 'react';
+
 import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@workspace/ui/components/table';
+
+import { columns } from './columns';
 
 type Props = {
   members: ClubMembersResponse[];
+  onSelectionChange?: (selectedMembers: ClubMembersResponse[]) => void;
 };
 
-export const MemberTable = ({ members }: Props) => {
+export const MemberTable = ({ members, onSelectionChange }: Props) => {
+  const [rowSelection, setRowSelection] = useState({});
+
+  const table = useReactTable({
+    data: members,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    state: {
+      rowSelection,
+    },
+    onRowSelectionChange: setRowSelection,
+    enableRowSelection: true,
+  });
+
+  useEffect(() => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    const selectedMembers = selectedRows.map((row) => row.original);
+
+    onSelectionChange?.(selectedMembers);
+  }, [rowSelection, onSelectionChange, table]);
+
   return (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-50">
-        <tr>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-            이름
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-            역할
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-            성별
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-            전화번호
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-            이메일
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-            학과
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-            학번
-          </th>
-          <th
-            scope="col"
-            className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-            가입일
-          </th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-200 bg-white">
-        {members.map((member) => (
-          <tr key={member.id}>
-            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-              {member.name}
-            </td>
-            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-              {getKeyByValue(CLUB_MEMBER_ROLE, member.role)}
-            </td>
-            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-              {getKeyByValue(CLUB_MEMBER_GENDER, member.gender)}
-            </td>
-            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-              {member.phoneNumber}
-            </td>
-            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-              {member.email}
-            </td>
-            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-              {member.major}
-            </td>
-            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-              {member.studentNumber}
-            </td>
-            <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-              {member.joinedDate}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="w-full overflow-auto rounded-lg border bg-white">
+      <Table>
+        <TableHeader className="bg-gray-50">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id} className="hover:bg-gray-50">
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead
+                    key={header.id}
+                    className="h-12 px-6 text-xs font-semibold uppercase tracking-wide text-gray-700">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className="group">
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className="h-14 px-6 text-sm text-gray-900">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
+                className="h-32 text-center text-sm text-gray-500">
+                결과가 없습니다.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

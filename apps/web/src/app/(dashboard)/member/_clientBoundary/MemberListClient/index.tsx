@@ -89,7 +89,13 @@ export const MemberListClient = ({ initialData }: Props) => {
           </p>
           <ExportButtonClient members={filteredMembers} />
         </div>
-        <MemberTable members={filteredMembers} />
+        <MemberTable
+          members={filteredMembers}
+          onSelectionChange={(selectedMembers) => {
+            console.log('선택된 멤버:', selectedMembers);
+            // 선택된 멤버 데이터로 원하는 작업 수행
+          }}
+        />
       </div>
     </div>
   );
