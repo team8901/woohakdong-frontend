@@ -2,7 +2,7 @@
 
 import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
 import { CLUB_ITEM_CATEGORY } from '@/app/(dashboard)/item/_helpers/constants/clubItemCategory';
-import { getHistoryRentalStatusText } from '@/app/(dashboard)/item-history/_helpers/utils/getHistoryRentalStatusText';
+import { getHistoryRentalStatusLabel } from '@/app/(dashboard)/item-history/_helpers/utils/getHistoryRentalStatusLabel';
 import { type ClubItemHistoryResponse } from '@/data/club/getClubItemHistory/type';
 import { Button } from '@workspace/ui/components/button';
 import { DownloadIcon } from 'lucide-react';
@@ -25,7 +25,7 @@ export const ExportButtonClient = ({ items, selectedItems }: Props) => {
     const data = dataToExport.map((item) => ({
       물품명: item.name,
       카테고리: getKeyByValue(CLUB_ITEM_CATEGORY, item.category),
-      대여상태: getHistoryRentalStatusText(item),
+      대여상태: getHistoryRentalStatusLabel(item),
       대여날짜: item.rentalDate ?? '-',
       반납날짜: item.returnDate ?? '-',
     }));

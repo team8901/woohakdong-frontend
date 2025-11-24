@@ -2,7 +2,9 @@
 
 import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
 import { CLUB_ITEM_CATEGORY } from '@/app/(dashboard)/item/_helpers/constants/clubItemCategory';
-import { getRentalStatusText } from '@/app/(dashboard)/item/_helpers/utils/getRentalStatusText';
+import { CLUB_ITEM_RENTAL_STATUS } from '@/app/(dashboard)/item/_helpers/constants/clubItemRentalStatus';
+import { CLUB_ITEM_RENTAL_STATUS_TAG_STYLE } from '@/app/(dashboard)/item/_helpers/constants/clubItemRentalStatusTagStyle';
+import { getRentalStatusLabel } from '@/app/(dashboard)/item/_helpers/utils/getRentalStatusLabel';
 import { type ClubItemResponse } from '@/data/club/getClubItems/type';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '@workspace/ui/components/checkbox';
@@ -57,7 +59,16 @@ export const columns: ColumnDef<ClubItemResponse>[] = [
   {
     id: 'rentalStatus',
     header: '대여 상태',
-    cell: ({ row }) => <span>{getRentalStatusText(row.original)}</span>,
+    cell: ({ row }) => {
+      const statusLabel = getRentalStatusLabel(row.original);
+
+      return (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${CLUB_ITEM_RENTAL_STATUS_TAG_STYLE[CLUB_ITEM_RENTAL_STATUS[statusLabel]]}`}>
+          {statusLabel}
+        </span>
+      );
+    },
   },
   {
     accessorKey: 'rentalDate',

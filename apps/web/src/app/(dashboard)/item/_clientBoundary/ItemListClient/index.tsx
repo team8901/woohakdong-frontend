@@ -6,6 +6,7 @@ import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { ExportButtonClient } from '@/app/(dashboard)/item/_clientBoundary/ExportButtonClient';
 import { ItemFilter } from '@/app/(dashboard)/item/_components/ItemFilter';
 import { ItemTable } from '@/app/(dashboard)/item/_components/ItemTable';
+import { CLUB_ITEM_RENTAL_STATUS } from '@/app/(dashboard)/item/_helpers/constants/clubItemRentalStatus';
 import { CLUB_ITEM_SORT_OPTION } from '@/app/(dashboard)/item/_helpers/constants/sortOption';
 import { useItemFilter } from '@/app/(dashboard)/item/_helpers/hooks/useItemFilter';
 import { DEFAULT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/defaultOption';
@@ -58,12 +59,16 @@ export const ItemListClient = ({ initialData }: Props) => {
     // Apply rental status filter
     if (rentalStatusQuery !== DEFAULT_OPTION) {
       filtered = filtered.filter((item) => {
-        if (rentalStatusQuery === 'AVAILABLE') {
+        if (rentalStatusQuery === CLUB_ITEM_RENTAL_STATUS['대여 가능']) {
           return item.available;
         }
 
-        if (rentalStatusQuery === 'RENTED') {
+        if (rentalStatusQuery === CLUB_ITEM_RENTAL_STATUS['대여 중']) {
           return item.using;
+        }
+
+        if (rentalStatusQuery === CLUB_ITEM_RENTAL_STATUS['대여 불가']) {
+          return !item.available && !item.using;
         }
 
         return true;
