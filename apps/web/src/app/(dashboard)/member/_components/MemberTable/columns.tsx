@@ -2,7 +2,11 @@
 
 import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
 import { CLUB_MEMBER_GENDER } from '@/app/(dashboard)/member/_helpers/constants/clubMemberGender';
-import { CLUB_MEMBER_ROLE } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
+import {
+  CLUB_MEMBER_ROLE,
+  type ClubMemberRole,
+} from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
+import { CLUB_MEMBER_ROLE_TAG_STYLE } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRoleTagStyle';
 import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '@workspace/ui/components/checkbox';
@@ -45,11 +49,16 @@ export const columns: ColumnDef<ClubMembersResponse>[] = [
   {
     accessorKey: 'clubMemberRole',
     header: '역할',
-    cell: ({ row }) => (
-      <span>
-        {getKeyByValue(CLUB_MEMBER_ROLE, row.getValue('clubMemberRole'))}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const role = row.getValue('clubMemberRole') as ClubMemberRole;
+
+      return (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${CLUB_MEMBER_ROLE_TAG_STYLE[role]}`}>
+          {getKeyByValue(CLUB_MEMBER_ROLE, role)}
+        </span>
+      );
+    },
   },
   {
     accessorKey: 'gender',
