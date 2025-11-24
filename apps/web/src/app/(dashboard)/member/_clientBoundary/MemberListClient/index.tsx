@@ -2,26 +2,31 @@
 
 import { useMemo } from 'react';
 
+import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { ExportButtonClient } from '@/app/(dashboard)/member/_clientBoundary/ExportButtonClient';
 import { MemberFilter } from '@/app/(dashboard)/member/_components/MemberFilter';
 import { MemberTable } from '@/app/(dashboard)/member/_components/MemberTable';
 import { DEFAULT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/defaultOption';
 import { CLUB_MEMBER_SORT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/sortOption';
 import { useMemberFilter } from '@/app/(dashboard)/member/_helpers/hooks/useMemberFilter';
+import { useGetClubMembersSuspenseQuery } from '@/data/club/getClubMembers/query';
 import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
 
 type Props = {
-  initialData: ClubMembersResponse[];
+  initialData: ApiResponse<ClubMembersResponse[]>;
 };
 
 export const MemberListClient = ({ initialData }: Props) => {
-  // TODO: useSuspenseQuery
+  const {
+    data: { data: members },
+  } = useGetClubMembersSuspenseQuery({ clubId: 1 }, { initialData });
+
   const { filters, handlers } = useMemberFilter();
   const { nameQuery, departmentQuery, roleQuery, genderQuery, sortOption } =
     filters;
 
   const filteredMembers = useMemo(() => {
-    let filtered = initialData;
+    let filtered = members;
 
     // Apply name filter
     if (nameQuery) {
@@ -39,7 +44,9 @@ export const MemberListClient = ({ initialData }: Props) => {
 
     // Apply role filter
     if (roleQuery !== DEFAULT_OPTION) {
-      filtered = filtered.filter((member) => member.role === roleQuery);
+      filtered = filtered.filter(
+        (member) => member.clubMemberRole === roleQuery,
+      );
     }
 
     // Apply gender filter
@@ -51,7 +58,8 @@ export const MemberListClient = ({ initialData }: Props) => {
     filtered = [...filtered].sort((a, b) => {
       if (sortOption === CLUB_MEMBER_SORT_OPTION.가입일) {
         return (
-          new Date(b.joinedDate).getTime() - new Date(a.joinedDate).getTime()
+          new Date(b.clubJoinDate).getTime() -
+          new Date(a.clubJoinDate).getTime()
         );
       }
 
@@ -67,14 +75,7 @@ export const MemberListClient = ({ initialData }: Props) => {
     });
 
     return filtered;
-  }, [
-    initialData,
-    nameQuery,
-    departmentQuery,
-    roleQuery,
-    genderQuery,
-    sortOption,
-  ]);
+  }, [members, nameQuery, departmentQuery, roleQuery, genderQuery, sortOption]);
 
   return (
     <div className="space-y-6">
