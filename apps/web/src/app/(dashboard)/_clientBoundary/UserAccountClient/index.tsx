@@ -1,5 +1,6 @@
 'use client';
 
+import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
 import { clearAccessToken } from '@workspace/api/manageToken';
 import { signOutWithGoogle } from '@workspace/firebase/auth';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
@@ -27,7 +28,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/roles', { method: 'DELETE' });
+      await deleteUserRole();
       await signOutWithGoogle();
       clearAccessToken();
 
@@ -50,7 +51,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarFallback className="rounded-lg">
-                  {user.name[0]} {/* TODO: 아바타로 변경해야 함 */}
+                  {user.name[0]} {/** @todo: 아바타로 변경해야 함 */}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -68,7 +69,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarFallback className="rounded-lg">
-                    {user.name[0]} {/* TODO: 아바타로 변경해야 함 */}
+                    {user.name[0]} {/** @todo: 아바타로 변경해야 함 */}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

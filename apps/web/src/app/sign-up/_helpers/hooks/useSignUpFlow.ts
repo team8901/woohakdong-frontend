@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 
 import { showToast } from '@/_shared/helpers/utils/showToast';
+import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { clearAccessToken } from '@workspace/api/manageToken';
 import { signOutWithGoogle } from '@workspace/firebase/auth';
@@ -52,7 +53,7 @@ export const useSignUpFlow = () => {
 
   const onQuit = async (): Promise<void> => {
     try {
-      await fetch('/api/auth/roles', { method: 'DELETE' });
+      await deleteUserRole();
       await signOutWithGoogle();
       clearAccessToken();
 

@@ -1,9 +1,7 @@
-import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { getMyProfile } from '@/data/user/getMyProfile/fetch';
 import { postUserRoleAssociate } from '@/data/user/postUserRoleAssociate/post';
 import { putUserRoleRegular } from '@/data/user/putUserRoleRegular/put';
 import { isAxiosError } from '@workspace/api/axios';
-import { type AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 /**
  * 사용자 프로필 정보를 확인하고 적절한 페이지로 리다이렉트하는 유틸리티 함수
