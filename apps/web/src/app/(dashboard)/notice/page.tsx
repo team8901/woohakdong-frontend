@@ -1,5 +1,6 @@
 import { NoticeCardClient } from './_clientBoundary/NoticeCardClient';
-import { NoticeHeaderClient } from './_clientBoundary/NoticeHeaderClient';
+import { NoticeFilterClient } from './_clientBoundary/NoticeFilterClient';
+import { NoticeHeader } from './_components/NoticeHeader';
 
 // 예시 데이터
 const sampleNotices = [
@@ -63,8 +64,8 @@ const NoticePage = () => {
 
   return (
     <div className="space-y-6">
-      <NoticeHeaderClient />
-
+      <NoticeHeader />
+      <NoticeFilterClient />
       <div className="grid gap-6">
         {sortedNotices.map((notice) => (
           <NoticeCardClient key={notice.id} notice={notice} />

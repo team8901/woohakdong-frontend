@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 
 import { Button } from '@workspace/ui/components/button';
@@ -16,27 +14,17 @@ import { CircleXIcon, SearchIcon } from 'lucide-react';
 
 import { NoticePostingDialogClient } from '../NoticePostingDialogClient';
 
-export const NoticeHeaderClient = () => {
+export const NoticeFilterClient = () => {
   const [filterType, setFilterType] = useState('title');
   const [searchKeyword, setSearchKeyword] = useState('');
 
   const handleSearch = () => {};
-
   const handleClearSearch = () => {
     setSearchKeyword('');
   };
 
   return (
-    <div className="space-y-6">
-      <div className="hidden flex-col md:flex">
-        <h1 className="text-xl font-bold tracking-tight md:text-2xl">
-          공지사항
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">
-          중요한 공지사항과 새로운 소식을 확인해보세요
-        </p>
-      </div>
-
+    <>
       <div className="flex flex-col gap-3 md:flex-row">
         <div className="grid gap-2">
           <Label htmlFor="filterType">키워드</Label>
@@ -92,6 +80,6 @@ export const NoticeHeaderClient = () => {
         {/** @todo 공지사항 등록 기능 연동해야 함*/}
         <NoticePostingDialogClient />
       </div>
-    </div>
+    </>
   );
 };
