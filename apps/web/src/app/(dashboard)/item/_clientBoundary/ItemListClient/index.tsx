@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { ExportButtonClient } from '@/app/(dashboard)/item/_clientBoundary/ExportButtonClient';
@@ -21,6 +21,7 @@ export const ItemListClient = ({ initialData }: Props) => {
     data: { data: items },
   } = useGetClubItemsSuspenseQuery({ clubId: 1 }, { initialData });
 
+  const [selectedItems, setSelectedItems] = useState<ClubItemResponse[]>([]);
   const { filters, handlers } = useItemFilter();
 
   const {
@@ -113,15 +114,12 @@ export const ItemListClient = ({ initialData }: Props) => {
             </span>{' '}
             개 물품 조회됨
           </p>
-          <ExportButtonClient items={filteredItems} />
+          <ExportButtonClient
+            items={filteredItems}
+            selectedItems={selectedItems}
+          />
         </div>
-        <ItemTable
-          items={filteredItems}
-          onSelectionChange={(selectedItems) => {
-            console.log('선택된 물품:', selectedItems);
-            // 선택된 물품 데이터로 원하는 작업 수행
-          }}
-        />
+        <ItemTable items={filteredItems} onSelectionChange={setSelectedItems} />
       </div>
     </div>
   );

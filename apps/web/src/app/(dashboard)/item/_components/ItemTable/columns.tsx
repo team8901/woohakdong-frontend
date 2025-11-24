@@ -66,4 +66,11 @@ export const columns: ColumnDef<ClubItemResponse>[] = [
       <span className="text-gray-600">{row.getValue('rentalDate') ?? '-'}</span>
     ),
   },
+  {
+    accessorKey: 'rentalMaxDay',
+    header: '대여 가능 일수',
+    cell: ({ row }) => (
+      <span className="text-gray-600">{row.getValue('rentalMaxDay')}일</span>
+    ),
+  },
 ];
