@@ -75,9 +75,17 @@ export const columns: ColumnDef<ClubMembersResponse>[] = [
   {
     accessorKey: 'email',
     header: '이메일',
-    cell: ({ row }) => (
-      <span className="text-gray-600">{row.getValue('email')}</span>
-    ),
+    cell: ({ row }) => {
+      const email = row.getValue('email') as string;
+
+      return (
+        <a
+          href={`mailto:${email}`}
+          className="text-gray-900 underline-offset-4 hover:underline">
+          {email}
+        </a>
+      );
+    },
   },
   {
     accessorKey: 'major',
