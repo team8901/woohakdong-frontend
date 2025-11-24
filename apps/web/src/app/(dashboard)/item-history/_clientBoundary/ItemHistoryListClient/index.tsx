@@ -6,6 +6,7 @@ import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { CLUB_ITEM_SORT_OPTION } from '@/app/(dashboard)/item/_helpers/constants/sortOption';
 import { ExportButtonClient } from '@/app/(dashboard)/item-history/_clientBoundary/ExportButtonClient';
 import { ItemHistoryFilter } from '@/app/(dashboard)/item-history/_components/ItemHistoryFilter';
+import { ItemHistoryStats } from '@/app/(dashboard)/item-history/_components/ItemHistoryStats';
 import { ItemHistoryTable } from '@/app/(dashboard)/item-history/_components/ItemHistoryTable';
 import { useItemHistoryFilter } from '@/app/(dashboard)/item-history/_helpers/hooks/useItemHistoryFilter';
 import { DEFAULT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/defaultOption';
@@ -106,8 +107,25 @@ export const ItemHistoryListClient = ({ initialData }: Props) => {
     sortOption,
   ]);
 
+  const stats = useMemo(() => {
+    const totalCount = items.length;
+    const returnedCount = items.filter((item) => item.returnDate).length;
+    const rentedCount = items.filter(
+      (item) => item.rentalDate && !item.returnDate && !item.overdue,
+    ).length;
+    const overdueCount = items.filter((item) => item.overdue).length;
+
+    return { totalCount, returnedCount, rentedCount, overdueCount };
+  }, [items]);
+
   return (
     <div className="space-y-6">
+      <ItemHistoryStats
+        totalCount={stats.totalCount}
+        returnedCount={stats.returnedCount}
+        rentedCount={stats.rentedCount}
+        overdueCount={stats.overdueCount}
+      />
       <ItemHistoryFilter filters={filters} handlers={handlers} />
       <div className="space-y-4">
         <div className="flex items-center justify-between">
