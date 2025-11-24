@@ -119,7 +119,13 @@ export const ItemHistoryListClient = ({ initialData }: Props) => {
           </p>
           <ExportButtonClient items={filteredItems} />
         </div>
-        <ItemHistoryTable items={filteredItems} />
+        <ItemHistoryTable
+          items={filteredItems}
+          onSelectionChange={(selectedItems) => {
+            console.log('선택된 물품:', selectedItems);
+            // 선택된 물품 데이터로 원하는 작업 수행
+          }}
+        />
       </div>
     </div>
   );

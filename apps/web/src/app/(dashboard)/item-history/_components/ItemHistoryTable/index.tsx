@@ -1,87 +1,100 @@
-import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
-import { CLUB_ITEM_CATEGORY } from '@/app/(dashboard)/item/_helpers/constants/clubItemCategory';
-import { getHistoryRentalStatusText } from '@/app/(dashboard)/item-history/_helpers/utils/getHistoryRentalStatusText';
+'use client';
+
+import { useEffect, useState } from 'react';
+
 import { type ClubItemHistoryResponse } from '@/data/club/getClubItemHistory/type';
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@workspace/ui/components/table';
+
+import { columns } from './columns';
 
 type Props = {
   items: ClubItemHistoryResponse[];
+  onSelectionChange?: (selectedItems: ClubItemHistoryResponse[]) => void;
 };
 
-export const ItemHistoryTable = ({ items }: Props) => {
+export const ItemHistoryTable = ({ items, onSelectionChange }: Props) => {
+  const [rowSelection, setRowSelection] = useState({});
+
+  const table = useReactTable({
+    data: items,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    state: {
+      rowSelection,
+    },
+    onRowSelectionChange: setRowSelection,
+    enableRowSelection: true,
+  });
+
+  useEffect(() => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    const selectedItems = selectedRows.map((row) => row.original);
+
+    onSelectionChange?.(selectedItems);
+  }, [rowSelection, onSelectionChange, table]);
+
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-              물품명
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-              카테고리
-            </th>
-            {/* TODO: 대여자 필드 추가되면 활성화 */}
-            {/* <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-              대여자
-            </th> */}
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-              대여 상태
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-              대여 날짜
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-              반납 날짜
-            </th>
-            {/* TODO: 대여 메모 필드 추가되면 활성화 */}
-            {/* <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-900">
-              대여 메모
-            </th> */}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 bg-white">
-          {items.map((item) => (
-            <tr key={item.id}>
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {item.name}
-              </td>
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {getKeyByValue(CLUB_ITEM_CATEGORY, item.category)}
-              </td>
-              {/* TODO: 대여자 필드 추가되면 활성화 */}
-              {/* <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {item.renter}
-              </td> */}
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {getHistoryRentalStatusText(item)}
-              </td>
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {item.rentalDate ?? '-'}
-              </td>
-              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {item.returnDate ?? '-'}
-              </td>
-              {/* TODO: 대여 메모 필드 추가되면 활성화 */}
-              {/* <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {item.rentalMemo}
-              </td> */}
-            </tr>
+    <div className="w-full overflow-auto rounded-lg border bg-white">
+      <Table>
+        <TableHeader className="bg-gray-50">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id} className="hover:bg-gray-50">
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead
+                    key={header.id}
+                    className="h-12 px-6 text-xs font-semibold uppercase tracking-wide text-gray-700">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className="group">
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className="h-14 px-6 text-sm text-gray-900">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
+                className="h-32 text-center text-sm text-gray-500">
+                결과가 없습니다.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };
