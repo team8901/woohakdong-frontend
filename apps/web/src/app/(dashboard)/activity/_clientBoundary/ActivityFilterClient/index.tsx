@@ -23,7 +23,7 @@ import { ChevronDownIcon, CircleXIcon } from 'lucide-react';
 
 import { ActivityPostingDialogClient } from '../ActivityPostingDialogClient';
 
-export const ActivityHeaderClient = () => {
+export const ActivityFilterClient = () => {
   const [filterType, setFilterType] = useState('title');
   const [tagType, setTagType] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -34,16 +34,7 @@ export const ActivityHeaderClient = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="hidden flex-col md:flex">
-        <h1 className="text-xl font-bold tracking-tight md:text-2xl">
-          활동 기록
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">
-          동아리 회원들과 함께한 활동을 기록하고 확인해보세요
-        </p>
-      </div>
-
+    <>
       <div className="flex flex-col gap-3">
         <div className="grid gap-3 md:grid-cols-2">
           <div className="grid gap-2">
@@ -153,6 +144,6 @@ export const ActivityHeaderClient = () => {
         {/** @todo 활동 등록 기능 연동해야 함*/}
         <ActivityPostingDialogClient />
       </div>
-    </div>
+    </>
   );
 };

@@ -5,13 +5,13 @@ import { ActivityDetailContents } from './_components/ActivityDetailContents';
 import { ActivityNotFound } from './_components/ActivityNotFound';
 import { ToolbarHeader } from './_components/ToolbarHeader';
 
-type props = {
+type Props = {
   params: Promise<{
     id: string;
   }>;
 };
 
-const ActivityDetailPage = ({ params }: props) => {
+const ActivityDetailPage = ({ params }: Props) => {
   const { id } = use(params);
   const activityId = parseInt(id, 10);
 
