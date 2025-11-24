@@ -1,11 +1,12 @@
 'use client';
 
+import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
 import { Button } from '@workspace/ui/components/button';
 import { DownloadIcon } from 'lucide-react';
 
 type Props = {
   // TODO: 타입 변경
-  members: string[];
+  members: ClubMembersResponse[];
 };
 
 export const ExportButtonClient = ({ members }: Props) => {
