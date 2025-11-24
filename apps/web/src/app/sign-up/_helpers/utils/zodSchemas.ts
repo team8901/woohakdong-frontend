@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import {
+  validateMajor,
   validateNickname,
   validatePhoneNumber,
   validateStudentId,
@@ -28,6 +29,11 @@ export const userProfileSchema = z.object({
     .trim()
     .min(1, '학번을 입력해 주세요')
     .refine((value) => validateStudentId(value), '올바른 학번 형식이 아니에요'),
+  major: z
+    .string()
+    .trim()
+    .min(1, '학과를 입력해 주세요')
+    .refine((value) => validateMajor(value), '올바른 학과 형식이 아니에요'),
   gender: z.enum(['MALE', 'FEMALE'], {
     message: '성별을 선택해 주세요',
   }),

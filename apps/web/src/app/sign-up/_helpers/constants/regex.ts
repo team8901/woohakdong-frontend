@@ -7,6 +7,9 @@ export const STUDENT_ID_REGEX = /^[0-9]{9,11}$/;
 // 닉네임 정규식 (한글, 영문, 숫자, 일부 특수문자 허용)
 export const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9]+$/;
 
+// 학과 정규식 (한글, 영문 허용)
+export const MAJOR_REGEX = /^[가-힣a-zA-Z\s]+$/;
+
 // 성별 옵션 상수
 export const GENDER_OPTIONS = [
   { value: 'MALE', label: '남성' },

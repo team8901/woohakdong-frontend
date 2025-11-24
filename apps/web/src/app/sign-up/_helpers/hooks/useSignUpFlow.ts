@@ -12,6 +12,7 @@ type UserProfile = {
   nickname: string;
   phoneNumber: string;
   studentId: string;
+  major: string;
   gender: 'MALE' | 'FEMALE';
 };
 
@@ -25,6 +26,7 @@ export const useSignUpFlow = () => {
       nickname: '',
       phoneNumber: '',
       studentId: '',
+      major: '',
       gender: undefined,
     },
   });
@@ -35,6 +37,7 @@ export const useSignUpFlow = () => {
         nickname: data.nickname,
         phoneNumber: data.phoneNumber,
         studentId: data.studentId,
+        major: data.major,
         gender: data.gender,
       };
 

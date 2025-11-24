@@ -12,6 +12,10 @@ export const validateStudentId = (studentId: string): boolean => {
   return STUDENT_ID_REGEX.test(studentId);
 };
 
+export const validateMajor = (major: string): boolean => {
+  return major.length >= 1 && major.length <= 50;
+};
+
 export const validateNickname = (nickname: string): boolean => {
   return (
     NICKNAME_REGEX.test(nickname) &&

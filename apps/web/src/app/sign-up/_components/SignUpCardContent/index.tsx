@@ -123,6 +123,25 @@ export const SignUpCardContent = ({ form }: SignUpCardContentProps) => {
           );
         }}
       />
+      {/* 학과 입력 */}
+      <FormField
+        control={form.control}
+        name="major"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>학과</FormLabel>
+            <FormControl>
+              <Input
+                type="text"
+                placeholder="소프트웨어학과"
+                autoComplete="on"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       {/* 학번 입력 */}
       <FormField
         control={form.control}
@@ -135,7 +154,7 @@ export const SignUpCardContent = ({ form }: SignUpCardContentProps) => {
                 type="number"
                 inputMode="numeric"
                 placeholder="202512345"
-                autoComplete="off"
+                autoComplete="on"
                 {...field}
               />
             </FormControl>

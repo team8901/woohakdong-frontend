@@ -4,5 +4,6 @@ export type MyProfileResponse = {
   email: string;
   phoneNumber: string;
   studentId: string;
+  major: string;
   gender: string;
 };
