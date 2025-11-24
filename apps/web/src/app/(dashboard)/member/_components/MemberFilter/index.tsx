@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@workspace/ui/components/select';
-import { CircleXIcon, SearchIcon } from 'lucide-react';
+import { CircleXIcon } from 'lucide-react';
 
 type Props = {
   filters: {
@@ -93,13 +93,6 @@ export const MemberFilter = ({ filters, handlers }: Props) => {
               </Button>
             )}
           </div>
-          <Button
-            type="submit"
-            variant="secondary"
-            onClick={handlers.handleSearch}>
-            <SearchIcon />
-            검색
-          </Button>
         </div>
       </div>
 
