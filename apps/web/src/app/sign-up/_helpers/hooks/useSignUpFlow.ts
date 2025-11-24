@@ -1,5 +1,7 @@
 import { useForm } from 'react-hook-form';
 
+import { showToast } from '@/_shared/helpers/utils/showToast';
+import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { clearAccessToken } from '@workspace/api/manageToken';
 import { signOutWithGoogle } from '@workspace/firebase/auth';
@@ -41,13 +43,17 @@ export const useSignUpFlow = () => {
       await registerProfileMutation(userProfile);
     } catch (error) {
       console.error('🚨 프로필 제출 중 오류 발생:', error);
-      alert('프로필 완성 중에 오류가 발생했어요 🥲 다시 시도해주세요');
+
+      showToast({
+        message: '프로필 완성 중에 오류가 발생했어요',
+        type: 'error',
+      });
     }
   };
 
   const onQuit = async (): Promise<void> => {
     try {
-      await fetch('/api/auth/roles', { method: 'DELETE' });
+      await deleteUserRole();
       await signOutWithGoogle();
       clearAccessToken();
 

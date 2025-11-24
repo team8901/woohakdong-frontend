@@ -19,6 +19,7 @@
     "@hookform/resolvers": "^5.2.1",
     "@tanstack/react-query": "^5.84.2",
     "@tanstack/react-query-devtools": "^5.84.2",
+    "@tanstack/react-table": "^8.21.3",
     "@workspace/amplitude": "workspace:*",
     "@workspace/api": "workspace:*",
     "@workspace/firebase": "workspace:*",
@@ -36,6 +37,7 @@
     "react-day-picker": "^9.11.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.62.0",
+    "sonner": "^2.0.7",
     "zod": "^4.0.15"
   },
   "devDependencies": {

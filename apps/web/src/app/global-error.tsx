@@ -1,5 +1,6 @@
 'use client'; // NOTE: Error boundaries must be Client Components
 
+import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
 import { clearAccessToken } from '@workspace/api/manageToken';
 import { signOutWithGoogle } from '@workspace/firebase/auth';
 import { Button } from '@workspace/ui/components/button';
@@ -15,7 +16,7 @@ const SUPPORT_MAIL = '8901.dev@gmail.com';
 const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/roles', { method: 'DELETE' });
+      await deleteUserRole();
       await signOutWithGoogle();
       clearAccessToken();
 

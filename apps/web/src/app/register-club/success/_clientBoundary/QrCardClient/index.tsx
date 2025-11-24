@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
+import { showToast } from '@/_shared/helpers/utils/showToast';
 import { RegisterClubSuccessCardFooter } from '@/app/register-club/success/_components/RegisterClubSuccessCardFooter';
 import { CardContent } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
@@ -24,7 +25,11 @@ export const QrCardClient = () => {
   const router = useRouter();
 
   if (!clubEnglishName) {
-    alert('유효하지 않은 동아리입니다.');
+    showToast({
+      message: '유효하지 않은 동아리입니다.',
+      type: 'error',
+    });
+    
     router.replace(APP_PATH.REGISTER_CLUB.HOME);
 
     return null;
@@ -45,7 +50,10 @@ export const QrCardClient = () => {
       })
       .catch((err) => {
         console.error('QR 코드 다운로드에 실패했습니다.', err);
-        alert('QR 코드 다운로드에 실패했어요. 다시 시도해주세요.');
+        showToast({
+          message: 'QR 코드 다운로드에 실패했어요. 다시 시도해주세요.',
+          type: 'error',
+        });
       });
   };
 

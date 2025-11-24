@@ -16,8 +16,18 @@ import { CircleXIcon } from 'lucide-react';
 
 import { NoticePostingDialogClient } from '../NoticePostingDialogClient';
 
-export const NoticeHeaderClient = () => {
-  const [filterType, setFilterType] = useState('title');
+const NOTICE_FILTER_OPTIONS = [
+  { value: 'title', label: '제목' },
+  { value: 'content', label: '내용' },
+  { value: 'author', label: '작성자' },
+] as const;
+
+type NoticeFilterType = (typeof NOTICE_FILTER_OPTIONS)[number]['value'];
+
+export const NoticeFilterClient = () => {
+  const [filterType, setFilterType] = useState<NoticeFilterType>(
+    NOTICE_FILTER_OPTIONS[0].value,
+  );
   const [searchKeyword, setSearchKeyword] = useState('');
 
   const handleClearSearch = () => {
@@ -25,27 +35,22 @@ export const NoticeHeaderClient = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="hidden flex-col md:flex">
-        <h1 className="text-xl font-bold tracking-tight md:text-2xl">
-          공지사항
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">
-          중요한 공지사항과 새로운 소식을 확인해보세요
-        </p>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-[1fr_5fr]">
-        <div className="grid min-w-36 gap-2">
+    <>
+      <div className="flex flex-col gap-3 md:flex-row">
+        <div className="grid gap-2">
           <Label htmlFor="filterType">키워드</Label>
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger id="filterType" className="w-full">
+          <Select
+            value={filterType}
+            onValueChange={(value) => setFilterType(value as NoticeFilterType)}>
+            <SelectTrigger id="filterType" className="w-full md:w-[160px]">
               <SelectValue placeholder="키워드 선택" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="title">제목</SelectItem>
-              <SelectItem value="content">내용</SelectItem>
-              <SelectItem value="author">작성자</SelectItem>
+              {NOTICE_FILTER_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -84,6 +89,6 @@ export const NoticeHeaderClient = () => {
         {/** @todo 공지사항 등록 기능 연동해야 함*/}
         <NoticePostingDialogClient />
       </div>
-    </div>
+    </>
   );
 };

@@ -1,7 +1,14 @@
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { type NextRequest, NextResponse } from 'next/server';
 
-type UserRole = '준회원' | '정회원';
+/** 권한별 유저 타입 */
+const USER_ROLE = {
+  준회원: 'ASSOCIATE',
+  정회원: 'REGULAR',
+} as const;
+const PUBLIC_PATHS = [APP_PATH.LOGIN, APP_PATH.CLUB_LIST];
+
+type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
 
 const createRedirectResponse = (
   request: NextRequest,
@@ -14,63 +21,57 @@ const createRedirectResponse = (
   return NextResponse.redirect(url);
 };
 
-/** @todo: 지금은 notice 페이지로 이동하게 했지만, 후에 다른 페이지로 변경할 필요가 있을 것 같음 */
 const getDefaultPageByRole = (userRole: UserRole): string => {
-  return userRole === '준회원' ? APP_PATH.SIGN_UP : APP_PATH.DASHBOARD.NOTICE;
+  return userRole === USER_ROLE.준회원
+    ? APP_PATH.SIGN_UP
+    : APP_PATH.DASHBOARD.NOTICE;
 };
 
 export const middleware = (request: NextRequest) => {
   const { pathname } = request.nextUrl;
-
   const userRoleValue = request.cookies.get('userRole')?.value;
   const userRole: UserRole | undefined =
-    userRoleValue === '준회원' || userRoleValue === '정회원'
+    userRoleValue === USER_ROLE.준회원 || userRoleValue === USER_ROLE.정회원
       ? (userRoleValue as UserRole)
       : undefined;
 
-  const isRootPage = pathname === '/';
-  const isLoginPage = pathname === APP_PATH.LOGIN;
-  const isSignUpPage = pathname === APP_PATH.SIGN_UP;
-
-  // 로그인 페이지 접근 시 처리
-  if (isLoginPage) {
-    // 이미 로그인한 사용자는 권한에 따라 리다이렉트
-    if (userRole) {
-      return createRedirectResponse(request, getDefaultPageByRole(userRole));
+  // 비회원 사용자 처리
+  if (!userRole) {
+    // 공개 경로는 누구나 접근 가능
+    if (PUBLIC_PATHS.includes(pathname)) {
+      return NextResponse.next();
     }
 
-    // 로그인하지 않은 사용자는 로그인할 수 있도록 접근 허용
-    return NextResponse.next();
-  }
-
-  // 인증되지 않은 사용자는 로그인 페이지로 리다이렉트
-  if (!userRole) {
+    // 그 외 모든 경로는 로그인 페이지로 리다이렉트
     return createRedirectResponse(request, APP_PATH.LOGIN);
   }
 
-  // 루트 페이지 접근 시 권한에 따라 리다이렉트
-  if (isRootPage) {
+  // 회원 사용자 처리
+  if (pathname === '/' || pathname === APP_PATH.LOGIN) {
+    // 루트 페이지, 로그인 페이지 접근 시 역할별 기본 페이지로 리다이렉트
     return createRedirectResponse(request, getDefaultPageByRole(userRole));
   }
 
-  // 준회원은 sign-up 페이지로만 접근 가능
-  if (userRole === '준회원' && !isSignUpPage) {
-    return createRedirectResponse(request, APP_PATH.SIGN_UP);
+  if (userRole === USER_ROLE.준회원) {
+    // 준회원은 SIGN_UP, CLUB_LIST 페이지만 접근 가능
+    const allowedPathsForAssociate = [APP_PATH.SIGN_UP, APP_PATH.CLUB_LIST];
+
+    if (!allowedPathsForAssociate.includes(pathname)) {
+      return createRedirectResponse(request, APP_PATH.SIGN_UP);
+    }
   }
 
-  // 그 외 모든 경우 접근 허용
+  if (userRole === USER_ROLE.정회원) {
+    // 정회원은 SIGN_UP 페이지 접근 불가
+    if (pathname === APP_PATH.SIGN_UP) {
+      return createRedirectResponse(request, APP_PATH.DASHBOARD.NOTICE);
+    }
+  }
+
+  // 위 모든 조건에 해당하지 않으면 접근 허용
   return NextResponse.next();
 };
 
 export const config = {
-  matcher: [
-    /*
-     * 다음 경로를 제외한 모든 경로에 미들웨어 적용:
-     * - api (API 라우트)
-     * - _next/static (정적 파일)
-     * - _next/image (이미지 최적화 파일)
-     * - favicon.ico (파비콘)
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
