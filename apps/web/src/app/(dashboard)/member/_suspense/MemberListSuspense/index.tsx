@@ -1,12 +1,11 @@
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { MemberListClient } from '@/app/(dashboard)/member/_clientBoundary/MemberListClient';
-import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
-import { 동아리_회원_목록 } from '@/mock/handlers/club/getClubMembers/mockData';
+import { getClubMembers } from '@/data/club/getClubMembers/fetch';
 
 export const MemberListSuspense = withSuspense(
   async () => {
-    // TODO: fetch api 연결 & 목데이터 교체
-    const data: ClubMembersResponse[] = 동아리_회원_목록.data;
+    // TODO: clubId 동적으로 받기
+    const data = await getClubMembers({ clubId: 1 });
 
     return <MemberListClient initialData={data} />;
   },

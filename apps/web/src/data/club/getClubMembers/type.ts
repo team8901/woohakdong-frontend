@@ -7,7 +7,6 @@ import { type ClubMemberRole } from '@/app/(dashboard)/member/_helpers/constants
  */
 export type ClubMembersRequest = {
   clubId: number;
-  assignedTerm: string;
 };
 
 /**
@@ -15,14 +14,14 @@ export type ClubMembersRequest = {
  * @todo 동아리 회원 조회 API 스펙 확정되면 수정 필요
  */
 export type ClubMembersResponse = {
-  id: number;
+  clubMembershipId: number;
+  nickname: string;
+  clubMemberRole: ClubMemberRole;
+  clubJoinDate: string;
   name: string;
-  phoneNumber: string;
   email: string;
-  gender: ClubMemberGender;
+  phoneNumber: string;
+  studentId: string;
   major: string;
-  studentNumber: string;
-  role: ClubMemberRole;
-  joinedDate: string;
-  assignedTerm: string;
+  gender: ClubMemberGender;
 };
