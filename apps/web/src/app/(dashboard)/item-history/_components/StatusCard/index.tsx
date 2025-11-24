@@ -6,7 +6,7 @@ type Props = {
 
 export const StatsCard = ({ label, value, icon }: Props) => {
   return (
-    <div className="flex items-center justify-between rounded-lg border bg-white p-6 shadow-sm">
+    <div className="flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm sm:p-6">
       <div className="space-y-1">
         <p className="text-sm font-medium text-gray-600">{label}</p>
         <p className="text-2xl font-bold text-gray-900">
