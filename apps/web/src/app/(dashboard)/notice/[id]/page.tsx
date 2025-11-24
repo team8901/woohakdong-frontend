@@ -13,7 +13,12 @@ type props = {
 
 const NoticeDetailPage = ({ params }: props) => {
   const { id } = use(params);
-  const noticeId = Number(id);
+  const noticeId = parseInt(id, 10);
+
+  // 유효성 검사
+  if (isNaN(noticeId) || noticeId <= 0) {
+    return <NoticeNotFound />;
+  }
 
   // 실제로는 API에서 데이터를 가져와야 함
   const notice = sampleNoticeData.find((n) => n.id === noticeId);

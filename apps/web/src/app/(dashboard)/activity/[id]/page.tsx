@@ -13,7 +13,12 @@ type props = {
 
 const ActivityDetailPage = ({ params }: props) => {
   const { id } = use(params);
-  const activityId = Number(id);
+  const activityId = parseInt(id, 10);
+
+  // 유효성 검사
+  if (isNaN(activityId) || activityId <= 0) {
+    return <ActivityNotFound />;
+  }
 
   // 실제로는 API에서 데이터를 가져와야 함
   const activity = sampleActivityData.find((n) => n.id === activityId);

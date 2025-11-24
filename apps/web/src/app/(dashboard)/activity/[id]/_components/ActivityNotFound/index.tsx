@@ -1,4 +1,4 @@
-import { ToListButtonClient } from '../../_clientBoundary/ToListButtonClient';
+import { ToListButtonClient } from '../../../../../../_shared/clientBoundary/ToListButtonClient';
 
 export const ActivityNotFound = () => {
   return (

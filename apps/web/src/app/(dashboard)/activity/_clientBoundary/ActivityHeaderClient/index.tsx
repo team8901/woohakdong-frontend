@@ -45,8 +45,8 @@ export const ActivityHeaderClient = () => {
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3 md:flex-row">
-          <div className="grid flex-1 gap-2">
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-2">
             <Label htmlFor="dates">날짜</Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -84,7 +84,7 @@ export const ActivityHeaderClient = () => {
             </Popover>
           </div>
 
-          <div className="grid flex-1 gap-2">
+          <div className="grid gap-2">
             <Label htmlFor="tagType">태그</Label>
             <Select value={tagType} onValueChange={setTagType}>
               <SelectTrigger id="tagType" className="w-full">
@@ -102,8 +102,8 @@ export const ActivityHeaderClient = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 md:flex-row">
-          <div className="grid flex-1 gap-2">
+        <div className="grid gap-3 md:grid-cols-[1fr_5fr]">
+          <div className="grid min-w-36 gap-2">
             <Label htmlFor="filterType">키워드</Label>
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger id="filterType" className="w-full">
@@ -117,7 +117,7 @@ export const ActivityHeaderClient = () => {
             </Select>
           </div>
 
-          <div className="flex-5 grid gap-2">
+          <div className="grid gap-2">
             <Label htmlFor="search">검색어</Label>
             <div className="w-full">
               <Input

@@ -292,7 +292,7 @@ export const ActivityPostingDialogClient = ({
                     <FormLabel>내용</FormLabel>
                     <FormControl>
                       <Textarea
-                        className="h-[calc(25vh)]"
+                        className="min-h-48"
                         placeholder="내용을 입력해주세요"
                         {...field}
                       />
