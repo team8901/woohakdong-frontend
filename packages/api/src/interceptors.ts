@@ -20,8 +20,8 @@ import {
 export const setupInterceptors = (api: AxiosInstance): void => {
   // Request 인터셉터
   api.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-      const accessToken = getAccessToken();
+    async (config: InternalAxiosRequestConfig) => {
+      const accessToken = await getAccessToken();
 
       if (accessToken) {
         config.headers.set('Authorization', `Bearer ${accessToken}`);
