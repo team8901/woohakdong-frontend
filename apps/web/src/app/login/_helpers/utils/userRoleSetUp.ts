@@ -32,7 +32,6 @@ export const setUserRoleAndRefresh = async (): Promise<void> => {
     }
   } finally {
     // 쿠키 설정 후 페이지 리로드 (서버에서 설정한 httpOnly 쿠키가 반영되도록)
-    // 25.11.13 당시 리프레쉬 토큰 오류가 있어서 액세스토큰이 사라지는 것을 막기 위해 새로고침을 주석처리하고, router로 이동하게 해놨습니다.
-    // window.location.reload();
+    window.location.reload();
   }
 };

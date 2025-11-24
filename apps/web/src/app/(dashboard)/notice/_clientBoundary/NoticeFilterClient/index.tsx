@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 
 import { Button } from '@workspace/ui/components/button';
@@ -14,8 +16,18 @@ import { CircleXIcon, SearchIcon } from 'lucide-react';
 
 import { NoticePostingDialogClient } from '../NoticePostingDialogClient';
 
+const NOTICE_FILTER_OPTIONS = [
+  { value: 'title', label: '제목' },
+  { value: 'content', label: '내용' },
+  { value: 'author', label: '작성자' },
+] as const;
+
+type NoticeFilterType = (typeof NOTICE_FILTER_OPTIONS)[number]['value'];
+
 export const NoticeFilterClient = () => {
-  const [filterType, setFilterType] = useState('title');
+  const [filterType, setFilterType] = useState<NoticeFilterType>(
+    NOTICE_FILTER_OPTIONS[0].value,
+  );
   const [searchKeyword, setSearchKeyword] = useState('');
 
   const handleSearch = () => {};
@@ -28,14 +40,18 @@ export const NoticeFilterClient = () => {
       <div className="flex flex-col gap-3 md:flex-row">
         <div className="grid gap-2">
           <Label htmlFor="filterType">키워드</Label>
-          <Select value={filterType} onValueChange={setFilterType}>
+          <Select
+            value={filterType}
+            onValueChange={(value) => setFilterType(value as NoticeFilterType)}>
             <SelectTrigger id="filterType" className="w-full md:w-[160px]">
               <SelectValue placeholder="키워드 선택" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="title">제목</SelectItem>
-              <SelectItem value="content">내용</SelectItem>
-              <SelectItem value="author">작성자</SelectItem>
+              {NOTICE_FILTER_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
