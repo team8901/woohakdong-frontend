@@ -25,7 +25,7 @@ export function buildUrlWithParams<
   // path parameter 치환
   if (pathParams) {
     for (const [key, value] of Object.entries(pathParams)) {
-      newUrl = newUrl.replace(`:${key}`, encodeURIComponent(String(value)));
+      newUrl = newUrl.replace(`{${key}}`, encodeURIComponent(String(value)));
     }
   }
 

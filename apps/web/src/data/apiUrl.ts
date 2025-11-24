@@ -8,6 +8,10 @@ export const API_URL = {
     CLUB_INFO_SEARCH: '/api/clubs/search',
     REGISTER_CLUB: '/api/clubs',
   },
+  NOTICE: {
+    COLLECTION: '/api/clubs/{clubId}/notices', // 목록 조회, 생성
+    RESOURCE: '/api/clubs/{clubId}/notices/{noticeId}', // 상세 조회, 수정, 삭제
+  },
   USER: {
     MY_PROFILE: '/api/users/profiles/me',
     REGISTER_PROFILE: '/api/users/profiles',

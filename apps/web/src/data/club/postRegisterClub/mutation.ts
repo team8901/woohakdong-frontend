@@ -4,7 +4,6 @@ import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
 import { postRegisterClub } from './post';
 import { type RegisterClubRequest, type RegisterClubResponse } from './type';
 
-/** 동아리 등록 mutation */
 export const usePostRegisterClubMutation = (
   options?: UseMutationOptions<
     RegisterClubResponse,

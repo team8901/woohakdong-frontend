@@ -1,6 +1,9 @@
 import { usePostRegisterProfileMutation } from '@/data/user/postRegisterProfile/mutation';
+import { useRouter } from 'next/navigation';
 
 export const useRegisterProfile = () => {
+  const router = useRouter();
+
   const registerProfileMutation = usePostRegisterProfileMutation({
     onSuccess: async (data) => {
       console.log('✅ 회원가입 완료', data);
@@ -17,7 +20,7 @@ export const useRegisterProfile = () => {
         );
       }
 
-      window.location.reload();
+      router.replace('/club-list');
     },
   });
 

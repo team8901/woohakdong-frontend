@@ -6,20 +6,10 @@ import {
   type RegisterProfileResponse,
 } from './type';
 
-export const postRegisterProfile = async ({
-  nickname,
-  phoneNumber,
-  studentId,
-  gender,
-}: RegisterProfileRequest): Promise<RegisterProfileResponse> => {
+export const postRegisterProfile = async (req: RegisterProfileRequest) => {
   const { data } = await api.post<RegisterProfileResponse>(
     API_URL.USER.REGISTER_PROFILE,
-    {
-      nickname,
-      phoneNumber,
-      studentId,
-      gender,
-    },
+    req,
   );
 
   return data;

@@ -7,7 +7,6 @@ import {
   type RegisterProfileResponse,
 } from './type';
 
-/** 유저 프로필 정보 등록 mutation */
 export const usePostRegisterProfileMutation = (
   options?: UseMutationOptions<
     RegisterProfileResponse,
@@ -17,8 +16,7 @@ export const usePostRegisterProfileMutation = (
 ) => {
   return useMutation({
     mutationKey: [API_URL.USER.REGISTER_PROFILE],
-    mutationFn: (registerRequest: RegisterProfileRequest) =>
-      postRegisterProfile(registerRequest),
+    mutationFn: (req: RegisterProfileRequest) => postRegisterProfile(req),
     ...options,
   });
 };
