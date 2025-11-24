@@ -14,7 +14,7 @@ export const DashboardSidebar = ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
   return (
-    <Sidebar variant="inset" collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <ClubSwitcherClient clubs={DASHBOARD_SIDEBAR_MAP.userJoinedClubs} />
       </SidebarHeader>

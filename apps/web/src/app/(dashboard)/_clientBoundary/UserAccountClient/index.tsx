@@ -1,5 +1,8 @@
 'use client';
 
+import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
+import { clearAccessToken } from '@workspace/api/manageToken';
+import { signOutWithGoogle } from '@workspace/firebase/auth';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
 import {
   DropdownMenu,
@@ -23,6 +26,21 @@ import { type UserAccountInfo } from '../../_helpers/types';
 export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
   const { isMobile } = useSidebar();
 
+  const handleLogout = async () => {
+    try {
+      await deleteUserRole();
+      await signOutWithGoogle();
+      clearAccessToken();
+
+      console.log('✅ 로그아웃 성공');
+
+      window.location.reload();
+    } catch (error) {
+      console.error('🚨 로그아웃 실패:', error);
+      alert('로그아웃에 실패했어요 🫠 다시 시도해주세요');
+    }
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -33,7 +51,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarFallback className="rounded-lg">
-                  {user.name[0]} {/* TODO: 아바타로 변경해야 함 */}
+                  {user.name[0]} {/** @todo: 아바타로 변경해야 함 */}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -51,7 +69,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarFallback className="rounded-lg">
-                    {user.name[0]} {/* TODO: 아바타로 변경해야 함 */}
+                    {user.name[0]} {/** @todo: 아바타로 변경해야 함 */}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
@@ -72,7 +90,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               로그아웃
             </DropdownMenuItem>

@@ -1,8 +1,10 @@
-import { NoticeCardClient } from './_clientBoundary/NoticeCardClient';
-import { NoticeFilterClient } from './_clientBoundary/NoticeFilterClient';
-import { NoticeHeader } from './_components/NoticeHeader';
+import { use } from 'react';
 
-// 예시 데이터
+import { NoticeDetailContents } from './_components/NoticeDetailContents';
+import { NoticeNotFound } from './_components/NoticeNotFound';
+import { ToolbarHeader } from './_components/ToolbarHeader';
+
+// 예시 데이터 (실제로는 API에서 가져와야 함)
 const sampleNotices = [
   {
     id: 1,
@@ -52,27 +54,29 @@ const sampleNotices = [
   },
 ];
 
-const NoticePage = () => {
-  /** @todo 공지사항 고정하면 서버에서 정렬해주는 방식으로 변경해야할 듯 함 */
-  const sortedNotices = [...sampleNotices].sort((a, b) => {
-    if (a.isPinned && !b.isPinned) return -1;
+type props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
 
-    if (!a.isPinned && b.isPinned) return 1;
+const NoticeDetailPage = ({ params }: props) => {
+  const { id } = use(params);
+  const noticeId = Number(id);
 
-    return 0;
-  });
+  // 실제로는 API에서 데이터를 가져와야 함
+  const notice = sampleNotices.find((n) => n.id === noticeId);
+
+  if (!notice) {
+    return <NoticeNotFound />;
+  }
 
   return (
-    <div className="space-y-6">
-      <NoticeHeader />
-      <NoticeFilterClient />
-      <div className="grid gap-6">
-        {sortedNotices.map((notice) => (
-          <NoticeCardClient key={notice.id} notice={notice} />
-        ))}
-      </div>
+    <div className="space-y-6 md:space-y-10">
+      <ToolbarHeader />
+      <NoticeDetailContents notice={notice} />
     </div>
   );
 };
 
-export default NoticePage;
+export default NoticeDetailPage;

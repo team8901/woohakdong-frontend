@@ -33,14 +33,14 @@ import {
   SelectValue,
 } from '@workspace/ui/components/select';
 
-type PreRegistrationDialogClientProps = {
+type Props = {
   trackingEventName?: string;
 };
 
 export const PreRegistrationDialogClient = ({
   children,
   trackingEventName = 'pre_registration_dialog_open',
-}: PropsWithChildren<PreRegistrationDialogClientProps>) => {
+}: PropsWithChildren<Props>) => {
   const { form, onSubmit, onQuit, submitStatus, isFormValid, isSubmitting } =
     usePreRegistrationFlow();
 

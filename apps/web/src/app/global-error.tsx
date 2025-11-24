@@ -1,5 +1,8 @@
 'use client'; // NOTE: Error boundaries must be Client Components
 
+import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
+import { clearAccessToken } from '@workspace/api/manageToken';
+import { signOutWithGoogle } from '@workspace/firebase/auth';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { HomeIcon, RefreshCcwIcon, SirenIcon } from 'lucide-react';
@@ -11,17 +14,18 @@ const SUPPORT_MAIL = '8901.dev@gmail.com';
  * @see https://nextjs.org/docs/app/getting-started/error-handling
  */
 const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
-  const deleteUserRoleCookie = async () => {
+  const handleLogout = async () => {
     try {
-      await fetch('/api/auth/roles', {
-        method: 'DELETE',
-      });
+      await deleteUserRole();
+      await signOutWithGoogle();
+      clearAccessToken();
 
-      console.log('✅ 유저 권한 쿠키 삭제 완료');
+      console.log('✅ 로그아웃 성공');
 
       window.location.reload();
     } catch (error) {
-      console.error('❌ 유저 권한 쿠키 삭제 중 에러가 발생했습니다.', error);
+      console.error('🚨 로그아웃 실패:', error);
+      alert('로그아웃에 실패했어요 🫠 다시 시도해주세요');
     }
   };
 
@@ -43,7 +47,7 @@ const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
               variant="outline"
               size="lg"
               className="w-full"
-              onClick={deleteUserRoleCookie}>
+              onClick={handleLogout}>
               <HomeIcon />
               로그인 화면으로 돌아가기
             </Button>
