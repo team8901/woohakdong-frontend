@@ -23,9 +23,30 @@ import { ChevronDownIcon, CircleXIcon } from 'lucide-react';
 
 import { ActivityPostingDialogClient } from '../ActivityPostingDialogClient';
 
+const ACTIVITY_FILTER_OPTIONS = [
+  { value: 'title', label: '제목' },
+  { value: 'content', label: '내용' },
+  { value: 'author', label: '작성자' },
+] as const;
+
+const ACTIVITY_TAG_OPTIONS = [
+  { value: 'all', label: '전체' },
+  { value: 'study', label: '스터디' },
+  { value: 'seminar', label: '세미나' },
+  { value: 'meeting', label: '회의' },
+] as const;
+
+type ActivityFilterType = (typeof ACTIVITY_FILTER_OPTIONS)[number]['value'];
+
+type ActivityTagType = (typeof ACTIVITY_TAG_OPTIONS)[number]['value'];
+
 export const ActivityFilterClient = () => {
-  const [filterType, setFilterType] = useState('title');
-  const [tagType, setTagType] = useState('all');
+  const [filterType, setFilterType] = useState<ActivityFilterType>(
+    ACTIVITY_FILTER_OPTIONS[0].value,
+  );
+  const [tagType, setTagType] = useState<ActivityTagType>(
+    ACTIVITY_TAG_OPTIONS[0].value,
+  );
   const [searchKeyword, setSearchKeyword] = useState('');
   const [range, setRange] = useState<DateRange | undefined>(undefined);
 
@@ -77,17 +98,18 @@ export const ActivityFilterClient = () => {
 
           <div className="grid gap-2">
             <Label htmlFor="tagType">태그</Label>
-            <Select value={tagType} onValueChange={setTagType}>
+            <Select
+              value={tagType}
+              onValueChange={(value) => setTagType(value as ActivityTagType)}>
               <SelectTrigger id="tagType" className="w-full">
                 <SelectValue placeholder="태그 선택" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
-                <SelectItem value="study">스터디</SelectItem>
-                <SelectItem value="party">회식</SelectItem>
-                <SelectItem value="meeting">회의</SelectItem>
-                <SelectItem value="mt">MT</SelectItem>
-                <SelectItem value="etc">기타</SelectItem>
+                {ACTIVITY_TAG_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -96,14 +118,20 @@ export const ActivityFilterClient = () => {
         <div className="grid gap-3 md:grid-cols-[1fr_5fr]">
           <div className="grid min-w-36 gap-2">
             <Label htmlFor="filterType">키워드</Label>
-            <Select value={filterType} onValueChange={setFilterType}>
+            <Select
+              value={filterType}
+              onValueChange={(value) =>
+                setFilterType(value as ActivityFilterType)
+              }>
               <SelectTrigger id="filterType" className="w-full">
                 <SelectValue placeholder="키워드 선택" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="title">제목</SelectItem>
-                <SelectItem value="content">내용</SelectItem>
-                <SelectItem value="author">작성자</SelectItem>
+                {ACTIVITY_FILTER_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
