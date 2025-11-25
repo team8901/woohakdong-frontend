@@ -1,6 +1,6 @@
 'use client';
 
-import { useNoticePostingFlow } from '@/app/(dashboard)/notice/_helpers/hooks/useNoticePostingFlow';
+import { usePostingNoticeForm } from '@/app/(dashboard)/notice/_helpers/hooks/usePostingNoticeForm';
 import { trackEvent } from '@/eventTracker/trackEvent';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -33,7 +33,7 @@ export const NoticePostingDialogClient = ({
   trackingEventName = 'notice_posting_dialog_open',
 }: Props) => {
   const { form, onSubmit, onQuit, isFormValid, isSubmitting } =
-    useNoticePostingFlow();
+    usePostingNoticeForm();
 
   const handleTriggerClick = () => {
     trackEvent(trackingEventName);
@@ -47,7 +47,9 @@ export const NoticePostingDialogClient = ({
           공지사항 등록
         </Button>
       </DialogTrigger>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent
+        className="max-h-[90vh] max-w-[95vw] overflow-auto md:max-w-lg"
+        onInteractOutside={(e) => e.preventDefault()}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
@@ -65,7 +67,7 @@ export const NoticePostingDialogClient = ({
                       <Input
                         type="text"
                         inputMode="text"
-                        placeholder="공지사항 제목을 입력해주세요"
+                        placeholder="제목을 입력해주세요"
                         {...field}
                       />
                     </FormControl>
@@ -82,8 +84,8 @@ export const NoticePostingDialogClient = ({
                     <FormLabel>내용</FormLabel>
                     <FormControl>
                       <Textarea
-                        className="h-[calc(25vh)]"
-                        placeholder="공지사항 내용을 입력해주세요"
+                        className="min-h-48"
+                        placeholder="내용을 입력해주세요"
                         {...field}
                       />
                     </FormControl>

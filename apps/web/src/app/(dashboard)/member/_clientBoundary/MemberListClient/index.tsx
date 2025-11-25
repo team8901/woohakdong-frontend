@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { ExportButtonClient } from '@/app/(dashboard)/member/_clientBoundary/ExportButtonClient';
 import { MemberFilter } from '@/app/(dashboard)/member/_components/MemberFilter';
@@ -9,7 +9,10 @@ import { DEFAULT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/defa
 import { CLUB_MEMBER_SORT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/sortOption';
 import { useMemberFilter } from '@/app/(dashboard)/member/_helpers/hooks/useMemberFilter';
 import { useGetClubMembersSuspenseQuery } from '@/data/club/getClubMembers/query';
-import { type ListWrapperClubMembershipResponse } from '@workspace/api/generated';
+import {
+  type ClubMembershipResponse,
+  type ListWrapperClubMembershipResponse,
+} from '@workspace/api/generated';
 
 type Props = {
   initialData: ListWrapperClubMembershipResponse;
@@ -20,6 +23,9 @@ export const MemberListClient = ({ initialData }: Props) => {
     data: { data: members },
   } = useGetClubMembersSuspenseQuery({ clubId: 1 }, { initialData });
 
+  const [selectedMembers, setSelectedMembers] = useState<
+    ClubMembershipResponse[]
+  >([]);
   const { filters, handlers } = useMemberFilter();
   const { nameQuery, departmentQuery, roleQuery, genderQuery, sortOption } =
     filters;
@@ -87,14 +93,14 @@ export const MemberListClient = ({ initialData }: Props) => {
             </span>{' '}
             명 회원 조회됨
           </p>
-          <ExportButtonClient members={filteredMembers} />
+          <ExportButtonClient
+            members={filteredMembers}
+            selectedMembers={selectedMembers}
+          />
         </div>
         <MemberTable
           members={filteredMembers}
-          onSelectionChange={(selectedMembers) => {
-            console.log('선택된 멤버:', selectedMembers);
-            // 선택된 멤버 데이터로 원하는 작업 수행
-          }}
+          onSelectionChange={setSelectedMembers}
         />
       </div>
     </div>
