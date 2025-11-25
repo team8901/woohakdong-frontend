@@ -9,7 +9,7 @@ export const NoticeDetailContents = ({ notice }: { notice: Notice }) => {
       <div className="flex w-full max-w-3xl flex-col space-y-6">
         <div className="flex w-full flex-col space-y-2">
           {notice.isPinned && (
-            <Badge className="bg-primary/15 text-primary">
+            <Badge className="bg-primary/15 text-primary" size="lg">
               <PinIcon />
               고정됨
             </Badge>
@@ -20,7 +20,7 @@ export const NoticeDetailContents = ({ notice }: { notice: Notice }) => {
           </h1>
 
           <div className="text-muted-foreground flex items-center gap-2">
-            <p>{notice.updatedAt}</p>
+            <p>{notice.createdAt}</p>
             <p>{notice.writer} 작성</p>
           </div>
         </div>

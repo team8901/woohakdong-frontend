@@ -2,7 +2,11 @@
 
 import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
 import { CLUB_MEMBER_GENDER } from '@/app/(dashboard)/member/_helpers/constants/clubMemberGender';
-import { CLUB_MEMBER_ROLE } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
+import {
+  CLUB_MEMBER_ROLE,
+  type ClubMemberRole,
+} from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
+import { CLUB_MEMBER_ROLE_TAG_STYLE } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRoleTagStyle';
 import { type ColumnDef } from '@tanstack/react-table';
 import { type ClubMembershipResponse } from '@workspace/api/generated';
 import { Checkbox } from '@workspace/ui/components/checkbox';
@@ -45,11 +49,16 @@ export const columns: ColumnDef<ClubMembershipResponse>[] = [
   {
     accessorKey: 'clubMemberRole',
     header: '역할',
-    cell: ({ row }) => (
-      <span>
-        {getKeyByValue(CLUB_MEMBER_ROLE, row.getValue('clubMemberRole'))}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const role = row.getValue('clubMemberRole') as ClubMemberRole;
+
+      return (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${CLUB_MEMBER_ROLE_TAG_STYLE[role]}`}>
+          {getKeyByValue(CLUB_MEMBER_ROLE, role)}
+        </span>
+      );
+    },
   },
   {
     accessorKey: 'gender',
@@ -66,9 +75,17 @@ export const columns: ColumnDef<ClubMembershipResponse>[] = [
   {
     accessorKey: 'email',
     header: '이메일',
-    cell: ({ row }) => (
-      <span className="text-gray-600">{row.getValue('email')}</span>
-    ),
+    cell: ({ row }) => {
+      const email = row.getValue('email') as string;
+
+      return (
+        <a
+          href={`mailto:${email}`}
+          className="text-gray-900 underline-offset-4 hover:underline">
+          {email}
+        </a>
+      );
+    },
   },
   {
     accessorKey: 'major',
