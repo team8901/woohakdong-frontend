@@ -7,7 +7,7 @@ import { noticePostingSchema } from '../utils/zodSchemas';
 
 type NoticePostingFormData = z.infer<typeof noticePostingSchema>;
 
-export const useNoticePostingFlow = () => {
+export const usePostingNoticeForm = () => {
   const form = useForm<NoticePostingFormData>({
     resolver: zodResolver(noticePostingSchema),
     mode: 'onChange',
