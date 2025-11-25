@@ -8,18 +8,6 @@ import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from 'lucide-react';
 import { type ScheduleEvent } from '../../_helpers/types';
 
 export const CalendarToolbar = (toolbar: ToolbarProps<ScheduleEvent>) => {
-  const goToBack = () => {
-    toolbar.onNavigate('PREV');
-  };
-
-  const goToNext = () => {
-    toolbar.onNavigate('NEXT');
-  };
-
-  const goToCurrent = () => {
-    toolbar.onNavigate('TODAY');
-  };
-
   return (
     <div className="flex flex-col-reverse gap-2 p-5 md:flex-row md:items-center md:justify-between md:px-8 md:py-4">
       <div className="flex items-center justify-between md:justify-start">
@@ -33,13 +21,13 @@ export const CalendarToolbar = (toolbar: ToolbarProps<ScheduleEvent>) => {
         <div className="inline-flex w-fit rounded-md md:ml-4 rtl:space-x-reverse">
           <Button
             variant="ghost"
-            onClick={goToBack}
+            onClick={() => toolbar.onNavigate('PREV')}
             className="rounded-none rounded-l-md shadow-none focus-visible:z-10">
             <ChevronLeftIcon />
           </Button>
           <Button
             variant="ghost"
-            onClick={goToNext}
+            onClick={() => toolbar.onNavigate('NEXT')}
             className="rounded-none rounded-r-md shadow-none focus-visible:z-10">
             <ChevronRightIcon />
           </Button>
@@ -47,7 +35,10 @@ export const CalendarToolbar = (toolbar: ToolbarProps<ScheduleEvent>) => {
       </div>
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="secondary" onClick={goToCurrent}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => toolbar.onNavigate('TODAY')}>
           오늘
         </Button>
 
