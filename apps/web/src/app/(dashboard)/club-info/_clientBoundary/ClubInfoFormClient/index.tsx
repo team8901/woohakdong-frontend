@@ -189,28 +189,30 @@ export const ClubInfoFormClient = ({ clubMemberRole, initialData }: Props) => {
             <FormItem>
               <FormLabel>설명</FormLabel>
               <FormControl>
-                <Textarea {...field} disabled={isMember} />
+                <Textarea {...field} readOnly={isMember} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="flex w-full justify-end">
-          <Button
-            type="submit"
-            disabled={!form.formState.isValid || form.formState.isSubmitting}
-            aria-label="저장하기">
-            {form.formState.isSubmitting ? (
-              <>
-                <Spinner />
-                저장 중...
-              </>
-            ) : (
-              '저장'
-            )}
-          </Button>
-        </div>
+        {!isMember && (
+          <div className="flex w-full justify-end">
+            <Button
+              type="submit"
+              disabled={!form.formState.isValid || form.formState.isSubmitting}
+              aria-label="저장하기">
+              {form.formState.isSubmitting ? (
+                <>
+                  <Spinner />
+                  저장 중...
+                </>
+              ) : (
+                '저장'
+              )}
+            </Button>
+          </div>
+        )}
       </form>
     </Form>
   );
