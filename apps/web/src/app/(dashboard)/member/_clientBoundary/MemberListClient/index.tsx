@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { ExportButtonClient } from '@/app/(dashboard)/member/_clientBoundary/ExportButtonClient';
@@ -21,6 +21,9 @@ export const MemberListClient = ({ initialData }: Props) => {
     data: { data: members },
   } = useGetClubMembersSuspenseQuery({ clubId: 1 }, { initialData });
 
+  const [selectedMembers, setSelectedMembers] = useState<ClubMembersResponse[]>(
+    [],
+  );
   const { filters, handlers } = useMemberFilter();
   const { nameQuery, departmentQuery, roleQuery, genderQuery, sortOption } =
     filters;
@@ -88,14 +91,14 @@ export const MemberListClient = ({ initialData }: Props) => {
             </span>{' '}
             명 회원 조회됨
           </p>
-          <ExportButtonClient members={filteredMembers} />
+          <ExportButtonClient
+            members={filteredMembers}
+            selectedMembers={selectedMembers}
+          />
         </div>
         <MemberTable
           members={filteredMembers}
-          onSelectionChange={(selectedMembers) => {
-            console.log('선택된 멤버:', selectedMembers);
-            // 선택된 멤버 데이터로 원하는 작업 수행
-          }}
+          onSelectionChange={setSelectedMembers}
         />
       </div>
     </div>
