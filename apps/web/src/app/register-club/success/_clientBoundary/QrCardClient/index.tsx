@@ -14,7 +14,7 @@ import { Check, Copy } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
 
-const QR_CODE_SIZE = 183;
+export const QR_CODE_SIZE = 183;
 
 export const QrCardClient = () => {
   const searchParams = useSearchParams();
