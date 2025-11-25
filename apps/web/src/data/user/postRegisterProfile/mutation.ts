@@ -1,24 +1,23 @@
 import { API_URL } from '@/data/apiUrl';
 import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
-
-import { postRegisterProfile } from './post';
 import {
-  type RegisterProfileRequest,
-  type RegisterProfileResponse,
-} from './type';
+  createNewProfile,
+  type UserProfileCreateRequest,
+  type UserProfileIdResponse,
+} from '@workspace/api/generated';
 
 /** 유저 프로필 정보 등록 mutation */
 export const usePostRegisterProfileMutation = (
   options?: UseMutationOptions<
-    RegisterProfileResponse,
+    UserProfileIdResponse,
     Error,
-    RegisterProfileRequest
+    UserProfileCreateRequest
   >,
 ) => {
   return useMutation({
     mutationKey: [API_URL.USER.REGISTER_PROFILE],
-    mutationFn: (registerRequest: RegisterProfileRequest) =>
-      postRegisterProfile(registerRequest),
+    mutationFn: (registerRequest: UserProfileCreateRequest) =>
+      createNewProfile(registerRequest),
     ...options,
   });
 };

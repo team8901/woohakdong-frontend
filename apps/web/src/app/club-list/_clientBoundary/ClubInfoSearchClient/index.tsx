@@ -1,10 +1,10 @@
 'use client';
 
 import { useGetClubInfoSearchSuspenseQuery } from '@/data/club/getClubInfoSearch/query';
-import { type ClubInfoSearchResponse } from '@/data/club/getClubInfoSearch/type';
+import { type ListWrapperClubInfoResponse } from '@workspace/api/generated';
 
 type Props = {
-  initialData: ClubInfoSearchResponse;
+  initialData: ListWrapperClubInfoResponse;
 };
 
 export const ClubInfoSearchClient = ({ initialData }: Props) => {
@@ -13,12 +13,14 @@ export const ClubInfoSearchClient = ({ initialData }: Props) => {
     { initialData },
   );
 
+  const clubs = data.data ?? [];
+
   return (
     <div>
       <p>동아리 검색 결과</p>
-      {data.data.length === 0 && <span>없음</span>}
+      {clubs.length === 0 && <span>없음</span>}
       <ul>
-        {data.data.map((v) => (
+        {clubs.map((v) => (
           <li key={v.id}>
             {v.name}: {v.description}
           </li>

@@ -1,11 +1,11 @@
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { ClubInfoSearchClient } from '@/app/club-list/_clientBoundary/ClubInfoSearchClient';
-import { getClubInfoSearch } from '@/data/club/getClubInfoSearch/fetch';
+import { searchClubs } from '@workspace/api/generated';
 
 export const ClubInfoSearchSuspense = withSuspense(
   async () => {
     try {
-      const data = await getClubInfoSearch({ name: '두잇', nameEn: 'doit' });
+      const data = await searchClubs({ name: '두잇', nameEn: 'doit' });
 
       return <ClubInfoSearchClient initialData={data} />;
     } catch (error) {

@@ -6,8 +6,8 @@ import { showToast } from '@/_shared/helpers/utils/showToast';
 import { useImage } from '@/app/register-club/_helpers/hooks/useImage';
 import { uploadImageToS3 } from '@/app/register-club/_helpers/utils/uploadImageToS3';
 import { usePostRegisterClubMutation } from '@/data/club/postRegisterClub/mutation';
-import { type RegisterClubRequest } from '@/data/club/postRegisterClub/type';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { type ClubRegisterRequest } from '@workspace/api/generated';
 import { useRouter } from 'next/navigation';
 import z from 'zod';
 
@@ -61,7 +61,7 @@ export const useRegisterClubForm = () => {
         ? await uploadImageToS3({ image, imageResourceType: 'CLUB_PROFILE' })
         : '';
 
-      const club: RegisterClubRequest = {
+      const club: ClubRegisterRequest = {
         name: data.clubName,
         nameEn: data.clubEnglishName,
         description: data.clubDescription,

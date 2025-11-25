@@ -1,7 +1,6 @@
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { API_URL } from '@/data/apiUrl';
-import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
 import { 동아리_회원_목록 } from '@/mock/handlers/club/getClubMembers/mockData';
+import type { ListWrapperClubMembershipResponse } from '@workspace/api/generated';
 import { type MockApiResponse } from '@workspace/msw/types';
 
 export const mockGetClubMembers = {
@@ -25,5 +24,5 @@ export const mockGetClubMembers = {
   },
 } satisfies MockApiResponse<
   '동아리_회원_목록' | '에러',
-  ApiResponse<ClubMembersResponse[]>
+  ListWrapperClubMembershipResponse
 >;

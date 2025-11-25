@@ -2,7 +2,6 @@
 
 import { useMemo } from 'react';
 
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { ExportButtonClient } from '@/app/(dashboard)/member/_clientBoundary/ExportButtonClient';
 import { MemberFilter } from '@/app/(dashboard)/member/_components/MemberFilter';
 import { MemberTable } from '@/app/(dashboard)/member/_components/MemberTable';
@@ -10,10 +9,10 @@ import { DEFAULT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/defa
 import { CLUB_MEMBER_SORT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/sortOption';
 import { useMemberFilter } from '@/app/(dashboard)/member/_helpers/hooks/useMemberFilter';
 import { useGetClubMembersSuspenseQuery } from '@/data/club/getClubMembers/query';
-import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
+import { type ListWrapperClubMembershipResponse } from '@workspace/api/generated';
 
 type Props = {
-  initialData: ApiResponse<ClubMembersResponse[]>;
+  initialData: ListWrapperClubMembershipResponse;
 };
 
 export const MemberListClient = ({ initialData }: Props) => {
@@ -26,19 +25,19 @@ export const MemberListClient = ({ initialData }: Props) => {
     filters;
 
   const filteredMembers = useMemo(() => {
-    let filtered = members;
+    let filtered = members ?? [];
 
     // Apply name filter
     if (nameQuery) {
       filtered = filtered.filter((member) =>
-        member.name.toLowerCase().includes(nameQuery.toLowerCase()),
+        member.name?.toLowerCase().includes(nameQuery.toLowerCase()),
       );
     }
 
     // Apply department/major filter
     if (departmentQuery) {
       filtered = filtered.filter((member) =>
-        member.major.toLowerCase().includes(departmentQuery.toLowerCase()),
+        member.major?.toLowerCase().includes(departmentQuery.toLowerCase()),
       );
     }
 
@@ -57,18 +56,18 @@ export const MemberListClient = ({ initialData }: Props) => {
     // Apply sorting
     filtered = [...filtered].sort((a, b) => {
       if (sortOption === CLUB_MEMBER_SORT_OPTION.가입일) {
-        return (
-          new Date(b.clubJoinDate).getTime() -
-          new Date(a.clubJoinDate).getTime()
-        );
+        const dateA = a.clubJoinDate ? new Date(a.clubJoinDate).getTime() : 0;
+        const dateB = b.clubJoinDate ? new Date(b.clubJoinDate).getTime() : 0;
+
+        return dateB - dateA;
       }
 
       if (sortOption === CLUB_MEMBER_SORT_OPTION.이름) {
-        return a.name.localeCompare(b.name);
+        return (a.name ?? '').localeCompare(b.name ?? '');
       }
 
       if (sortOption === CLUB_MEMBER_SORT_OPTION.학과) {
-        return a.major.localeCompare(b.major);
+        return (a.major ?? '').localeCompare(b.major ?? '');
       }
 
       return 0;

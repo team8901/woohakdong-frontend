@@ -1,4 +1,4 @@
-import { getClubInfoSearch } from '@/data/club/getClubInfoSearch/fetch';
+import { searchClubs } from '@workspace/api/generated';
 
 /**
  * 동아리 영문명으로 clubId를 조회합니다.
@@ -9,10 +9,10 @@ export const getClubIdByEnglishName = async (
   clubEnglishName: string,
 ): Promise<number | null> => {
   try {
-    const response = await getClubInfoSearch({ nameEn: clubEnglishName });
+    const response = await searchClubs({ nameEn: clubEnglishName });
 
     if (response.data && response.data.length > 0 && response.data[0]) {
-      return response.data[0].id;
+      return response.data[0].id ?? null;
     }
 
     return null;

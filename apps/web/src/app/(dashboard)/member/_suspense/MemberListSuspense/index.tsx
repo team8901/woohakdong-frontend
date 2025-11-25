@@ -1,7 +1,7 @@
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { MemberListClient } from '@/app/(dashboard)/member/_clientBoundary/MemberListClient';
-import { getClubMembers } from '@/data/club/getClubMembers/fetch';
+import { getClubMembers } from '@workspace/api/generated';
 import { notFound } from 'next/navigation';
 
 export const MemberListSuspense = withSuspense(
@@ -17,7 +17,7 @@ export const MemberListSuspense = withSuspense(
         notFound();
       }
 
-      const data = await getClubMembers({ clubId });
+      const data = await getClubMembers(clubId);
 
       return <MemberListClient initialData={data} />;
     } catch (error) {
