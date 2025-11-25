@@ -8,7 +8,10 @@ import {
   type ClubInfoFormData,
   clubInfoSchema,
 } from '@/app/(dashboard)/club-info/_helpers/schemas/clubInfo';
-import { type ClubMemberRole } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
+import {
+  CLUB_MEMBER_ROLE,
+  type ClubMemberRole,
+} from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
 import { uploadImageToS3 } from '@/app/register-club/_helpers/utils/uploadImageToS3';
 import { usePutClubInfoMutation } from '@/data/club/putClubInfo/mutation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -87,7 +90,7 @@ export const ClubInfoFormClient = ({ clubMemberRole, initialData }: Props) => {
     }
   };
 
-  const isMember = clubMemberRole === 'MEMBER';
+  const isEditable = clubMemberRole === CLUB_MEMBER_ROLE.회장;
 
   return (
     <Form {...form}>
@@ -112,7 +115,7 @@ export const ClubInfoFormClient = ({ clubMemberRole, initialData }: Props) => {
                     field.onChange(file);
                     onChangeImage(e);
                   }}
-                  disabled={isMember}
+                  disabled={!isEditable}
                 />
               </FormControl>
               <div className="flex items-center gap-4">
@@ -129,7 +132,7 @@ export const ClubInfoFormClient = ({ clubMemberRole, initialData }: Props) => {
                     <ImageIcon className="text-muted-foreground" size={20} />
                   )}
                 </div>
-                {!isMember && (
+                {isEditable && (
                   <div className="flex flex-col gap-2">
                     <Button
                       variant="outline"
@@ -189,14 +192,14 @@ export const ClubInfoFormClient = ({ clubMemberRole, initialData }: Props) => {
             <FormItem>
               <FormLabel>설명</FormLabel>
               <FormControl>
-                <Textarea {...field} readOnly={isMember} />
+                <Textarea {...field} readOnly={!isEditable} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {!isMember && (
+        {isEditable && (
           <div className="flex w-full justify-end">
             <Button
               type="submit"
