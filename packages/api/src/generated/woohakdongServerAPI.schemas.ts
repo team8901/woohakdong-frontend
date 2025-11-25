@@ -44,8 +44,8 @@ export interface NoticeUpdateRequest {
 /**
  * 사용자의 성별
  */
-export type UserProfileCreateRequestGender = typeof UserProfileCreateRequestGender[keyof typeof UserProfileCreateRequestGender];
-
+export type UserProfileCreateRequestGender =
+  (typeof UserProfileCreateRequestGender)[keyof typeof UserProfileCreateRequestGender];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const UserProfileCreateRequestGender = {
@@ -144,8 +144,8 @@ export interface ClubApplicationFormCreateRequest {
   formContent?: FormQuestion[];
 }
 
-export type FormQuestionType = typeof FormQuestionType[keyof typeof FormQuestionType];
-
+export type FormQuestionType =
+  (typeof FormQuestionType)[keyof typeof FormQuestionType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const FormQuestionType = {
@@ -167,7 +167,9 @@ export interface ClubApplicationFormIdResponse {
   clubApplicationFormId?: number;
 }
 
-export type ClubApplicationSubmissionRequestAnswersItem = {[key: string]: unknown};
+export type ClubApplicationSubmissionRequestAnswersItem = {
+  [key: string]: unknown;
+};
 
 export interface ClubApplicationSubmissionRequest {
   /**
@@ -215,8 +217,8 @@ export interface PresignedUrlResponse {
   presignedUrl?: string;
 }
 
-export type UserProfileResponseGender = typeof UserProfileResponseGender[keyof typeof UserProfileResponseGender];
-
+export type UserProfileResponseGender =
+  (typeof UserProfileResponseGender)[keyof typeof UserProfileResponseGender];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const UserProfileResponseGender = {
@@ -265,8 +267,8 @@ export interface NoticeResponse {
   content?: string;
 }
 
-export type ClubMembershipResponseClubMemberRole = typeof ClubMembershipResponseClubMemberRole[keyof typeof ClubMembershipResponseClubMemberRole];
-
+export type ClubMembershipResponseClubMemberRole =
+  (typeof ClubMembershipResponseClubMemberRole)[keyof typeof ClubMembershipResponseClubMemberRole];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ClubMembershipResponseClubMemberRole = {
@@ -277,8 +279,8 @@ export const ClubMembershipResponseClubMemberRole = {
   MEMBER: 'MEMBER',
 } as const;
 
-export type ClubMembershipResponseGender = typeof ClubMembershipResponseGender[keyof typeof ClubMembershipResponseGender];
-
+export type ClubMembershipResponseGender =
+  (typeof ClubMembershipResponseGender)[keyof typeof ClubMembershipResponseGender];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ClubMembershipResponseGender = {
@@ -316,8 +318,8 @@ export interface ListWrapperClubApplicationFormInfoResponse {
   data?: ClubApplicationFormInfoResponse[];
 }
 
-export type ClubApplicationSubmissionResponseApplicationStatus = typeof ClubApplicationSubmissionResponseApplicationStatus[keyof typeof ClubApplicationSubmissionResponseApplicationStatus];
-
+export type ClubApplicationSubmissionResponseApplicationStatus =
+  (typeof ClubApplicationSubmissionResponseApplicationStatus)[keyof typeof ClubApplicationSubmissionResponseApplicationStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ClubApplicationSubmissionResponseApplicationStatus = {
@@ -356,11 +358,11 @@ export interface UserInfoDto {
 }
 
 export type GetPresignedUrlsParams = {
-imageResourceType: GetPresignedUrlsImageResourceType;
+  imageResourceType: GetPresignedUrlsImageResourceType;
 };
 
-export type GetPresignedUrlsImageResourceType = typeof GetPresignedUrlsImageResourceType[keyof typeof GetPresignedUrlsImageResourceType];
-
+export type GetPresignedUrlsImageResourceType =
+  (typeof GetPresignedUrlsImageResourceType)[keyof typeof GetPresignedUrlsImageResourceType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const GetPresignedUrlsImageResourceType = {
@@ -370,7 +372,6 @@ export const GetPresignedUrlsImageResourceType = {
 } as const;
 
 export type SearchClubsParams = {
-name?: string;
-nameEn?: string;
+  name?: string;
+  nameEn?: string;
 };
-

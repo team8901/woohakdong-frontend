@@ -17,6 +17,7 @@ export default defineConfig({
       },
       fileExtension: '.ts',
       tsconfig: 'packages/api/tsconfig.json',
+      prettier: true,
     },
   },
 });
