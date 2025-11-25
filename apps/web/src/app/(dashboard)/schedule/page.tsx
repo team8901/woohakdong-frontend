@@ -1,9 +1,9 @@
-import { ScheduleHeader } from './_components/ScheduleHeader';
+import { ScheduleCalendarClient } from './_clientBoundary/ScheduleCalendarClient';
 
 const SchedulePage = () => {
   return (
-    <div className="space-y-6">
-      <ScheduleHeader />
+    <div className="-m-5 md:-m-8">
+      <ScheduleCalendarClient />
     </div>
   );
 };
