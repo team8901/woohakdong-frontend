@@ -3,15 +3,12 @@
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 import { useState } from 'react';
-import {
-  Calendar,
-  dateFnsLocalizer,
-  type EventProps,
-} from 'react-big-calendar';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 
 import { format, getDay, parse, startOfWeek } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
+import { CalendarEvent } from '../../_components/CalendarEvent';
 import { type ScheduleEvent } from '../../_helpers/types';
 import { sampleScheduleData } from '../../_helpers/types/sampleScheduleData';
 import { CalendarToolbar } from '../CalendarToobarClient';
@@ -27,16 +24,6 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
-
-const CustomEvent = ({ event }: EventProps<ScheduleEvent>) => {
-  return (
-    <div
-      className={`text-accent-foreground h-full truncate p-1 text-xs font-medium ${event.color ? '' : 'bg-accent'} `}
-      style={{ backgroundColor: event.color }}>
-      {event.title}
-    </div>
-  );
-};
 
 export const ScheduleCalendarClient = () => {
   const [date, setDate] = useState(new Date());
@@ -55,7 +42,7 @@ export const ScheduleCalendarClient = () => {
         views={['month']}
         components={{
           toolbar: CalendarToolbar,
-          event: CustomEvent,
+          event: CalendarEvent,
         }}
         messages={{
           next: '다음 달',
