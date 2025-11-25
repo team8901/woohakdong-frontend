@@ -25,5 +25,13 @@ export const api = axios.create({
 
 setupInterceptors(api);
 
+/**
+ * Orval mutator - 생성된 API 클라이언트에서 사용할 커스텀 axios 인스턴스
+ * 인터셉터가 설정된 api 인스턴스를 사용하여 모든 API 호출에 인증 토큰이 자동으로 포함됩니다.
+ */
+export const customInstance = <T>(config: AxiosRequestConfig): Promise<T> => {
+  return api.request<T>(config).then((response) => response.data);
+};
+
 export { isAxiosError };
 export type { AxiosError, AxiosRequestConfig, AxiosResponse };

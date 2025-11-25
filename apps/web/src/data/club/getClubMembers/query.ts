@@ -1,12 +1,10 @@
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { API_URL } from '@/data/apiUrl';
-import { getClubMembers } from '@/data/club/getClubMembers/fetch';
-import {
-  type ClubMembersRequest,
-  type ClubMembersResponse,
-} from '@/data/club/getClubMembers/type';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  getClubMembers,
+  type ListWrapperClubMembershipResponse,
+} from '@workspace/api/generated';
 import {
   type OmittedQueryOptions,
   type OmittedSuspenseQueryOptions,
@@ -14,8 +12,8 @@ import {
 
 /** 동아리 회원 목록 query */
 export const useGetClubMembersQuery = (
-  { clubId }: ClubMembersRequest,
-  options?: OmittedQueryOptions,
+  { clubId }: { clubId: number },
+  options?: OmittedQueryOptions<ListWrapperClubMembershipResponse>,
 ) => {
   const url = buildUrlWithParams({
     url: API_URL.CLUB.CLUB_MEMBERS,
@@ -24,15 +22,15 @@ export const useGetClubMembersQuery = (
 
   return useQuery({
     queryKey: [url],
-    queryFn: () => getClubMembers({ clubId }),
+    queryFn: () => getClubMembers(clubId),
     ...options,
   });
 };
 
 /** 동아리 회원 목록 suspense query */
 export const useGetClubMembersSuspenseQuery = (
-  { clubId }: ClubMembersRequest,
-  options?: OmittedSuspenseQueryOptions<ApiResponse<ClubMembersResponse[]>>,
+  { clubId }: { clubId: number },
+  options?: OmittedSuspenseQueryOptions<ListWrapperClubMembershipResponse>,
 ) => {
   const url = buildUrlWithParams({
     url: API_URL.CLUB.CLUB_MEMBERS,
@@ -41,7 +39,7 @@ export const useGetClubMembersSuspenseQuery = (
 
   return useSuspenseQuery({
     queryKey: [url],
-    queryFn: () => getClubMembers({ clubId }),
+    queryFn: () => getClubMembers(clubId),
     ...options,
   });
 };

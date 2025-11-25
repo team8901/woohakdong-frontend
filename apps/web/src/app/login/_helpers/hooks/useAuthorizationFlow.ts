@@ -10,7 +10,7 @@ export const useAuthorizationFlow = () => {
   const authorizationMutation = usePostSocialLoginMutation({
     onSuccess: async (data) => {
       // 액세스 토큰 저장 (HttpOnly RefreshToken은 쿠키로 처리됨)
-      setAccessToken(data.accessToken);
+      setAccessToken(data.accessToken ?? null);
 
       console.log('✅ 액세스 토큰, 리프레쉬 토큰 발급 및 저장 성공');
 

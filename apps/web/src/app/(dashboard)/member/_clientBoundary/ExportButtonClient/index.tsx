@@ -2,16 +2,22 @@
 
 import { exportToExcel } from '@/_shared/helpers/utils/exportToExcel';
 import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
-import { CLUB_MEMBER_GENDER } from '@/app/(dashboard)/member/_helpers/constants/clubMemberGender';
-import { CLUB_MEMBER_ROLE } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
+import {
+  CLUB_MEMBER_GENDER,
+  type ClubMemberGender,
+} from '@/app/(dashboard)/member/_helpers/constants/clubMemberGender';
+import {
+  CLUB_MEMBER_ROLE,
+  type ClubMemberRole,
+} from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
 import { MEMBER_EXPORT_CONFIG } from '@/app/(dashboard)/member/_helpers/constants/memberExportConfig';
-import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
+import { type ClubMembershipResponse } from '@workspace/api/generated';
 import { Button } from '@workspace/ui/components/button';
 import { DownloadIcon } from 'lucide-react';
 
 type Props = {
-  members: ClubMembersResponse[];
-  selectedMembers: ClubMembersResponse[];
+  members: ClubMembershipResponse[];
+  selectedMembers: ClubMembershipResponse[];
 };
 
 export const ExportButtonClient = ({ members, selectedMembers }: Props) => {
@@ -21,8 +27,16 @@ export const ExportButtonClient = ({ members, selectedMembers }: Props) => {
       selectedData: selectedMembers,
       dataMapper: (member) => ({
         이름: member.name,
-        역할: getKeyByValue(CLUB_MEMBER_ROLE, member.clubMemberRole) ?? '',
-        성별: getKeyByValue(CLUB_MEMBER_GENDER, member.gender) ?? '',
+        역할:
+          getKeyByValue(
+            CLUB_MEMBER_ROLE,
+            member.clubMemberRole as ClubMemberRole,
+          ) ?? '',
+        성별:
+          getKeyByValue(
+            CLUB_MEMBER_GENDER,
+            member.gender as ClubMemberGender,
+          ) ?? '',
         전화번호: member.phoneNumber,
         이메일: member.email,
         학과: member.major,

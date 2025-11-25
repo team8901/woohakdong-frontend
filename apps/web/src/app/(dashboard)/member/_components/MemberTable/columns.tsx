@@ -7,11 +7,11 @@ import {
   type ClubMemberRole,
 } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
 import { CLUB_MEMBER_ROLE_TAG_STYLE } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRoleTagStyle';
-import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
 import { type ColumnDef } from '@tanstack/react-table';
+import { type ClubMembershipResponse } from '@workspace/api/generated';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 
-export const columns: ColumnDef<ClubMembersResponse>[] = [
+export const columns: ColumnDef<ClubMembershipResponse>[] = [
   {
     id: 'select',
     header: ({ table }) => (
