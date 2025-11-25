@@ -5,7 +5,10 @@ import { useRef, useState } from 'react';
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { showToast } from '@/_shared/helpers/utils/showToast';
-import { QR_CODE_SIZE } from '@/app/register-club/success/_clientBoundary/QrCardClient';
+import {
+  COPY_SUCCESS_TIMEOUT,
+  QR_CODE_SIZE,
+} from '@/app/register-club/success/_clientBoundary/QrCardClient';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { toPng } from 'html-to-image';
@@ -54,7 +57,7 @@ export const QrCardClient = () => {
   const onCopy = () => {
     navigator.clipboard.writeText(clubFullUrl).then(() => {
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      setTimeout(() => setIsCopied(false), COPY_SUCCESS_TIMEOUT);
     });
   };
 

@@ -14,6 +14,7 @@ import { Check, Copy } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
 
+export const COPY_SUCCESS_TIMEOUT = 2000;
 export const QR_CODE_SIZE = 183;
 
 export const QrCardClient = () => {
@@ -72,7 +73,7 @@ export const QrCardClient = () => {
   const onCopy = () => {
     navigator.clipboard.writeText(clubFullUrl).then(() => {
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      setTimeout(() => setIsCopied(false), COPY_SUCCESS_TIMEOUT);
     });
   };
 
