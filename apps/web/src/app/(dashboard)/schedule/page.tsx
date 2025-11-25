@@ -1,7 +1,9 @@
+import { ScheduleHeader } from './_components/ScheduleHeader';
+
 const SchedulePage = () => {
   return (
-    <div>
-      <h1>Schedule</h1>
+    <div className="space-y-6">
+      <ScheduleHeader />
     </div>
   );
 };
