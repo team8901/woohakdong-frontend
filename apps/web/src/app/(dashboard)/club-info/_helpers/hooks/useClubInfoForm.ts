@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 
+import { useImage } from '@/_shared/helpers/hooks/useImage';
 import { showToast } from '@/_shared/helpers/utils/showToast';
-import { useImage } from '@/app/register-club/_helpers/hooks/useImage';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
 
@@ -35,8 +35,14 @@ const MOCK_DATA = {
   clubDescription: '우아한 개발 동아리',
 };
 
+const MAX_IMAGE_LENGTH = 1;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 export const useClubInfoForm = () => {
-  const { imagePreviewUrl, onChangeImage } = useImage();
+  const { imagePreviewUrl, onChangeImage } = useImage({
+    maxFileSize: MAX_FILE_SIZE,
+    maxImageLength: MAX_IMAGE_LENGTH,
+  });
 
   const form = useForm<ClubInfoFormData>({
     resolver: zodResolver(clubInfoSchema),
