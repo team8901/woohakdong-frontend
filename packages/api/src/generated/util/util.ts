@@ -8,24 +8,22 @@
  */
 import type {
   GetPresignedUrlsParams,
-  PresignedUrlResponse
+  PresignedUrlResponse,
 } from '../woohakdongServerAPI.schemas';
 
 import { customInstance } from '../../axios';
 
-
-
-  /**
+/**
  * 이미지 리소스 타입에 대한 Presigned URL을 획득합니다.
  * @summary Presigned URL 획득
  */
-export const getPresignedUrls = (
-    params: GetPresignedUrlsParams,
- ) => {
-      return customInstance<PresignedUrlResponse>(
-      {url: `/utils/images/presigned-url`, method: 'GET',
-        params
-    },
-      );
-    }
-  export type GetPresignedUrlsResult = NonNullable<Awaited<ReturnType<typeof getPresignedUrls>>>
+export const getPresignedUrls = (params: GetPresignedUrlsParams) => {
+  return customInstance<PresignedUrlResponse>({
+    url: `/utils/images/presigned-url`,
+    method: 'GET',
+    params,
+  });
+};
+export type GetPresignedUrlsResult = NonNullable<
+  Awaited<ReturnType<typeof getPresignedUrls>>
+>;

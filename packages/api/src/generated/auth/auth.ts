@@ -8,47 +8,40 @@
  */
 import type {
   AuthSocialLoginRequest,
-  AuthSocialLoginResponse
+  AuthSocialLoginResponse,
 } from '../woohakdongServerAPI.schemas';
 
 import { customInstance } from '../../axios';
 
-
-
-  /**
+/**
  * 소셜 로그인을 통해, JWT 토큰을 발급받습니다.
  * @summary 소셜 로그인
  */
-export const socialLogin = (
-    authSocialLoginRequest: AuthSocialLoginRequest,
- ) => {
-      return customInstance<AuthSocialLoginResponse>(
-      {url: `/api/auth/social-login`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: authSocialLoginRequest
-    },
-      );
-    }
-  /**
+export const socialLogin = (authSocialLoginRequest: AuthSocialLoginRequest) => {
+  return customInstance<AuthSocialLoginResponse>({
+    url: `/api/auth/social-login`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: authSocialLoginRequest,
+  });
+};
+/**
  * Refresh Token을 이용하여 새로운 Access Token을 발급받습니다.
  * @summary Access Token 재발급
  */
-export const refreshAccessToken = (
-    
- ) => {
-      return customInstance<AuthSocialLoginResponse>(
-      {url: `/api/auth/refresh`, method: 'POST'
-    },
-      );
-    }
-  export const jwtTest = (
-    
- ) => {
-      return customInstance<string>(
-      {url: `/api/auth/test`, method: 'GET'
-    },
-      );
-    }
-  export type SocialLoginResult = NonNullable<Awaited<ReturnType<typeof socialLogin>>>
-export type RefreshAccessTokenResult = NonNullable<Awaited<ReturnType<typeof refreshAccessToken>>>
-export type JwtTestResult = NonNullable<Awaited<ReturnType<typeof jwtTest>>>
+export const refreshAccessToken = () => {
+  return customInstance<AuthSocialLoginResponse>({
+    url: `/api/auth/refresh`,
+    method: 'POST',
+  });
+};
+export const jwtTest = () => {
+  return customInstance<string>({ url: `/api/auth/test`, method: 'GET' });
+};
+export type SocialLoginResult = NonNullable<
+  Awaited<ReturnType<typeof socialLogin>>
+>;
+export type RefreshAccessTokenResult = NonNullable<
+  Awaited<ReturnType<typeof refreshAccessToken>>
+>;
+export type JwtTestResult = NonNullable<Awaited<ReturnType<typeof jwtTest>>>;

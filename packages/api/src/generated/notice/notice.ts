@@ -11,84 +11,84 @@ import type {
   NoticeCreateRequest,
   NoticeIdResponse,
   NoticeResponse,
-  NoticeUpdateRequest
+  NoticeUpdateRequest,
 } from '../woohakdongServerAPI.schemas';
 
 import { customInstance } from '../../axios';
 
-
-
-  /**
+/**
  * 동아리 공지사항을 조회합니다.
  * @summary 공지사항 단건 조회
  */
-export const getNotice = (
-    clubId: number,
-    noticeId: number,
- ) => {
-      return customInstance<NoticeResponse>(
-      {url: `/api/clubs/${clubId}/notices/${noticeId}`, method: 'GET'
-    },
-      );
-    }
-  /**
+export const getNotice = (clubId: number, noticeId: number) => {
+  return customInstance<NoticeResponse>({
+    url: `/api/clubs/${clubId}/notices/${noticeId}`,
+    method: 'GET',
+  });
+};
+/**
  * 동아리 공지사항을 수정합니다.
  * @summary 공지사항 수정
  */
 export const updateNotice = (
-    clubId: number,
-    noticeId: number,
-    noticeUpdateRequest: NoticeUpdateRequest,
- ) => {
-      return customInstance<void>(
-      {url: `/api/clubs/${clubId}/notices/${noticeId}`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: noticeUpdateRequest
-    },
-      );
-    }
-  /**
+  clubId: number,
+  noticeId: number,
+  noticeUpdateRequest: NoticeUpdateRequest,
+) => {
+  return customInstance<void>({
+    url: `/api/clubs/${clubId}/notices/${noticeId}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: noticeUpdateRequest,
+  });
+};
+/**
  * 동아리 공지사항을 삭제합니다.
  * @summary 공지사항 삭제
  */
-export const deleteNotice = (
-    clubId: number,
-    noticeId: number,
- ) => {
-      return customInstance<void>(
-      {url: `/api/clubs/${clubId}/notices/${noticeId}`, method: 'DELETE'
-    },
-      );
-    }
-  /**
+export const deleteNotice = (clubId: number, noticeId: number) => {
+  return customInstance<void>({
+    url: `/api/clubs/${clubId}/notices/${noticeId}`,
+    method: 'DELETE',
+  });
+};
+/**
  * 동아리 공지사항 목록을 조회합니다. 고정된 공지가 먼저 표시됩니다.
  * @summary 공지사항 목록 조회
  */
-export const getNotices = (
-    clubId: number,
- ) => {
-      return customInstance<ListWrapperNoticeResponse>(
-      {url: `/api/clubs/${clubId}/notices`, method: 'GET'
-    },
-      );
-    }
-  /**
+export const getNotices = (clubId: number) => {
+  return customInstance<ListWrapperNoticeResponse>({
+    url: `/api/clubs/${clubId}/notices`,
+    method: 'GET',
+  });
+};
+/**
  * 동아리 공지사항을 작성합니다.
  * @summary 공지사항 작성
  */
 export const createNotice = (
-    clubId: number,
-    noticeCreateRequest: NoticeCreateRequest,
- ) => {
-      return customInstance<NoticeIdResponse>(
-      {url: `/api/clubs/${clubId}/notices`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: noticeCreateRequest
-    },
-      );
-    }
-  export type GetNoticeResult = NonNullable<Awaited<ReturnType<typeof getNotice>>>
-export type UpdateNoticeResult = NonNullable<Awaited<ReturnType<typeof updateNotice>>>
-export type DeleteNoticeResult = NonNullable<Awaited<ReturnType<typeof deleteNotice>>>
-export type GetNoticesResult = NonNullable<Awaited<ReturnType<typeof getNotices>>>
-export type CreateNoticeResult = NonNullable<Awaited<ReturnType<typeof createNotice>>>
+  clubId: number,
+  noticeCreateRequest: NoticeCreateRequest,
+) => {
+  return customInstance<NoticeIdResponse>({
+    url: `/api/clubs/${clubId}/notices`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: noticeCreateRequest,
+  });
+};
+export type GetNoticeResult = NonNullable<
+  Awaited<ReturnType<typeof getNotice>>
+>;
+export type UpdateNoticeResult = NonNullable<
+  Awaited<ReturnType<typeof updateNotice>>
+>;
+export type DeleteNoticeResult = NonNullable<
+  Awaited<ReturnType<typeof deleteNotice>>
+>;
+export type GetNoticesResult = NonNullable<
+  Awaited<ReturnType<typeof getNotices>>
+>;
+export type CreateNoticeResult = NonNullable<
+  Awaited<ReturnType<typeof createNotice>>
+>;

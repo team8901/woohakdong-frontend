@@ -20,170 +20,180 @@ import type {
   ListWrapperClubApplicationFormInfoResponse,
   ListWrapperClubApplicationSubmissionResponse,
   ListWrapperClubInfoResponse,
-  SearchClubsParams
+  SearchClubsParams,
 } from '../woohakdongServerAPI.schemas';
 
 import { customInstance } from '../../axios';
 
-
-
-  /**
+/**
  * 동아리 정보를 수정합니다.
  * @summary 동아리 정보 수정
  */
 export const updateClubInfo = (
-    clubId: number,
-    clubUpdateRequest: ClubUpdateRequest,
- ) => {
-      return customInstance<void>(
-      {url: `/api/clubs/${clubId}`, method: 'PUT',
-      headers: {'Content-Type': 'application/json', },
-      data: clubUpdateRequest
-    },
-      );
-    }
-  /**
+  clubId: number,
+  clubUpdateRequest: ClubUpdateRequest,
+) => {
+  return customInstance<void>({
+    url: `/api/clubs/${clubId}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: clubUpdateRequest,
+  });
+};
+/**
  * 인증된 사용자가 가입한 동아리 목록을 조회합니다.
  * @summary 내가 가입한 동아리 조회
  */
-export const getJoinedClubs = (
-    
- ) => {
-      return customInstance<ListWrapperClubInfoResponse>(
-      {url: `/api/clubs`, method: 'GET'
-    },
-      );
-    }
-  /**
+export const getJoinedClubs = () => {
+  return customInstance<ListWrapperClubInfoResponse>({
+    url: `/api/clubs`,
+    method: 'GET',
+  });
+};
+/**
  * 새로운 동아리를 등록합니다.
  * @summary 동아리 등록
  */
-export const registerNewClub = (
-    clubRegisterRequest: ClubRegisterRequest,
- ) => {
-      return customInstance<ClubIdResponse>(
-      {url: `/api/clubs`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: clubRegisterRequest
-    },
-      );
-    }
-  /**
+export const registerNewClub = (clubRegisterRequest: ClubRegisterRequest) => {
+  return customInstance<ClubIdResponse>({
+    url: `/api/clubs`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: clubRegisterRequest,
+  });
+};
+/**
  * 동아리 모든 신청폼을 조회합니다.
  * @summary 동아리 모든 신청폼 조회
  */
-export const getAllClubApplicationForms = (
-    clubId: number,
- ) => {
-      return customInstance<ListWrapperClubApplicationFormInfoResponse>(
-      {url: `/api/clubs/${clubId}/application-forms`, method: 'GET'
-    },
-      );
-    }
-  /**
+export const getAllClubApplicationForms = (clubId: number) => {
+  return customInstance<ListWrapperClubApplicationFormInfoResponse>({
+    url: `/api/clubs/${clubId}/application-forms`,
+    method: 'GET',
+  });
+};
+/**
  * 동아리원들이 신청할 수 있는 신청폼을 생성합니다. 이는 동아리 소유자만 생성할 수 있습니다.<p>type은 TEXT, RADIO, CHECKBOX, SELECT 중 하나를 선택할 수 있습니다. <p>required는 필수 입력 여부를 나타내며, true일 경우 해당 질문은 필수로 입력해야 합니다. <p>options는 type이 RADIO, CHECKBOX, SELECT일 때 선택지로 사용됩니다. [JAVA, PYTHON]와 같이 입력 가능
  * @summary 동아리 신청폼 생성
  */
 export const createClubApplicationForm = (
-    clubId: number,
-    clubApplicationFormCreateRequest: ClubApplicationFormCreateRequest,
- ) => {
-      return customInstance<ClubApplicationFormIdResponse>(
-      {url: `/api/clubs/${clubId}/application-forms`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: clubApplicationFormCreateRequest
-    },
-      );
-    }
-  /**
+  clubId: number,
+  clubApplicationFormCreateRequest: ClubApplicationFormCreateRequest,
+) => {
+  return customInstance<ClubApplicationFormIdResponse>({
+    url: `/api/clubs/${clubId}/application-forms`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: clubApplicationFormCreateRequest,
+  });
+};
+/**
  * 특정 신청폼에 제출된 모든 신청서 목록을 조회합니다. 동아리 관리자만 조회 가능합니다.
  * @summary 제출된 동아리 신청서 목록 조회
  */
 export const getClubApplicationSubmissions = (
-    clubId: number,
-    applicationFormId: number,
- ) => {
-      return customInstance<ListWrapperClubApplicationSubmissionResponse>(
-      {url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions`, method: 'GET'
-    },
-      );
-    }
-  /**
+  clubId: number,
+  applicationFormId: number,
+) => {
+  return customInstance<ListWrapperClubApplicationSubmissionResponse>({
+    url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions`,
+    method: 'GET',
+  });
+};
+/**
  * 동아리 신청폼을 작성하여 동아리에 가입 신청합니다.
  * @summary 동아리 신청폼 작성을 통한 동아리 가입 신청
  */
 export const submitClubApplicationForm = (
-    clubId: number,
-    applicationFormId: number,
-    clubApplicationSubmissionRequest: ClubApplicationSubmissionRequest,
- ) => {
-      return customInstance<ClubApplicationSubmissionIdResponse>(
-      {url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: clubApplicationSubmissionRequest
-    },
-      );
-    }
-  /**
+  clubId: number,
+  applicationFormId: number,
+  clubApplicationSubmissionRequest: ClubApplicationSubmissionRequest,
+) => {
+  return customInstance<ClubApplicationSubmissionIdResponse>({
+    url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: clubApplicationSubmissionRequest,
+  });
+};
+/**
  * 동아리 이름의 중복 여부를 확인합니다.
  * @summary 동아리 이름 중복 검사
  */
 export const validateClubName = (
-    clubNameValidateRequest: ClubNameValidateRequest,
- ) => {
-      return customInstance<void>(
-      {url: `/api/clubs/validate-name`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: clubNameValidateRequest
-    },
-      );
-    }
-  /**
+  clubNameValidateRequest: ClubNameValidateRequest,
+) => {
+  return customInstance<void>({
+    url: `/api/clubs/validate-name`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: clubNameValidateRequest,
+  });
+};
+/**
  * 내가 제출한 동아리 신청폼을 확인합니다. 신규 신청 시, 존재하지 않을 수 있습니다.
  * @summary 내가 제출한 동아리 신청폼 확인
  */
 export const getMyClubApplicationSubmission = (
-    clubId: number,
-    applicationFormId: number,
- ) => {
-      return customInstance<ClubApplicationSubmissionResponse>(
-      {url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions/me`, method: 'GET'
-    },
-      );
-    }
-  /**
+  clubId: number,
+  applicationFormId: number,
+) => {
+  return customInstance<ClubApplicationSubmissionResponse>({
+    url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions/me`,
+    method: 'GET',
+  });
+};
+/**
  * 동아리 신청폼 중 가장 최신의 것을 조회합니다.
  * @summary 가장 최신의 동아리 신청폼 조회
  */
-export const getClubApplicationForm = (
-    clubId: number,
- ) => {
-      return customInstance<ClubApplicationFormInfoResponse>(
-      {url: `/api/clubs/${clubId}/application-forms/latest`, method: 'GET'
-    },
-      );
-    }
-  /**
+export const getClubApplicationForm = (clubId: number) => {
+  return customInstance<ClubApplicationFormInfoResponse>({
+    url: `/api/clubs/${clubId}/application-forms/latest`,
+    method: 'GET',
+  });
+};
+/**
  * 동아리 정보를 검색합니다.
  * @summary 동아리 정보 검색
  */
-export const searchClubs = (
-    params?: SearchClubsParams,
- ) => {
-      return customInstance<ListWrapperClubInfoResponse>(
-      {url: `/api/clubs/search`, method: 'GET',
-        params
-    },
-      );
-    }
-  export type UpdateClubInfoResult = NonNullable<Awaited<ReturnType<typeof updateClubInfo>>>
-export type GetJoinedClubsResult = NonNullable<Awaited<ReturnType<typeof getJoinedClubs>>>
-export type RegisterNewClubResult = NonNullable<Awaited<ReturnType<typeof registerNewClub>>>
-export type GetAllClubApplicationFormsResult = NonNullable<Awaited<ReturnType<typeof getAllClubApplicationForms>>>
-export type CreateClubApplicationFormResult = NonNullable<Awaited<ReturnType<typeof createClubApplicationForm>>>
-export type GetClubApplicationSubmissionsResult = NonNullable<Awaited<ReturnType<typeof getClubApplicationSubmissions>>>
-export type SubmitClubApplicationFormResult = NonNullable<Awaited<ReturnType<typeof submitClubApplicationForm>>>
-export type ValidateClubNameResult = NonNullable<Awaited<ReturnType<typeof validateClubName>>>
-export type GetMyClubApplicationSubmissionResult = NonNullable<Awaited<ReturnType<typeof getMyClubApplicationSubmission>>>
-export type GetClubApplicationFormResult = NonNullable<Awaited<ReturnType<typeof getClubApplicationForm>>>
-export type SearchClubsResult = NonNullable<Awaited<ReturnType<typeof searchClubs>>>
+export const searchClubs = (params?: SearchClubsParams) => {
+  return customInstance<ListWrapperClubInfoResponse>({
+    url: `/api/clubs/search`,
+    method: 'GET',
+    params,
+  });
+};
+export type UpdateClubInfoResult = NonNullable<
+  Awaited<ReturnType<typeof updateClubInfo>>
+>;
+export type GetJoinedClubsResult = NonNullable<
+  Awaited<ReturnType<typeof getJoinedClubs>>
+>;
+export type RegisterNewClubResult = NonNullable<
+  Awaited<ReturnType<typeof registerNewClub>>
+>;
+export type GetAllClubApplicationFormsResult = NonNullable<
+  Awaited<ReturnType<typeof getAllClubApplicationForms>>
+>;
+export type CreateClubApplicationFormResult = NonNullable<
+  Awaited<ReturnType<typeof createClubApplicationForm>>
+>;
+export type GetClubApplicationSubmissionsResult = NonNullable<
+  Awaited<ReturnType<typeof getClubApplicationSubmissions>>
+>;
+export type SubmitClubApplicationFormResult = NonNullable<
+  Awaited<ReturnType<typeof submitClubApplicationForm>>
+>;
+export type ValidateClubNameResult = NonNullable<
+  Awaited<ReturnType<typeof validateClubName>>
+>;
+export type GetMyClubApplicationSubmissionResult = NonNullable<
+  Awaited<ReturnType<typeof getMyClubApplicationSubmission>>
+>;
+export type GetClubApplicationFormResult = NonNullable<
+  Awaited<ReturnType<typeof getClubApplicationForm>>
+>;
+export type SearchClubsResult = NonNullable<
+  Awaited<ReturnType<typeof searchClubs>>
+>;

@@ -8,37 +8,34 @@
  */
 import type {
   ClubMembershipResponse,
-  ListWrapperClubMembershipResponse
+  ListWrapperClubMembershipResponse,
 } from '../woohakdongServerAPI.schemas';
 
 import { customInstance } from '../../axios';
 
-
-
-  /**
+/**
  * 특정 동아리의 회원 목록을 조회합니다.
  * @summary 동아리 회원 목록 조회
  */
-export const getClubMembers = (
-    clubId: number,
- ) => {
-      return customInstance<ListWrapperClubMembershipResponse>(
-      {url: `/api/clubs/${clubId}/members`, method: 'GET'
-    },
-      );
-    }
-  /**
+export const getClubMembers = (clubId: number) => {
+  return customInstance<ListWrapperClubMembershipResponse>({
+    url: `/api/clubs/${clubId}/members`,
+    method: 'GET',
+  });
+};
+/**
  * 특정 동아리의 회원 정보를 조회합니다.
  * @summary 동아리 회원 단건 조회
  */
-export const getClubMember = (
-    clubId: number,
-    clubMembershipId: number,
- ) => {
-      return customInstance<ClubMembershipResponse>(
-      {url: `/api/clubs/${clubId}/members/${clubMembershipId}`, method: 'GET'
-    },
-      );
-    }
-  export type GetClubMembersResult = NonNullable<Awaited<ReturnType<typeof getClubMembers>>>
-export type GetClubMemberResult = NonNullable<Awaited<ReturnType<typeof getClubMember>>>
+export const getClubMember = (clubId: number, clubMembershipId: number) => {
+  return customInstance<ClubMembershipResponse>({
+    url: `/api/clubs/${clubId}/members/${clubMembershipId}`,
+    method: 'GET',
+  });
+};
+export type GetClubMembersResult = NonNullable<
+  Awaited<ReturnType<typeof getClubMembers>>
+>;
+export type GetClubMemberResult = NonNullable<
+  Awaited<ReturnType<typeof getClubMember>>
+>;

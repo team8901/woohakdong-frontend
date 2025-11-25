@@ -9,38 +9,38 @@
 import type {
   UserProfileCreateRequest,
   UserProfileIdResponse,
-  UserProfileResponse
+  UserProfileResponse,
 } from '../woohakdongServerAPI.schemas';
 
 import { customInstance } from '../../axios';
 
-
-
-  /**
+/**
  * 소셜 로그인이 완료된 사용자의 프로필 정보를 입력합니다.
  * @summary 프로필 정보 입력
  */
 export const createNewProfile = (
-    userProfileCreateRequest: UserProfileCreateRequest,
- ) => {
-      return customInstance<UserProfileIdResponse>(
-      {url: `/api/users/profiles`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: userProfileCreateRequest
-    },
-      );
-    }
-  /**
+  userProfileCreateRequest: UserProfileCreateRequest,
+) => {
+  return customInstance<UserProfileIdResponse>({
+    url: `/api/users/profiles`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: userProfileCreateRequest,
+  });
+};
+/**
  * 인증된 사용자의 프로필 정보를 조회합니다.
  * @summary 내 프로필 조회
  */
-export const getMyProfile = (
-    
- ) => {
-      return customInstance<UserProfileResponse>(
-      {url: `/api/users/profiles/me`, method: 'GET'
-    },
-      );
-    }
-  export type CreateNewProfileResult = NonNullable<Awaited<ReturnType<typeof createNewProfile>>>
-export type GetMyProfileResult = NonNullable<Awaited<ReturnType<typeof getMyProfile>>>
+export const getMyProfile = () => {
+  return customInstance<UserProfileResponse>({
+    url: `/api/users/profiles/me`,
+    method: 'GET',
+  });
+};
+export type CreateNewProfileResult = NonNullable<
+  Awaited<ReturnType<typeof createNewProfile>>
+>;
+export type GetMyProfileResult = NonNullable<
+  Awaited<ReturnType<typeof getMyProfile>>
+>;
