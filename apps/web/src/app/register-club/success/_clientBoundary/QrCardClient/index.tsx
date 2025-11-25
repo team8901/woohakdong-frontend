@@ -7,6 +7,7 @@ import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { showToast } from '@/_shared/helpers/utils/showToast';
 import { RegisterClubSuccessCardFooter } from '@/app/register-club/success/_components/RegisterClubSuccessCardFooter';
 import { CardContent } from '@workspace/ui/components/card';
+import { FormLabel } from '@workspace/ui/components/form';
 import { Input } from '@workspace/ui/components/input';
 import { toPng } from 'html-to-image';
 import { Check, Copy } from 'lucide-react';
@@ -29,7 +30,7 @@ export const QrCardClient = () => {
       message: '유효하지 않은 동아리입니다.',
       type: 'error',
     });
-    
+
     router.replace(APP_PATH.REGISTER_CLUB.HOME);
 
     return null;
@@ -78,7 +79,7 @@ export const QrCardClient = () => {
   return (
     <CardContent className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-xs">동아리 웹 페이지 주소</h2>
+        <FormLabel>동아리 웹 페이지 주소</FormLabel>
         <div className="relative w-full">
           <Input value={clubFullUrl} readOnly />
           <button
@@ -94,7 +95,7 @@ export const QrCardClient = () => {
       </div>
 
       <div className="flex flex-col items-center gap-2">
-        <h2 className="self-start text-xs">QR 카드</h2>
+        <FormLabel className="self-start">QR 카드</FormLabel>
         <div
           ref={qrCodeRef}
           className="flex w-[285px] flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white px-12 py-6">
