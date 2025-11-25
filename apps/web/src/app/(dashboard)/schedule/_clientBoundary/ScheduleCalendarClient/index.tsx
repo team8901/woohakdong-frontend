@@ -13,6 +13,8 @@ import { type ScheduleEvent } from '../../_helpers/types';
 import { sampleScheduleData } from '../../_helpers/types/sampleScheduleData';
 import { CalendarToolbar } from '../CalendarToobarClient';
 
+const TOOLBAR_HEIGHT = '4rem';
+
 const locales = {
   ko: ko,
 };
@@ -25,11 +27,16 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+const eventStyleGetter = () => ({
+  style: { backgroundColor: 'transparent', border: 'none', padding: 0 },
+});
+
 export const ScheduleCalendarClient = () => {
   const [date, setDate] = useState(new Date());
 
   return (
-    <div className="bg-background h-[calc(100vh-4rem)] w-full overflow-hidden">
+    <div
+      className={`bg-background h-[calc(100vh-${TOOLBAR_HEIGHT})] w-full overflow-hidden`}>
       <Calendar<ScheduleEvent>
         localizer={localizer}
         events={sampleScheduleData}
@@ -59,9 +66,7 @@ export const ScheduleCalendarClient = () => {
           showMore: (total) => `+${total}개 더보기`,
         }}
         // 이벤트 스타일 커스터마이징
-        eventPropGetter={() => ({
-          style: { backgroundColor: 'transparent', border: 'none', padding: 0 },
-        })}
+        eventPropGetter={eventStyleGetter}
       />
     </div>
   );
