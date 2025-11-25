@@ -2,7 +2,9 @@ import { mockGetClubInfoSearch } from '@/mock/handlers/club/getClubInfoSearch/mo
 import { mockGetClubItemHistory } from '@/mock/handlers/club/getClubItemHistory/mockGetClubItemHistory';
 import { mockGetClubItems } from '@/mock/handlers/club/getClubItems/mockGetClubItems';
 import { mockGetClubMembers } from '@/mock/handlers/club/getClubMembers/mockGetClubMembers';
+import { mockGetJoinedClubs } from '@/mock/handlers/club/getJoinedClubs/mockGetJoinedClubs';
 import { mockPostRegisterClub } from '@/mock/handlers/club/postRegisterClub/mockPostRegisterClub';
+import { mockPutClubInfo } from '@/mock/handlers/club/putClubInfo/mockPutClubInfo';
 import { mockGetS3ImageUrl } from '@/mock/handlers/util/getS3ImageUrl/mockGetS3ImageUrl';
 import { createMockHandler } from '@workspace/msw/createMockHandler';
 
@@ -13,6 +15,8 @@ const handlers = [
   createMockHandler(mockGetClubMembers, '동아리_회원_목록'),
   createMockHandler(mockGetClubItems, '동아리_물품_있음'),
   createMockHandler(mockGetClubItemHistory, '동아리_물품_대여_내역_있음'),
+  createMockHandler(mockGetJoinedClubs, '내가_가입한_동아리_목록'),
+  createMockHandler(mockPutClubInfo, '동아리_정보_수정_성공'),
 ];
 
 export default handlers;
