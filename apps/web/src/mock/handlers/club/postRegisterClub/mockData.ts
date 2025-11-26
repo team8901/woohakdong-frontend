@@ -1,5 +1,5 @@
-import { type RegisterClubResponse } from '@/data/club/postRegisterClub/type';
+import type { ClubIdResponse } from '@workspace/api/generated';
 
-export const 동아리_등록_성공: RegisterClubResponse = {
+export const 동아리_등록_성공: ClubIdResponse = {
   clubId: 1,
 };

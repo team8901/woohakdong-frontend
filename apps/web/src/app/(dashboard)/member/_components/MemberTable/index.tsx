@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 
-import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { type ClubMembershipResponse } from '@workspace/api/generated';
 import {
   Table,
   TableBody,
@@ -20,8 +20,8 @@ import {
 import { columns } from './columns';
 
 type Props = {
-  members: ClubMembersResponse[];
-  onSelectionChange?: (selectedMembers: ClubMembersResponse[]) => void;
+  members: ClubMembershipResponse[];
+  onSelectionChange?: (selectedMembers: ClubMembershipResponse[]) => void;
 };
 
 export const MemberTable = ({ members, onSelectionChange }: Props) => {

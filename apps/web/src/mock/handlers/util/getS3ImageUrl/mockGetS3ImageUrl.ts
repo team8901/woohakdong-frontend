@@ -1,6 +1,6 @@
 import { API_URL } from '@/data/apiUrl';
-import { type S3ImageUrlResponse } from '@/data/util/getS3ImageUrl/type';
 import { URL_얻어오기_성공 } from '@/mock/handlers/util/getS3ImageUrl/mockData';
+import type { PresignedUrlResponse } from '@workspace/api/generated';
 import { type MockApiResponse } from '@workspace/msw/types';
 
 export const mockGetS3ImageUrl = {
@@ -22,4 +22,4 @@ export const mockGetS3ImageUrl = {
       },
     },
   },
-} satisfies MockApiResponse<'URL_얻어오기_성공' | '에러', S3ImageUrlResponse>;
+} satisfies MockApiResponse<'URL_얻어오기_성공' | '에러', PresignedUrlResponse>;

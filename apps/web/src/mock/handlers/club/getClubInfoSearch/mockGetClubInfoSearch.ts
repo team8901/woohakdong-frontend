@@ -1,9 +1,9 @@
 import { API_URL } from '@/data/apiUrl';
-import { type ClubInfoSearchResponse } from '@/data/club/getClubInfoSearch/type';
 import {
   동아리_정보_없음,
   동아리_정보_있음,
 } from '@/mock/handlers/club/getClubInfoSearch/mockData';
+import type { ListWrapperClubInfoResponse } from '@workspace/api/generated';
 import { type MockApiResponse } from '@workspace/msw/types';
 
 export const mockGetClubInfoSearch = {
@@ -32,5 +32,5 @@ export const mockGetClubInfoSearch = {
   },
 } satisfies MockApiResponse<
   '동아리_정보_없음' | '동아리_정보_있음' | '에러',
-  ClubInfoSearchResponse
+  ListWrapperClubInfoResponse
 >;

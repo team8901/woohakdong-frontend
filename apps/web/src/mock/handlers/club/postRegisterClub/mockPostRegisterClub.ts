@@ -1,6 +1,6 @@
 import { API_URL } from '@/data/apiUrl';
-import { type RegisterClubResponse } from '@/data/club/postRegisterClub/type';
 import { 동아리_등록_성공 } from '@/mock/handlers/club/postRegisterClub/mockData';
+import type { ClubIdResponse } from '@workspace/api/generated';
 import { type MockApiResponse } from '@workspace/msw/types';
 
 export const mockPostRegisterClub = {
@@ -22,4 +22,4 @@ export const mockPostRegisterClub = {
       },
     },
   },
-} satisfies MockApiResponse<'동아리_등록_성공' | '에러', RegisterClubResponse>;
+} satisfies MockApiResponse<'동아리_등록_성공' | '에러', ClubIdResponse>;

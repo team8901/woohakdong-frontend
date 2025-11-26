@@ -1,7 +1,6 @@
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
-import { type ClubMembersResponse } from '@/data/club/getClubMembers/type';
+import type { ListWrapperClubMembershipResponse } from '@workspace/api/generated';
 
-export const 동아리_회원_목록: ApiResponse<ClubMembersResponse[]> = {
+export const 동아리_회원_목록: ListWrapperClubMembershipResponse = {
   data: [
     {
       clubMembershipId: 1,

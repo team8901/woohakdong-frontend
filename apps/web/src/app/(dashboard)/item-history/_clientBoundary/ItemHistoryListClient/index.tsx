@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { CLUB_ITEM_SORT_OPTION } from '@/app/(dashboard)/item/_helpers/constants/sortOption';
@@ -8,6 +8,7 @@ import { ExportButtonClient } from '@/app/(dashboard)/item-history/_clientBounda
 import { ItemHistoryFilter } from '@/app/(dashboard)/item-history/_components/ItemHistoryFilter';
 import { ItemHistoryStats } from '@/app/(dashboard)/item-history/_components/ItemHistoryStats';
 import { ItemHistoryTable } from '@/app/(dashboard)/item-history/_components/ItemHistoryTable';
+import { CLUB_ITEM_HISTORY_RENTAL_STATUS } from '@/app/(dashboard)/item-history/_helpers/constants/clubItemHistoryRentalStatus';
 import { useItemHistoryFilter } from '@/app/(dashboard)/item-history/_helpers/hooks/useItemHistoryFilter';
 import { DEFAULT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/defaultOption';
 import { useGetClubItemHistorySuspenseQuery } from '@/data/club/getClubItemHistory/query';
@@ -22,6 +23,9 @@ export const ItemHistoryListClient = ({ initialData }: Props) => {
     data: { data: items },
   } = useGetClubItemHistorySuspenseQuery({ clubId: 1 }, { initialData });
 
+  const [selectedItems, setSelectedItems] = useState<ClubItemHistoryResponse[]>(
+    [],
+  );
   const { filters, handlers } = useItemHistoryFilter();
 
   const {
@@ -58,15 +62,17 @@ export const ItemHistoryListClient = ({ initialData }: Props) => {
     // Apply rental status filter
     if (rentalStatusQuery !== DEFAULT_OPTION) {
       filtered = filtered.filter((item) => {
-        if (rentalStatusQuery === 'OVERDUE') {
+        if (rentalStatusQuery === CLUB_ITEM_HISTORY_RENTAL_STATUS['연체']) {
           return item.overdue;
         }
 
-        if (rentalStatusQuery === 'RETURNED') {
+        if (
+          rentalStatusQuery === CLUB_ITEM_HISTORY_RENTAL_STATUS['반납 완료']
+        ) {
           return item.returnDate;
         }
 
-        if (rentalStatusQuery === 'RENTED') {
+        if (rentalStatusQuery === CLUB_ITEM_HISTORY_RENTAL_STATUS['대여 중']) {
           return item.rentalDate && !item.returnDate && !item.overdue;
         }
 
@@ -135,14 +141,14 @@ export const ItemHistoryListClient = ({ initialData }: Props) => {
             </span>{' '}
             개 물품 조회됨
           </p>
-          <ExportButtonClient items={filteredItems} />
+          <ExportButtonClient
+            items={filteredItems}
+            selectedItems={selectedItems}
+          />
         </div>
         <ItemHistoryTable
           items={filteredItems}
-          onSelectionChange={(selectedItems) => {
-            console.log('선택된 물품:', selectedItems);
-            // 선택된 물품 데이터로 원하는 작업 수행
-          }}
+          onSelectionChange={setSelectedItems}
         />
       </div>
     </div>
