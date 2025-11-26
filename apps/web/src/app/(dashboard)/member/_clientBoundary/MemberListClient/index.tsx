@@ -12,7 +12,7 @@ import {
   type ClubMembershipResponse,
   getGetClubMembersQueryKey,
   type ListWrapperClubMembershipResponse,
-  useGetClubMembersSuspense,
+  useGetClubMembers,
 } from '@workspace/api/generated';
 
 type Props = {
@@ -20,14 +20,15 @@ type Props = {
 };
 
 export const MemberListClient = ({ initialData }: Props) => {
-  const {
-    data: { data: members },
-  } = useGetClubMembersSuspense(1, {
+  const { data } = useGetClubMembers(1, {
     query: {
       queryKey: getGetClubMembersQueryKey(1),
       initialData,
     },
   });
+
+  // initialData가 있으므로 data는 항상 존재
+  const members = useMemo(() => data!.data ?? [], [data]);
 
   const [selectedMembers, setSelectedMembers] = useState<
     ClubMembershipResponse[]

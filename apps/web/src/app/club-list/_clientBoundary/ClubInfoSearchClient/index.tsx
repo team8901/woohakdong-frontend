@@ -1,9 +1,11 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import {
   getSearchClubsQueryKey,
   type ListWrapperClubInfoResponse,
-  useSearchClubsSuspense,
+  useSearchClubs,
 } from '@workspace/api/generated';
 
 type Props = {
@@ -11,7 +13,7 @@ type Props = {
 };
 
 export const ClubInfoSearchClient = ({ initialData }: Props) => {
-  const { data } = useSearchClubsSuspense(
+  const { data } = useSearchClubs(
     { name: '두잇', nameEn: 'doit' },
     {
       query: {
@@ -21,7 +23,8 @@ export const ClubInfoSearchClient = ({ initialData }: Props) => {
     },
   );
 
-  const clubs = data.data ?? [];
+  // initialData가 있으므로 data는 항상 존재
+  const clubs = useMemo(() => data!.data ?? [], [data]);
 
   return (
     <div>
