@@ -1,5 +1,5 @@
 import { setUserRoleAndRefresh } from '@/app/login/_helpers/utils/userRoleSetUp';
-import { usePostSocialLoginMutation } from '@/data/auth/postSocialLogin/mutation';
+import { useSocialLogin } from '@workspace/api/generated';
 import { setAccessToken } from '@workspace/api/manageToken';
 
 /**
@@ -7,15 +7,17 @@ import { setAccessToken } from '@workspace/api/manageToken';
  * @returns 토큰 저장 mutation 객체
  */
 export const useAuthorizationFlow = () => {
-  const authorizationMutation = usePostSocialLoginMutation({
-    onSuccess: async (data) => {
-      // 액세스 토큰 저장 (HttpOnly RefreshToken은 쿠키로 처리됨)
-      setAccessToken(data.accessToken ?? null);
+  const authorizationMutation = useSocialLogin({
+    mutation: {
+      onSuccess: async (data) => {
+        // 액세스 토큰 저장 (HttpOnly RefreshToken은 쿠키로 처리됨)
+        setAccessToken(data.accessToken ?? null);
 
-      console.log('✅ 액세스 토큰, 리프레쉬 토큰 발급 및 저장 성공');
+        console.log('✅ 액세스 토큰, 리프레쉬 토큰 발급 및 저장 성공');
 
-      // 프로필 조회 후 프로필 여부에 따라 쿠키 설정 및 리다이렉트
-      await setUserRoleAndRefresh();
+        // 프로필 조회 후 프로필 여부에 따라 쿠키 설정 및 리다이렉트
+        await setUserRoleAndRefresh();
+      },
     },
   });
 

@@ -1,16 +1,24 @@
 'use client';
 
-import { useGetClubInfoSearchSuspenseQuery } from '@/data/club/getClubInfoSearch/query';
-import { type ListWrapperClubInfoResponse } from '@workspace/api/generated';
+import {
+  getSearchClubsQueryKey,
+  type ListWrapperClubInfoResponse,
+  useSearchClubsSuspense,
+} from '@workspace/api/generated';
 
 type Props = {
   initialData: ListWrapperClubInfoResponse;
 };
 
 export const ClubInfoSearchClient = ({ initialData }: Props) => {
-  const { data } = useGetClubInfoSearchSuspenseQuery(
+  const { data } = useSearchClubsSuspense(
     { name: '두잇', nameEn: 'doit' },
-    { initialData },
+    {
+      query: {
+        queryKey: getSearchClubsQueryKey({ name: '두잇', nameEn: 'doit' }),
+        initialData,
+      },
+    },
   );
 
   const clubs = data.data ?? [];

@@ -8,10 +8,11 @@ import { MemberTable } from '@/app/(dashboard)/member/_components/MemberTable';
 import { DEFAULT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/defaultOption';
 import { CLUB_MEMBER_SORT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/sortOption';
 import { useMemberFilter } from '@/app/(dashboard)/member/_helpers/hooks/useMemberFilter';
-import { useGetClubMembersSuspenseQuery } from '@/data/club/getClubMembers/query';
 import {
   type ClubMembershipResponse,
+  getGetClubMembersQueryKey,
   type ListWrapperClubMembershipResponse,
+  useGetClubMembersSuspense,
 } from '@workspace/api/generated';
 
 type Props = {
@@ -21,7 +22,12 @@ type Props = {
 export const MemberListClient = ({ initialData }: Props) => {
   const {
     data: { data: members },
-  } = useGetClubMembersSuspenseQuery({ clubId: 1 }, { initialData });
+  } = useGetClubMembersSuspense(1, {
+    query: {
+      queryKey: getGetClubMembersQueryKey(1),
+      initialData,
+    },
+  });
 
   const [selectedMembers, setSelectedMembers] = useState<
     ClubMembershipResponse[]

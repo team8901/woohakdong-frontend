@@ -40,7 +40,7 @@ export const useSignUpFlow = () => {
         gender: data.gender,
       };
 
-      await registerProfileMutation(userProfile);
+      await registerProfileMutation({ data: userProfile });
     } catch (error) {
       console.error('🚨 프로필 제출 중 오류 발생:', error);
 
