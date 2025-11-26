@@ -13,8 +13,9 @@ export const ClubInfoFormSuspense = withSuspense(
       const clubEnglishName = 'doit';
       const clubId = await getClubIdByEnglishName(clubEnglishName);
 
-      const clubsData = await getJoinedClubs();
-      const clubs = clubsData.data ?? [];
+      const { data } = await getJoinedClubs();
+      const clubs = data ?? [];
+
       const clubInfo = clubs.find((club) => club.id === clubId);
 
       if (!clubInfo) {
