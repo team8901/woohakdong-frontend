@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 
 import { showToast } from '@/_shared/helpers/utils/showToast';
+import { deleteClubMemberRole } from '@/data/user/deleteClubMemberRole/delete';
 import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { clearAccessToken } from '@workspace/api/manageToken';
@@ -54,6 +55,7 @@ export const useSignUpFlow = () => {
   const onQuit = async (): Promise<void> => {
     try {
       await deleteUserRole();
+      await deleteClubMemberRole();
       await signOutWithGoogle();
       clearAccessToken();
 

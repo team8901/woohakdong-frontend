@@ -28,3 +28,22 @@ export const POST = async (req: Request) => {
     );
   }
 };
+
+export const DELETE = async () => {
+  try {
+    const response = NextResponse.json(
+      { message: '동아리 멤버 권한 삭제 완료' },
+      { status: 200 },
+    );
+
+    // 동아리 멤버 권한 쿠키 삭제
+    (await cookies()).delete('clubMemberRole');
+
+    return response;
+  } catch {
+    return NextResponse.json(
+      { message: '동아리 멤버 권한 삭제 중 에러가 발생했습니다.' },
+      { status: 500 },
+    );
+  }
+};
