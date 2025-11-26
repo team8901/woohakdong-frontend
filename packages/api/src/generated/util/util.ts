@@ -6,6 +6,16 @@
  * 우학동 서버 API 명세서
  * OpenAPI spec version: 1.0.0
  */
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import type {
+  QueryFunction,
+  QueryKey,
+  UseQueryOptions,
+  UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query';
+
 import type {
   GetPresignedUrlsParams,
   PresignedUrlResponse,
@@ -17,13 +27,145 @@ import { customInstance } from '../../axios';
  * 이미지 리소스 타입에 대한 Presigned URL을 획득합니다.
  * @summary Presigned URL 획득
  */
-export const getPresignedUrls = (params: GetPresignedUrlsParams) => {
+export const getPresignedUrls = (
+  params: GetPresignedUrlsParams,
+  signal?: AbortSignal,
+) => {
   return customInstance<PresignedUrlResponse>({
     url: `/utils/images/presigned-url`,
     method: 'GET',
     params,
+    signal,
   });
 };
-export type GetPresignedUrlsResult = NonNullable<
+
+export const getGetPresignedUrlsQueryKey = (
+  params?: GetPresignedUrlsParams,
+) => {
+  return [`/utils/images/presigned-url`, ...(params ? [params] : [])] as const;
+};
+
+export const getGetPresignedUrlsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPresignedUrls>>,
+  TError = unknown,
+>(
+  params: GetPresignedUrlsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPresignedUrls>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPresignedUrlsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPresignedUrls>>
+  > = ({ signal }) => getPresignedUrls(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPresignedUrls>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPresignedUrlsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getPresignedUrls>>
 >;
+export type GetPresignedUrlsQueryError = unknown;
+
+/**
+ * @summary Presigned URL 획득
+ */
+
+export function useGetPresignedUrls<
+  TData = Awaited<ReturnType<typeof getPresignedUrls>>,
+  TError = unknown,
+>(
+  params: GetPresignedUrlsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPresignedUrls>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPresignedUrlsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetPresignedUrlsSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPresignedUrls>>,
+  TError = unknown,
+>(
+  params: GetPresignedUrlsParams,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getPresignedUrls>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPresignedUrlsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPresignedUrls>>
+  > = ({ signal }) => getPresignedUrls(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getPresignedUrls>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPresignedUrlsSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPresignedUrls>>
+>;
+export type GetPresignedUrlsSuspenseQueryError = unknown;
+
+/**
+ * @summary Presigned URL 획득
+ */
+
+export function useGetPresignedUrlsSuspense<
+  TData = Awaited<ReturnType<typeof getPresignedUrls>>,
+  TError = unknown,
+>(
+  params: GetPresignedUrlsParams,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getPresignedUrls>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPresignedUrlsSuspenseQueryOptions(params, options);
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}

@@ -6,6 +6,19 @@
  * 우학동 서버 API 명세서
  * OpenAPI spec version: 1.0.0
  */
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import type {
+  MutationFunction,
+  QueryFunction,
+  QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query';
+
 import type {
   AuthSocialLoginRequest,
   AuthSocialLoginResponse,
@@ -17,31 +30,261 @@ import { customInstance } from '../../axios';
  * 소셜 로그인을 통해, JWT 토큰을 발급받습니다.
  * @summary 소셜 로그인
  */
-export const socialLogin = (authSocialLoginRequest: AuthSocialLoginRequest) => {
+export const socialLogin = (
+  authSocialLoginRequest: AuthSocialLoginRequest,
+  signal?: AbortSignal,
+) => {
   return customInstance<AuthSocialLoginResponse>({
     url: `/api/auth/social-login`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: authSocialLoginRequest,
+    signal,
   });
+};
+
+export const getSocialLoginMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof socialLogin>>,
+    TError,
+    { data: AuthSocialLoginRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof socialLogin>>,
+  TError,
+  { data: AuthSocialLoginRequest },
+  TContext
+> => {
+  const mutationKey = ['socialLogin'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof socialLogin>>,
+    { data: AuthSocialLoginRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return socialLogin(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SocialLoginMutationResult = NonNullable<
+  Awaited<ReturnType<typeof socialLogin>>
+>;
+export type SocialLoginMutationBody = AuthSocialLoginRequest;
+export type SocialLoginMutationError = unknown;
+
+/**
+ * @summary 소셜 로그인
+ */
+export const useSocialLogin = <TError = unknown, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof socialLogin>>,
+    TError,
+    { data: AuthSocialLoginRequest },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof socialLogin>>,
+  TError,
+  { data: AuthSocialLoginRequest },
+  TContext
+> => {
+  const mutationOptions = getSocialLoginMutationOptions(options);
+
+  return useMutation(mutationOptions);
 };
 /**
  * Refresh Token을 이용하여 새로운 Access Token을 발급받습니다.
  * @summary Access Token 재발급
  */
-export const refreshAccessToken = () => {
+export const refreshAccessToken = (signal?: AbortSignal) => {
   return customInstance<AuthSocialLoginResponse>({
     url: `/api/auth/refresh`,
     method: 'POST',
+    signal,
   });
 };
-export const jwtTest = () => {
-  return customInstance<string>({ url: `/api/auth/test`, method: 'GET' });
+
+export const getRefreshAccessTokenMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof refreshAccessToken>>,
+    TError,
+    void,
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof refreshAccessToken>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationKey = ['refreshAccessToken'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof refreshAccessToken>>,
+    void
+  > = () => {
+    return refreshAccessToken();
+  };
+
+  return { mutationFn, ...mutationOptions };
 };
-export type SocialLoginResult = NonNullable<
-  Awaited<ReturnType<typeof socialLogin>>
->;
-export type RefreshAccessTokenResult = NonNullable<
+
+export type RefreshAccessTokenMutationResult = NonNullable<
   Awaited<ReturnType<typeof refreshAccessToken>>
 >;
-export type JwtTestResult = NonNullable<Awaited<ReturnType<typeof jwtTest>>>;
+
+export type RefreshAccessTokenMutationError = unknown;
+
+/**
+ * @summary Access Token 재발급
+ */
+export const useRefreshAccessToken = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof refreshAccessToken>>,
+    TError,
+    void,
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof refreshAccessToken>>,
+  TError,
+  void,
+  TContext
+> => {
+  const mutationOptions = getRefreshAccessTokenMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};
+export const jwtTest = (signal?: AbortSignal) => {
+  return customInstance<string>({
+    url: `/api/auth/test`,
+    method: 'GET',
+    signal,
+  });
+};
+
+export const getJwtTestQueryKey = () => {
+  return [`/api/auth/test`] as const;
+};
+
+export const getJwtTestQueryOptions = <
+  TData = Awaited<ReturnType<typeof jwtTest>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof jwtTest>>, TError, TData>;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getJwtTestQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof jwtTest>>> = ({
+    signal,
+  }) => jwtTest(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof jwtTest>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type JwtTestQueryResult = NonNullable<
+  Awaited<ReturnType<typeof jwtTest>>
+>;
+export type JwtTestQueryError = unknown;
+
+export function useJwtTest<
+  TData = Awaited<ReturnType<typeof jwtTest>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof jwtTest>>, TError, TData>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getJwtTestQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getJwtTestSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof jwtTest>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof jwtTest>>,
+    TError,
+    TData
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getJwtTestQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof jwtTest>>> = ({
+    signal,
+  }) => jwtTest(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof jwtTest>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type JwtTestSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof jwtTest>>
+>;
+export type JwtTestSuspenseQueryError = unknown;
+
+export function useJwtTestSuspense<
+  TData = Awaited<ReturnType<typeof jwtTest>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof jwtTest>>,
+    TError,
+    TData
+  >;
+}): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getJwtTestSuspenseQueryOptions(options);
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}

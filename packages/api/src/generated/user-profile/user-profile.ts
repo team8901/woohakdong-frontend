@@ -6,6 +6,19 @@
  * 우학동 서버 API 명세서
  * OpenAPI spec version: 1.0.0
  */
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import type {
+  MutationFunction,
+  QueryFunction,
+  QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query';
+
 import type {
   UserProfileCreateRequest,
   UserProfileIdResponse,
@@ -20,27 +33,206 @@ import { customInstance } from '../../axios';
  */
 export const createNewProfile = (
   userProfileCreateRequest: UserProfileCreateRequest,
+  signal?: AbortSignal,
 ) => {
   return customInstance<UserProfileIdResponse>({
     url: `/api/users/profiles`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: userProfileCreateRequest,
+    signal,
   });
+};
+
+export const getCreateNewProfileMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createNewProfile>>,
+    TError,
+    { data: UserProfileCreateRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createNewProfile>>,
+  TError,
+  { data: UserProfileCreateRequest },
+  TContext
+> => {
+  const mutationKey = ['createNewProfile'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createNewProfile>>,
+    { data: UserProfileCreateRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createNewProfile(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateNewProfileMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createNewProfile>>
+>;
+export type CreateNewProfileMutationBody = UserProfileCreateRequest;
+export type CreateNewProfileMutationError = unknown;
+
+/**
+ * @summary 프로필 정보 입력
+ */
+export const useCreateNewProfile = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createNewProfile>>,
+    TError,
+    { data: UserProfileCreateRequest },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createNewProfile>>,
+  TError,
+  { data: UserProfileCreateRequest },
+  TContext
+> => {
+  const mutationOptions = getCreateNewProfileMutationOptions(options);
+
+  return useMutation(mutationOptions);
 };
 /**
  * 인증된 사용자의 프로필 정보를 조회합니다.
  * @summary 내 프로필 조회
  */
-export const getMyProfile = () => {
+export const getMyProfile = (signal?: AbortSignal) => {
   return customInstance<UserProfileResponse>({
     url: `/api/users/profiles/me`,
     method: 'GET',
+    signal,
   });
 };
-export type CreateNewProfileResult = NonNullable<
-  Awaited<ReturnType<typeof createNewProfile>>
->;
-export type GetMyProfileResult = NonNullable<
+
+export const getGetMyProfileQueryKey = () => {
+  return [`/api/users/profiles/me`] as const;
+};
+
+export const getGetMyProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyProfile>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyProfile>>,
+    TError,
+    TData
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMyProfileQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyProfile>>> = ({
+    signal,
+  }) => getMyProfile(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMyProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyProfileQueryResult = NonNullable<
   Awaited<ReturnType<typeof getMyProfile>>
 >;
+export type GetMyProfileQueryError = unknown;
+
+/**
+ * @summary 내 프로필 조회
+ */
+
+export function useGetMyProfile<
+  TData = Awaited<ReturnType<typeof getMyProfile>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getMyProfile>>,
+    TError,
+    TData
+  >;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyProfileQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetMyProfileSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyProfile>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getMyProfile>>,
+    TError,
+    TData
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMyProfileQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyProfile>>> = ({
+    signal,
+  }) => getMyProfile(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getMyProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyProfileSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMyProfile>>
+>;
+export type GetMyProfileSuspenseQueryError = unknown;
+
+/**
+ * @summary 내 프로필 조회
+ */
+
+export function useGetMyProfileSuspense<
+  TData = Awaited<ReturnType<typeof getMyProfile>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getMyProfile>>,
+    TError,
+    TData
+  >;
+}): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyProfileSuspenseQueryOptions(options);
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}

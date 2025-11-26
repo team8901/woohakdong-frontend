@@ -275,6 +275,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@tanstack/react-query':
+        specifier: ^5.0.0
+        version: 5.85.5(react@19.1.1)
       '@workspace/sentry':
         specifier: workspace:*
         version: link:../sentry
