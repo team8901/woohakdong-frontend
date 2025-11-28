@@ -5,9 +5,11 @@ import { useImage } from '@/_shared/helpers/hooks/useImage';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { showToast } from '@/_shared/helpers/utils/showToast';
 import { uploadImageToS3 } from '@/app/register-club/_helpers/utils/uploadImageToS3';
-import { usePostRegisterClubMutation } from '@/data/club/postRegisterClub/mutation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type ClubRegisterRequest } from '@workspace/api/generated';
+import {
+  type ClubRegisterRequest,
+  useRegisterNewClub,
+} from '@workspace/api/generated';
 import { useRouter } from 'next/navigation';
 import z from 'zod';
 
@@ -37,7 +39,7 @@ export const registerClubSchema = z.object({
 export type RegisterClubFormData = z.infer<typeof registerClubSchema>;
 
 export const useRegisterClubForm = () => {
-  const { mutateAsync: mutateRegisterClub } = usePostRegisterClubMutation();
+  const { mutateAsync: mutateRegisterClub } = useRegisterNewClub();
   const { imagePreviewUrl, image, onChangeImage } = useImage({
     maxImageLength: MAX_IMAGE_LENGTH,
     maxFileSize: MAX_FILE_SIZE,
@@ -79,7 +81,7 @@ export const useRegisterClubForm = () => {
         dues: 0, // TODO: 회비 정보 추가
       };
 
-      await mutateRegisterClub(club);
+      await mutateRegisterClub({ data: club });
 
       showToast({
         message: '동아리 등록이 완료되었어요',

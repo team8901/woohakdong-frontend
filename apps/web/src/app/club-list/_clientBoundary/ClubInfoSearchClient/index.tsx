@@ -1,19 +1,30 @@
 'use client';
 
-import { useGetClubInfoSearchSuspenseQuery } from '@/data/club/getClubInfoSearch/query';
-import { type ListWrapperClubInfoResponse } from '@workspace/api/generated';
+import { useMemo } from 'react';
+
+import {
+  getSearchClubsQueryKey,
+  type ListWrapperClubInfoResponse,
+  useSearchClubs,
+} from '@workspace/api/generated';
 
 type Props = {
   initialData: ListWrapperClubInfoResponse;
 };
 
 export const ClubInfoSearchClient = ({ initialData }: Props) => {
-  const { data } = useGetClubInfoSearchSuspenseQuery(
+  const { data } = useSearchClubs(
     { name: '두잇', nameEn: 'doit' },
-    { initialData },
+    {
+      query: {
+        queryKey: getSearchClubsQueryKey({ name: '두잇', nameEn: 'doit' }),
+        initialData,
+      },
+    },
   );
 
-  const clubs = data.data ?? [];
+  // initialData가 있으므로 data는 항상 존재
+  const clubs = useMemo(() => data!.data ?? [], [data]);
 
   return (
     <div>

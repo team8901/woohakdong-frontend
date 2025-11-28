@@ -13,9 +13,11 @@ import {
   type ClubMemberRole,
 } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
 import { uploadImageToS3 } from '@/app/register-club/_helpers/utils/uploadImageToS3';
-import { usePutClubInfoMutation } from '@/data/club/putClubInfo/mutation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type ClubInfoResponse } from '@workspace/api/generated';
+import {
+  type ClubInfoResponse,
+  useUpdateClubInfo,
+} from '@workspace/api/generated';
 import { Button } from '@workspace/ui/components/button';
 import {
   Form,
@@ -41,9 +43,7 @@ const MAX_IMAGE_LENGTH = 1;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const ClubInfoFormClient = ({ clubMemberRole, initialData }: Props) => {
-  const { mutateAsync: updateClubInfo } = usePutClubInfoMutation(
-    initialData.id!,
-  );
+  const { mutateAsync: updateClubInfo } = useUpdateClubInfo();
   const { imagePreviewUrl, image, onChangeImage } = useImage({
     maxFileSize: MAX_FILE_SIZE,
     maxImageLength: MAX_IMAGE_LENGTH,
@@ -67,6 +67,7 @@ export const ClubInfoFormClient = ({ clubMemberRole, initialData }: Props) => {
         : initialData.thumbnailImageUrl;
 
       await updateClubInfo({
+        clubId: initialData.id!,
         data: {
           description: data.clubDescription,
           thumbnailImageUrl,

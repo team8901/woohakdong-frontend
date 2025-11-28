@@ -6,6 +6,19 @@
  * 우학동 서버 API 명세서
  * OpenAPI spec version: 1.0.0
  */
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import type {
+  MutationFunction,
+  QueryFunction,
+  QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query';
+
 import type {
   ClubApplicationFormCreateRequest,
   ClubApplicationFormIdResponse,
@@ -40,38 +53,438 @@ export const updateClubInfo = (
     data: clubUpdateRequest,
   });
 };
+
+export const getUpdateClubInfoMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateClubInfo>>,
+    TError,
+    { clubId: number; data: ClubUpdateRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateClubInfo>>,
+  TError,
+  { clubId: number; data: ClubUpdateRequest },
+  TContext
+> => {
+  const mutationKey = ['updateClubInfo'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateClubInfo>>,
+    { clubId: number; data: ClubUpdateRequest }
+  > = (props) => {
+    const { clubId, data } = props ?? {};
+
+    return updateClubInfo(clubId, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateClubInfoMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateClubInfo>>
+>;
+export type UpdateClubInfoMutationBody = ClubUpdateRequest;
+export type UpdateClubInfoMutationError = unknown;
+
+/**
+ * @summary 동아리 정보 수정
+ */
+export const useUpdateClubInfo = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateClubInfo>>,
+    TError,
+    { clubId: number; data: ClubUpdateRequest },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateClubInfo>>,
+  TError,
+  { clubId: number; data: ClubUpdateRequest },
+  TContext
+> => {
+  const mutationOptions = getUpdateClubInfoMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};
 /**
  * 인증된 사용자가 가입한 동아리 목록을 조회합니다.
  * @summary 내가 가입한 동아리 조회
  */
-export const getJoinedClubs = () => {
+export const getJoinedClubs = (signal?: AbortSignal) => {
   return customInstance<ListWrapperClubInfoResponse>({
     url: `/api/clubs`,
     method: 'GET',
+    signal,
   });
 };
+
+export const getGetJoinedClubsQueryKey = () => {
+  return [`/api/clubs`] as const;
+};
+
+export const getGetJoinedClubsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getJoinedClubs>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getJoinedClubs>>,
+    TError,
+    TData
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetJoinedClubsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getJoinedClubs>>> = ({
+    signal,
+  }) => getJoinedClubs(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getJoinedClubs>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetJoinedClubsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getJoinedClubs>>
+>;
+export type GetJoinedClubsQueryError = unknown;
+
+/**
+ * @summary 내가 가입한 동아리 조회
+ */
+
+export function useGetJoinedClubs<
+  TData = Awaited<ReturnType<typeof getJoinedClubs>>,
+  TError = unknown,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getJoinedClubs>>,
+    TError,
+    TData
+  >;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetJoinedClubsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetJoinedClubsSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getJoinedClubs>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getJoinedClubs>>,
+    TError,
+    TData
+  >;
+}) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetJoinedClubsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getJoinedClubs>>> = ({
+    signal,
+  }) => getJoinedClubs(signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getJoinedClubs>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetJoinedClubsSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getJoinedClubs>>
+>;
+export type GetJoinedClubsSuspenseQueryError = unknown;
+
+/**
+ * @summary 내가 가입한 동아리 조회
+ */
+
+export function useGetJoinedClubsSuspense<
+  TData = Awaited<ReturnType<typeof getJoinedClubs>>,
+  TError = unknown,
+>(options?: {
+  query?: UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getJoinedClubs>>,
+    TError,
+    TData
+  >;
+}): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetJoinedClubsSuspenseQueryOptions(options);
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
 /**
  * 새로운 동아리를 등록합니다.
  * @summary 동아리 등록
  */
-export const registerNewClub = (clubRegisterRequest: ClubRegisterRequest) => {
+export const registerNewClub = (
+  clubRegisterRequest: ClubRegisterRequest,
+  signal?: AbortSignal,
+) => {
   return customInstance<ClubIdResponse>({
     url: `/api/clubs`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: clubRegisterRequest,
+    signal,
   });
+};
+
+export const getRegisterNewClubMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof registerNewClub>>,
+    TError,
+    { data: ClubRegisterRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof registerNewClub>>,
+  TError,
+  { data: ClubRegisterRequest },
+  TContext
+> => {
+  const mutationKey = ['registerNewClub'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof registerNewClub>>,
+    { data: ClubRegisterRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return registerNewClub(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RegisterNewClubMutationResult = NonNullable<
+  Awaited<ReturnType<typeof registerNewClub>>
+>;
+export type RegisterNewClubMutationBody = ClubRegisterRequest;
+export type RegisterNewClubMutationError = unknown;
+
+/**
+ * @summary 동아리 등록
+ */
+export const useRegisterNewClub = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof registerNewClub>>,
+    TError,
+    { data: ClubRegisterRequest },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof registerNewClub>>,
+  TError,
+  { data: ClubRegisterRequest },
+  TContext
+> => {
+  const mutationOptions = getRegisterNewClubMutationOptions(options);
+
+  return useMutation(mutationOptions);
 };
 /**
  * 동아리 모든 신청폼을 조회합니다.
  * @summary 동아리 모든 신청폼 조회
  */
-export const getAllClubApplicationForms = (clubId: number) => {
+export const getAllClubApplicationForms = (
+  clubId: number,
+  signal?: AbortSignal,
+) => {
   return customInstance<ListWrapperClubApplicationFormInfoResponse>({
     url: `/api/clubs/${clubId}/application-forms`,
     method: 'GET',
+    signal,
   });
 };
+
+export const getGetAllClubApplicationFormsQueryKey = (clubId?: number) => {
+  return [`/api/clubs/${clubId}/application-forms`] as const;
+};
+
+export const getGetAllClubApplicationFormsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAllClubApplicationFormsQueryKey(clubId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAllClubApplicationForms>>
+  > = ({ signal }) => getAllClubApplicationForms(clubId, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!clubId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAllClubApplicationFormsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAllClubApplicationForms>>
+>;
+export type GetAllClubApplicationFormsQueryError = unknown;
+
+/**
+ * @summary 동아리 모든 신청폼 조회
+ */
+
+export function useGetAllClubApplicationForms<
+  TData = Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAllClubApplicationFormsQueryOptions(
+    clubId,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetAllClubApplicationFormsSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetAllClubApplicationFormsQueryKey(clubId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getAllClubApplicationForms>>
+  > = ({ signal }) => getAllClubApplicationForms(clubId, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetAllClubApplicationFormsSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getAllClubApplicationForms>>
+>;
+export type GetAllClubApplicationFormsSuspenseQueryError = unknown;
+
+/**
+ * @summary 동아리 모든 신청폼 조회
+ */
+
+export function useGetAllClubApplicationFormsSuspense<
+  TData = Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getAllClubApplicationForms>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetAllClubApplicationFormsSuspenseQueryOptions(
+    clubId,
+    options,
+  );
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
 /**
  * 동아리원들이 신청할 수 있는 신청폼을 생성합니다. 이는 동아리 소유자만 생성할 수 있습니다.<p>type은 TEXT, RADIO, CHECKBOX, SELECT 중 하나를 선택할 수 있습니다. <p>required는 필수 입력 여부를 나타내며, true일 경우 해당 질문은 필수로 입력해야 합니다. <p>options는 type이 RADIO, CHECKBOX, SELECT일 때 선택지로 사용됩니다. [JAVA, PYTHON]와 같이 입력 가능
  * @summary 동아리 신청폼 생성
@@ -79,13 +492,83 @@ export const getAllClubApplicationForms = (clubId: number) => {
 export const createClubApplicationForm = (
   clubId: number,
   clubApplicationFormCreateRequest: ClubApplicationFormCreateRequest,
+  signal?: AbortSignal,
 ) => {
   return customInstance<ClubApplicationFormIdResponse>({
     url: `/api/clubs/${clubId}/application-forms`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: clubApplicationFormCreateRequest,
+    signal,
   });
+};
+
+export const getCreateClubApplicationFormMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createClubApplicationForm>>,
+    TError,
+    { clubId: number; data: ClubApplicationFormCreateRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createClubApplicationForm>>,
+  TError,
+  { clubId: number; data: ClubApplicationFormCreateRequest },
+  TContext
+> => {
+  const mutationKey = ['createClubApplicationForm'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createClubApplicationForm>>,
+    { clubId: number; data: ClubApplicationFormCreateRequest }
+  > = (props) => {
+    const { clubId, data } = props ?? {};
+
+    return createClubApplicationForm(clubId, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateClubApplicationFormMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createClubApplicationForm>>
+>;
+export type CreateClubApplicationFormMutationBody =
+  ClubApplicationFormCreateRequest;
+export type CreateClubApplicationFormMutationError = unknown;
+
+/**
+ * @summary 동아리 신청폼 생성
+ */
+export const useCreateClubApplicationForm = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createClubApplicationForm>>,
+    TError,
+    { clubId: number; data: ClubApplicationFormCreateRequest },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createClubApplicationForm>>,
+  TError,
+  { clubId: number; data: ClubApplicationFormCreateRequest },
+  TContext
+> => {
+  const mutationOptions = getCreateClubApplicationFormMutationOptions(options);
+
+  return useMutation(mutationOptions);
 };
 /**
  * 특정 신청폼에 제출된 모든 신청서 목록을 조회합니다. 동아리 관리자만 조회 가능합니다.
@@ -94,12 +577,170 @@ export const createClubApplicationForm = (
 export const getClubApplicationSubmissions = (
   clubId: number,
   applicationFormId: number,
+  signal?: AbortSignal,
 ) => {
   return customInstance<ListWrapperClubApplicationSubmissionResponse>({
     url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions`,
     method: 'GET',
+    signal,
   });
 };
+
+export const getGetClubApplicationSubmissionsQueryKey = (
+  clubId?: number,
+  applicationFormId?: number,
+) => {
+  return [
+    `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions`,
+  ] as const;
+};
+
+export const getGetClubApplicationSubmissionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+  TError = unknown,
+>(
+  clubId: number,
+  applicationFormId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetClubApplicationSubmissionsQueryKey(clubId, applicationFormId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getClubApplicationSubmissions>>
+  > = ({ signal }) =>
+    getClubApplicationSubmissions(clubId, applicationFormId, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!(clubId && applicationFormId),
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClubApplicationSubmissionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClubApplicationSubmissions>>
+>;
+export type GetClubApplicationSubmissionsQueryError = unknown;
+
+/**
+ * @summary 제출된 동아리 신청서 목록 조회
+ */
+
+export function useGetClubApplicationSubmissions<
+  TData = Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+  TError = unknown,
+>(
+  clubId: number,
+  applicationFormId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClubApplicationSubmissionsQueryOptions(
+    clubId,
+    applicationFormId,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetClubApplicationSubmissionsSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+  TError = unknown,
+>(
+  clubId: number,
+  applicationFormId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetClubApplicationSubmissionsQueryKey(clubId, applicationFormId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getClubApplicationSubmissions>>
+  > = ({ signal }) =>
+    getClubApplicationSubmissions(clubId, applicationFormId, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClubApplicationSubmissionsSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClubApplicationSubmissions>>
+>;
+export type GetClubApplicationSubmissionsSuspenseQueryError = unknown;
+
+/**
+ * @summary 제출된 동아리 신청서 목록 조회
+ */
+
+export function useGetClubApplicationSubmissionsSuspense<
+  TData = Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+  TError = unknown,
+>(
+  clubId: number,
+  applicationFormId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getClubApplicationSubmissions>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClubApplicationSubmissionsSuspenseQueryOptions(
+    clubId,
+    applicationFormId,
+    options,
+  );
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
 /**
  * 동아리 신청폼을 작성하여 동아리에 가입 신청합니다.
  * @summary 동아리 신청폼 작성을 통한 동아리 가입 신청
@@ -108,13 +749,103 @@ export const submitClubApplicationForm = (
   clubId: number,
   applicationFormId: number,
   clubApplicationSubmissionRequest: ClubApplicationSubmissionRequest,
+  signal?: AbortSignal,
 ) => {
   return customInstance<ClubApplicationSubmissionIdResponse>({
     url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: clubApplicationSubmissionRequest,
+    signal,
   });
+};
+
+export const getSubmitClubApplicationFormMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitClubApplicationForm>>,
+    TError,
+    {
+      clubId: number;
+      applicationFormId: number;
+      data: ClubApplicationSubmissionRequest;
+    },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof submitClubApplicationForm>>,
+  TError,
+  {
+    clubId: number;
+    applicationFormId: number;
+    data: ClubApplicationSubmissionRequest;
+  },
+  TContext
+> => {
+  const mutationKey = ['submitClubApplicationForm'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof submitClubApplicationForm>>,
+    {
+      clubId: number;
+      applicationFormId: number;
+      data: ClubApplicationSubmissionRequest;
+    }
+  > = (props) => {
+    const { clubId, applicationFormId, data } = props ?? {};
+
+    return submitClubApplicationForm(clubId, applicationFormId, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SubmitClubApplicationFormMutationResult = NonNullable<
+  Awaited<ReturnType<typeof submitClubApplicationForm>>
+>;
+export type SubmitClubApplicationFormMutationBody =
+  ClubApplicationSubmissionRequest;
+export type SubmitClubApplicationFormMutationError = unknown;
+
+/**
+ * @summary 동아리 신청폼 작성을 통한 동아리 가입 신청
+ */
+export const useSubmitClubApplicationForm = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof submitClubApplicationForm>>,
+    TError,
+    {
+      clubId: number;
+      applicationFormId: number;
+      data: ClubApplicationSubmissionRequest;
+    },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof submitClubApplicationForm>>,
+  TError,
+  {
+    clubId: number;
+    applicationFormId: number;
+    data: ClubApplicationSubmissionRequest;
+  },
+  TContext
+> => {
+  const mutationOptions = getSubmitClubApplicationFormMutationOptions(options);
+
+  return useMutation(mutationOptions);
 };
 /**
  * 동아리 이름의 중복 여부를 확인합니다.
@@ -122,13 +853,82 @@ export const submitClubApplicationForm = (
  */
 export const validateClubName = (
   clubNameValidateRequest: ClubNameValidateRequest,
+  signal?: AbortSignal,
 ) => {
   return customInstance<void>({
     url: `/api/clubs/validate-name`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: clubNameValidateRequest,
+    signal,
   });
+};
+
+export const getValidateClubNameMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof validateClubName>>,
+    TError,
+    { data: ClubNameValidateRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof validateClubName>>,
+  TError,
+  { data: ClubNameValidateRequest },
+  TContext
+> => {
+  const mutationKey = ['validateClubName'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof validateClubName>>,
+    { data: ClubNameValidateRequest }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return validateClubName(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ValidateClubNameMutationResult = NonNullable<
+  Awaited<ReturnType<typeof validateClubName>>
+>;
+export type ValidateClubNameMutationBody = ClubNameValidateRequest;
+export type ValidateClubNameMutationError = unknown;
+
+/**
+ * @summary 동아리 이름 중복 검사
+ */
+export const useValidateClubName = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof validateClubName>>,
+    TError,
+    { data: ClubNameValidateRequest },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof validateClubName>>,
+  TError,
+  { data: ClubNameValidateRequest },
+  TContext
+> => {
+  const mutationOptions = getValidateClubNameMutationOptions(options);
+
+  return useMutation(mutationOptions);
 };
 /**
  * 내가 제출한 동아리 신청폼을 확인합니다. 신규 신청 시, 존재하지 않을 수 있습니다.
@@ -137,63 +937,461 @@ export const validateClubName = (
 export const getMyClubApplicationSubmission = (
   clubId: number,
   applicationFormId: number,
+  signal?: AbortSignal,
 ) => {
   return customInstance<ClubApplicationSubmissionResponse>({
     url: `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions/me`,
     method: 'GET',
+    signal,
   });
 };
+
+export const getGetMyClubApplicationSubmissionQueryKey = (
+  clubId?: number,
+  applicationFormId?: number,
+) => {
+  return [
+    `/api/clubs/${clubId}/application-forms/${applicationFormId}/submissions/me`,
+  ] as const;
+};
+
+export const getGetMyClubApplicationSubmissionQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+  TError = unknown,
+>(
+  clubId: number,
+  applicationFormId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetMyClubApplicationSubmissionQueryKey(clubId, applicationFormId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMyClubApplicationSubmission>>
+  > = ({ signal }) =>
+    getMyClubApplicationSubmission(clubId, applicationFormId, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!(clubId && applicationFormId),
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyClubApplicationSubmissionQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMyClubApplicationSubmission>>
+>;
+export type GetMyClubApplicationSubmissionQueryError = unknown;
+
+/**
+ * @summary 내가 제출한 동아리 신청폼 확인
+ */
+
+export function useGetMyClubApplicationSubmission<
+  TData = Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+  TError = unknown,
+>(
+  clubId: number,
+  applicationFormId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyClubApplicationSubmissionQueryOptions(
+    clubId,
+    applicationFormId,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetMyClubApplicationSubmissionSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+  TError = unknown,
+>(
+  clubId: number,
+  applicationFormId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetMyClubApplicationSubmissionQueryKey(clubId, applicationFormId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMyClubApplicationSubmission>>
+  > = ({ signal }) =>
+    getMyClubApplicationSubmission(clubId, applicationFormId, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMyClubApplicationSubmissionSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMyClubApplicationSubmission>>
+>;
+export type GetMyClubApplicationSubmissionSuspenseQueryError = unknown;
+
+/**
+ * @summary 내가 제출한 동아리 신청폼 확인
+ */
+
+export function useGetMyClubApplicationSubmissionSuspense<
+  TData = Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+  TError = unknown,
+>(
+  clubId: number,
+  applicationFormId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getMyClubApplicationSubmission>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMyClubApplicationSubmissionSuspenseQueryOptions(
+    clubId,
+    applicationFormId,
+    options,
+  );
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
 /**
  * 동아리 신청폼 중 가장 최신의 것을 조회합니다.
  * @summary 가장 최신의 동아리 신청폼 조회
  */
-export const getClubApplicationForm = (clubId: number) => {
+export const getClubApplicationForm = (
+  clubId: number,
+  signal?: AbortSignal,
+) => {
   return customInstance<ClubApplicationFormInfoResponse>({
     url: `/api/clubs/${clubId}/application-forms/latest`,
     method: 'GET',
+    signal,
   });
 };
+
+export const getGetClubApplicationFormQueryKey = (clubId?: number) => {
+  return [`/api/clubs/${clubId}/application-forms/latest`] as const;
+};
+
+export const getGetClubApplicationFormQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClubApplicationForm>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClubApplicationForm>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetClubApplicationFormQueryKey(clubId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getClubApplicationForm>>
+  > = ({ signal }) => getClubApplicationForm(clubId, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!clubId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getClubApplicationForm>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClubApplicationFormQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClubApplicationForm>>
+>;
+export type GetClubApplicationFormQueryError = unknown;
+
+/**
+ * @summary 가장 최신의 동아리 신청폼 조회
+ */
+
+export function useGetClubApplicationForm<
+  TData = Awaited<ReturnType<typeof getClubApplicationForm>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClubApplicationForm>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClubApplicationFormQueryOptions(clubId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetClubApplicationFormSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClubApplicationForm>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getClubApplicationForm>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetClubApplicationFormQueryKey(clubId);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getClubApplicationForm>>
+  > = ({ signal }) => getClubApplicationForm(clubId, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getClubApplicationForm>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClubApplicationFormSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClubApplicationForm>>
+>;
+export type GetClubApplicationFormSuspenseQueryError = unknown;
+
+/**
+ * @summary 가장 최신의 동아리 신청폼 조회
+ */
+
+export function useGetClubApplicationFormSuspense<
+  TData = Awaited<ReturnType<typeof getClubApplicationForm>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getClubApplicationForm>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClubApplicationFormSuspenseQueryOptions(
+    clubId,
+    options,
+  );
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
 /**
  * 동아리 정보를 검색합니다.
  * @summary 동아리 정보 검색
  */
-export const searchClubs = (params?: SearchClubsParams) => {
+export const searchClubs = (
+  params?: SearchClubsParams,
+  signal?: AbortSignal,
+) => {
   return customInstance<ListWrapperClubInfoResponse>({
     url: `/api/clubs/search`,
     method: 'GET',
     params,
+    signal,
   });
 };
-export type UpdateClubInfoResult = NonNullable<
-  Awaited<ReturnType<typeof updateClubInfo>>
->;
-export type GetJoinedClubsResult = NonNullable<
-  Awaited<ReturnType<typeof getJoinedClubs>>
->;
-export type RegisterNewClubResult = NonNullable<
-  Awaited<ReturnType<typeof registerNewClub>>
->;
-export type GetAllClubApplicationFormsResult = NonNullable<
-  Awaited<ReturnType<typeof getAllClubApplicationForms>>
->;
-export type CreateClubApplicationFormResult = NonNullable<
-  Awaited<ReturnType<typeof createClubApplicationForm>>
->;
-export type GetClubApplicationSubmissionsResult = NonNullable<
-  Awaited<ReturnType<typeof getClubApplicationSubmissions>>
->;
-export type SubmitClubApplicationFormResult = NonNullable<
-  Awaited<ReturnType<typeof submitClubApplicationForm>>
->;
-export type ValidateClubNameResult = NonNullable<
-  Awaited<ReturnType<typeof validateClubName>>
->;
-export type GetMyClubApplicationSubmissionResult = NonNullable<
-  Awaited<ReturnType<typeof getMyClubApplicationSubmission>>
->;
-export type GetClubApplicationFormResult = NonNullable<
-  Awaited<ReturnType<typeof getClubApplicationForm>>
->;
-export type SearchClubsResult = NonNullable<
+
+export const getSearchClubsQueryKey = (params?: SearchClubsParams) => {
+  return [`/api/clubs/search`, ...(params ? [params] : [])] as const;
+};
+
+export const getSearchClubsQueryOptions = <
+  TData = Awaited<ReturnType<typeof searchClubs>>,
+  TError = unknown,
+>(
+  params?: SearchClubsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof searchClubs>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getSearchClubsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchClubs>>> = ({
+    signal,
+  }) => searchClubs(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof searchClubs>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type SearchClubsQueryResult = NonNullable<
   Awaited<ReturnType<typeof searchClubs>>
 >;
+export type SearchClubsQueryError = unknown;
+
+/**
+ * @summary 동아리 정보 검색
+ */
+
+export function useSearchClubs<
+  TData = Awaited<ReturnType<typeof searchClubs>>,
+  TError = unknown,
+>(
+  params?: SearchClubsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof searchClubs>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getSearchClubsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getSearchClubsSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof searchClubs>>,
+  TError = unknown,
+>(
+  params?: SearchClubsParams,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof searchClubs>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getSearchClubsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchClubs>>> = ({
+    signal,
+  }) => searchClubs(params, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof searchClubs>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type SearchClubsSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof searchClubs>>
+>;
+export type SearchClubsSuspenseQueryError = unknown;
+
+/**
+ * @summary 동아리 정보 검색
+ */
+
+export function useSearchClubsSuspense<
+  TData = Awaited<ReturnType<typeof searchClubs>>,
+  TError = unknown,
+>(
+  params?: SearchClubsParams,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof searchClubs>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getSearchClubsSuspenseQueryOptions(params, options);
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}

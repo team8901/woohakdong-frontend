@@ -6,6 +6,16 @@
  * 우학동 서버 API 명세서
  * OpenAPI spec version: 1.0.0
  */
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import type {
+  QueryFunction,
+  QueryKey,
+  UseQueryOptions,
+  UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query';
+
 import type {
   ClubMembershipResponse,
   ListWrapperClubMembershipResponse,
@@ -17,25 +27,309 @@ import { customInstance } from '../../axios';
  * 특정 동아리의 회원 목록을 조회합니다.
  * @summary 동아리 회원 목록 조회
  */
-export const getClubMembers = (clubId: number) => {
+export const getClubMembers = (clubId: number, signal?: AbortSignal) => {
   return customInstance<ListWrapperClubMembershipResponse>({
     url: `/api/clubs/${clubId}/members`,
     method: 'GET',
+    signal,
   });
 };
+
+export const getGetClubMembersQueryKey = (clubId?: number) => {
+  return [`/api/clubs/${clubId}/members`] as const;
+};
+
+export const getGetClubMembersQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClubMembers>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClubMembers>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetClubMembersQueryKey(clubId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getClubMembers>>> = ({
+    signal,
+  }) => getClubMembers(clubId, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!clubId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getClubMembers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClubMembersQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClubMembers>>
+>;
+export type GetClubMembersQueryError = unknown;
+
+/**
+ * @summary 동아리 회원 목록 조회
+ */
+
+export function useGetClubMembers<
+  TData = Awaited<ReturnType<typeof getClubMembers>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClubMembers>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClubMembersQueryOptions(clubId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetClubMembersSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClubMembers>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getClubMembers>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetClubMembersQueryKey(clubId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getClubMembers>>> = ({
+    signal,
+  }) => getClubMembers(clubId, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getClubMembers>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClubMembersSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClubMembers>>
+>;
+export type GetClubMembersSuspenseQueryError = unknown;
+
+/**
+ * @summary 동아리 회원 목록 조회
+ */
+
+export function useGetClubMembersSuspense<
+  TData = Awaited<ReturnType<typeof getClubMembers>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getClubMembers>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClubMembersSuspenseQueryOptions(clubId, options);
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
 /**
  * 특정 동아리의 회원 정보를 조회합니다.
  * @summary 동아리 회원 단건 조회
  */
-export const getClubMember = (clubId: number, clubMembershipId: number) => {
+export const getClubMember = (
+  clubId: number,
+  clubMembershipId: number,
+  signal?: AbortSignal,
+) => {
   return customInstance<ClubMembershipResponse>({
     url: `/api/clubs/${clubId}/members/${clubMembershipId}`,
     method: 'GET',
+    signal,
   });
 };
-export type GetClubMembersResult = NonNullable<
-  Awaited<ReturnType<typeof getClubMembers>>
->;
-export type GetClubMemberResult = NonNullable<
+
+export const getGetClubMemberQueryKey = (
+  clubId?: number,
+  clubMembershipId?: number,
+) => {
+  return [`/api/clubs/${clubId}/members/${clubMembershipId}`] as const;
+};
+
+export const getGetClubMemberQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClubMember>>,
+  TError = unknown,
+>(
+  clubId: number,
+  clubMembershipId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClubMember>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetClubMemberQueryKey(clubId, clubMembershipId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getClubMember>>> = ({
+    signal,
+  }) => getClubMember(clubId, clubMembershipId, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!(clubId && clubMembershipId),
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getClubMember>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClubMemberQueryResult = NonNullable<
   Awaited<ReturnType<typeof getClubMember>>
 >;
+export type GetClubMemberQueryError = unknown;
+
+/**
+ * @summary 동아리 회원 단건 조회
+ */
+
+export function useGetClubMember<
+  TData = Awaited<ReturnType<typeof getClubMember>>,
+  TError = unknown,
+>(
+  clubId: number,
+  clubMembershipId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getClubMember>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClubMemberQueryOptions(
+    clubId,
+    clubMembershipId,
+    options,
+  );
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetClubMemberSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getClubMember>>,
+  TError = unknown,
+>(
+  clubId: number,
+  clubMembershipId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getClubMember>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ??
+    getGetClubMemberQueryKey(clubId, clubMembershipId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getClubMember>>> = ({
+    signal,
+  }) => getClubMember(clubId, clubMembershipId, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getClubMember>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetClubMemberSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getClubMember>>
+>;
+export type GetClubMemberSuspenseQueryError = unknown;
+
+/**
+ * @summary 동아리 회원 단건 조회
+ */
+
+export function useGetClubMemberSuspense<
+  TData = Awaited<ReturnType<typeof getClubMember>>,
+  TError = unknown,
+>(
+  clubId: number,
+  clubMembershipId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getClubMember>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetClubMemberSuspenseQueryOptions(
+    clubId,
+    clubMembershipId,
+    options,
+  );
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}

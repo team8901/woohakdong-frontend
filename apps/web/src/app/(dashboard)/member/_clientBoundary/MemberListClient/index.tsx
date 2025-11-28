@@ -8,10 +8,11 @@ import { MemberTable } from '@/app/(dashboard)/member/_components/MemberTable';
 import { DEFAULT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/defaultOption';
 import { CLUB_MEMBER_SORT_OPTION } from '@/app/(dashboard)/member/_helpers/constants/sortOption';
 import { useMemberFilter } from '@/app/(dashboard)/member/_helpers/hooks/useMemberFilter';
-import { useGetClubMembersSuspenseQuery } from '@/data/club/getClubMembers/query';
 import {
   type ClubMembershipResponse,
+  getGetClubMembersQueryKey,
   type ListWrapperClubMembershipResponse,
+  useGetClubMembers,
 } from '@workspace/api/generated';
 
 type Props = {
@@ -20,9 +21,18 @@ type Props = {
 };
 
 export const MemberListClient = ({ initialData, clubId }: Props) => {
-  const {
-    data: { data: members },
-  } = useGetClubMembersSuspenseQuery({ clubId }, { initialData });
+  const { data } = useGetClubMembers(clubId, {
+    query: {
+      queryKey: getGetClubMembersQueryKey(clubId),
+      initialData,
+    },
+  });
+
+  // initialData가 있으므로 data는 항상 존재
+  const members: ClubMembershipResponse[] = useMemo(
+    () => data!.data ?? [],
+    [data],
+  );
 
   const [selectedMembers, setSelectedMembers] = useState<
     ClubMembershipResponse[]
