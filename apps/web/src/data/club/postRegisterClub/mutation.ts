@@ -1,3 +1,4 @@
+import { API_URL } from '@/data/apiUrl';
 import { useMutation, type UseMutationOptions } from '@tanstack/react-query';
 import {
   type ClubIdResponse,
@@ -10,7 +11,7 @@ export const usePostRegisterClubMutation = (
   options?: UseMutationOptions<ClubIdResponse, Error, ClubRegisterRequest>,
 ) => {
   return useMutation({
-    mutationKey: ['/api/clubs'],
+    mutationKey: [API_URL.CLUB.REGISTER_CLUB],
     mutationFn: (req: ClubRegisterRequest) => registerNewClub(req),
     ...options,
   });

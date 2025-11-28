@@ -1,5 +1,6 @@
 'use client';
 
+import { deleteClubMemberRole } from '@/data/user/deleteClubMemberRole/delete';
 import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
 import { clearAccessToken } from '@workspace/api/manageToken';
 import { signOutWithGoogle } from '@workspace/firebase/auth';
@@ -29,6 +30,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
   const handleLogout = async () => {
     try {
       await deleteUserRole();
+      await deleteClubMemberRole();
       await signOutWithGoogle();
       clearAccessToken();
 

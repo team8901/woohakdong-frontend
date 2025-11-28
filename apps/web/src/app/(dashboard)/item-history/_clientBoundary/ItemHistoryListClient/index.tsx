@@ -16,12 +16,13 @@ import { type ClubItemHistoryResponse } from '@/data/club/getClubItemHistory/typ
 
 type Props = {
   initialData: ApiResponse<ClubItemHistoryResponse[]>;
+  clubId: number;
 };
 
-export const ItemHistoryListClient = ({ initialData }: Props) => {
+export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
   const {
     data: { data: items },
-  } = useGetClubItemHistorySuspenseQuery({ clubId: 1 }, { initialData });
+  } = useGetClubItemHistorySuspenseQuery({ clubId }, { initialData });
 
   const [selectedItems, setSelectedItems] = useState<ClubItemHistoryResponse[]>(
     [],

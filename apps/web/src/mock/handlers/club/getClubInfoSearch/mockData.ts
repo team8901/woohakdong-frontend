@@ -7,7 +7,7 @@ export const 동아리_정보_없음: ListWrapperClubInfoResponse = {
 export const 동아리_정보_있음: ListWrapperClubInfoResponse = {
   data: [
     {
-      id: 0,
+      id: 1,
       name: '두잇',
       nameEn: 'doit',
       description: '아주대학교 프로그래밍 동아리입니다',

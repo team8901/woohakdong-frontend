@@ -16,12 +16,13 @@ import {
 
 type Props = {
   initialData: ListWrapperClubMembershipResponse;
+  clubId: number;
 };
 
-export const MemberListClient = ({ initialData }: Props) => {
+export const MemberListClient = ({ initialData, clubId }: Props) => {
   const {
     data: { data: members },
-  } = useGetClubMembersSuspenseQuery({ clubId: 1 }, { initialData });
+  } = useGetClubMembersSuspenseQuery({ clubId }, { initialData });
 
   const [selectedMembers, setSelectedMembers] = useState<
     ClubMembershipResponse[]

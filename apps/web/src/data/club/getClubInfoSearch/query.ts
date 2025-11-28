@@ -1,3 +1,5 @@
+import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
+import { API_URL } from '@/data/apiUrl';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import {
   type ListWrapperClubInfoResponse,
@@ -14,8 +16,13 @@ export const useGetClubInfoSearchQuery = (
   params: SearchClubsParams = {},
   options?: OmittedQueryOptions<ListWrapperClubInfoResponse>,
 ) => {
+  const url = buildUrlWithParams({
+    url: API_URL.CLUB.CLUB_INFO_SEARCH,
+    queryParams: params,
+  });
+
   return useQuery({
-    queryKey: ['/api/clubs/search', params],
+    queryKey: [url],
     queryFn: () => searchClubs(params),
     ...options,
   });
@@ -26,8 +33,13 @@ export const useGetClubInfoSearchSuspenseQuery = (
   params: SearchClubsParams = {},
   options?: OmittedSuspenseQueryOptions<ListWrapperClubInfoResponse>,
 ) => {
+  const url = buildUrlWithParams({
+    url: API_URL.CLUB.CLUB_INFO_SEARCH,
+    queryParams: params,
+  });
+
   return useSuspenseQuery({
-    queryKey: ['/api/clubs/search', params],
+    queryKey: [url],
     queryFn: () => searchClubs(params),
     ...options,
   });

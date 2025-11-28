@@ -1,5 +1,7 @@
+import { API_URL } from '@/data/apiUrl';
+
 export const putUserRoleRegular = async (): Promise<void> => {
-  const response = await fetch('/api/auth/roles', {
+  const response = await fetch(API_URL.COOKIE.USER_ROLE, {
     method: 'PUT',
   });
 

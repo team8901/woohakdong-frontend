@@ -7,13 +7,15 @@ import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { showToast } from '@/_shared/helpers/utils/showToast';
 import { RegisterClubSuccessCardFooter } from '@/app/register-club/success/_components/RegisterClubSuccessCardFooter';
 import { CardContent } from '@workspace/ui/components/card';
+import { FormLabel } from '@workspace/ui/components/form';
 import { Input } from '@workspace/ui/components/input';
 import { toPng } from 'html-to-image';
 import { Check, Copy } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
 
-const QR_CODE_SIZE = 183;
+export const COPY_SUCCESS_TIMEOUT = 2000;
+export const QR_CODE_SIZE = 183;
 
 export const QrCardClient = () => {
   const searchParams = useSearchParams();
@@ -29,7 +31,7 @@ export const QrCardClient = () => {
       message: '유효하지 않은 동아리입니다.',
       type: 'error',
     });
-    
+
     router.replace(APP_PATH.REGISTER_CLUB.HOME);
 
     return null;
@@ -71,14 +73,14 @@ export const QrCardClient = () => {
   const onCopy = () => {
     navigator.clipboard.writeText(clubFullUrl).then(() => {
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      setTimeout(() => setIsCopied(false), COPY_SUCCESS_TIMEOUT);
     });
   };
 
   return (
     <CardContent className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-xs">동아리 웹 페이지 주소</h2>
+        <FormLabel>동아리 웹 페이지 주소</FormLabel>
         <div className="relative w-full">
           <Input value={clubFullUrl} readOnly />
           <button
@@ -94,7 +96,7 @@ export const QrCardClient = () => {
       </div>
 
       <div className="flex flex-col items-center gap-2">
-        <h2 className="self-start text-xs">QR 카드</h2>
+        <FormLabel className="self-start">QR 카드</FormLabel>
         <div
           ref={qrCodeRef}
           className="flex w-[285px] flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white px-12 py-6">
