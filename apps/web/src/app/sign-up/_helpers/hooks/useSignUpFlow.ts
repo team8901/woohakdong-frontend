@@ -50,13 +50,9 @@ export const useSignUpFlow = () => {
   };
 
   const onQuit = async (): Promise<void> => {
-    try {
-      form.clearErrors();
-      form.reset();
-      await logoutUser();
-    } catch (error) {
-      console.error('🚨 로그아웃 중 오류 발생:', error);
-    }
+    form.clearErrors();
+    form.reset();
+    await logoutUser();
   };
 
   return {
