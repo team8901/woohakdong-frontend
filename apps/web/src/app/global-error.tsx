@@ -1,9 +1,6 @@
 'use client'; // NOTE: Error boundaries must be Client Components
 
-import { deleteClubMemberRole } from '@/data/user/deleteClubMemberRole/delete';
-import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
-import { clearAccessToken } from '@workspace/api/manageToken';
-import { signOutWithGoogle } from '@workspace/firebase/auth';
+import { logoutUser } from '@/_shared/helpers/utils/auth';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { HomeIcon, RefreshCcwIcon, SirenIcon } from 'lucide-react';
@@ -15,22 +12,6 @@ const SUPPORT_MAIL = '8901.dev@gmail.com';
  * @see https://nextjs.org/docs/app/getting-started/error-handling
  */
 const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
-  const handleLogout = async () => {
-    try {
-      await deleteUserRole();
-      await deleteClubMemberRole();
-      await signOutWithGoogle();
-      clearAccessToken();
-
-      console.log('✅ 로그아웃 성공');
-
-      window.location.reload();
-    } catch (error) {
-      console.error('🚨 로그아웃 실패:', error);
-      alert('로그아웃에 실패했어요 🫠 다시 시도해주세요');
-    }
-  };
-
   return (
     // NOTE: global-error must include html and body tags
     <html lang="ko">
@@ -49,7 +30,7 @@ const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
               variant="outline"
               size="lg"
               className="w-full"
-              onClick={handleLogout}>
+              onClick={logoutUser}>
               <HomeIcon />
               로그인 화면으로 돌아가기
             </Button>

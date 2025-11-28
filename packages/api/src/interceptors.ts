@@ -1,13 +1,8 @@
 import { REFRESH_URL } from '@workspace/api/_helpers';
-import {
-  clearAccessToken,
-  getAccessToken,
-  refreshAccessToken,
-} from '@workspace/api/manageToken';
+import { refreshAccessToken } from '@workspace/api/manageToken';
 import { captureAxiosError } from '@workspace/sentry/captureAxiosError';
 import {
   type AxiosError,
-  AxiosHeaders,
   type AxiosInstance,
   type AxiosResponse,
   type InternalAxiosRequestConfig,
@@ -21,12 +16,6 @@ export const setupInterceptors = (api: AxiosInstance): void => {
   // Request 인터셉터
   api.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
-      const accessToken = await getAccessToken();
-
-      if (accessToken) {
-        config.headers.set('Authorization', `Bearer ${accessToken}`);
-      }
-
       return config;
     },
     (error: AxiosError) => Promise.reject(error),
@@ -36,7 +25,7 @@ export const setupInterceptors = (api: AxiosInstance): void => {
   api.interceptors.response.use(undefined, captureAxiosError);
 
   // 동시 401 발생 시 단일 리프레시 호출을 공유하기 위한 Promise
-  let refreshTokenPromise: Promise<string | null> | null = null;
+  let refreshTokenPromise: Promise<void> | null = null;
 
   // Response 인터셉터(액세스토큰 재발급 처리)
   api.interceptors.response.use(
@@ -58,8 +47,6 @@ export const setupInterceptors = (api: AxiosInstance): void => {
         originalRequest.url.includes(REFRESH_URL);
 
       if (isRefreshCall) {
-        clearAccessToken();
-
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }
@@ -82,18 +69,9 @@ export const setupInterceptors = (api: AxiosInstance): void => {
         });
       }
 
-      const newAccessToken = await refreshTokenPromise;
+      await refreshTokenPromise;
 
-      if (!newAccessToken) {
-        return Promise.reject(error);
-      }
-
-      // 새 토큰으로 Authorization 헤더 갱신 후 원 요청 재시도
-      originalRequest.headers = new AxiosHeaders(originalRequest.headers).set(
-        'Authorization',
-        `Bearer ${newAccessToken}`,
-      );
-
+      // 원 요청을 그대로 재시도 (쿠키에 새 토큰이 포함되어 있음)
       return api.request(originalRequest);
     },
   );

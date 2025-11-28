@@ -1,11 +1,8 @@
 import { useForm } from 'react-hook-form';
 
+import { logoutUser } from '@/_shared/helpers/utils/auth';
 import { showToast } from '@/_shared/helpers/utils/showToast';
-import { deleteClubMemberRole } from '@/data/user/deleteClubMemberRole/delete';
-import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { clearAccessToken } from '@workspace/api/manageToken';
-import { signOutWithGoogle } from '@workspace/firebase/auth';
 
 import { type UserProfileFormData } from '../types';
 import { userProfileSchema } from '../utils/zodSchemas';
@@ -53,22 +50,9 @@ export const useSignUpFlow = () => {
   };
 
   const onQuit = async (): Promise<void> => {
-    try {
-      await deleteUserRole();
-      await deleteClubMemberRole();
-      await signOutWithGoogle();
-      clearAccessToken();
-
-      form.clearErrors();
-      form.reset();
-
-      console.log('✅ 로그아웃 성공');
-
-      window.location.reload();
-    } catch (error) {
-      console.error('🚨 로그아웃 중 오류 발생:', error);
-      alert('로그아웃 중에 오류가 발생했어요 🫠 다시 시도해주세요');
-    }
+    form.clearErrors();
+    form.reset();
+    await logoutUser();
   };
 
   return {

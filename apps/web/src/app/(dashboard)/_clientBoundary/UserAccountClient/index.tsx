@@ -1,9 +1,6 @@
 'use client';
 
-import { deleteClubMemberRole } from '@/data/user/deleteClubMemberRole/delete';
-import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
-import { clearAccessToken } from '@workspace/api/manageToken';
-import { signOutWithGoogle } from '@workspace/firebase/auth';
+import { logoutUser } from '@/_shared/helpers/utils/auth';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
 import {
   DropdownMenu,
@@ -26,22 +23,6 @@ import { type UserAccountInfo } from '../../_helpers/types';
 
 export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
   const { isMobile } = useSidebar();
-
-  const handleLogout = async () => {
-    try {
-      await deleteUserRole();
-      await deleteClubMemberRole();
-      await signOutWithGoogle();
-      clearAccessToken();
-
-      console.log('✅ 로그아웃 성공');
-
-      window.location.reload();
-    } catch (error) {
-      console.error('🚨 로그아웃 실패:', error);
-      alert('로그아웃에 실패했어요 🫠 다시 시도해주세요');
-    }
-  };
 
   return (
     <SidebarMenu>
@@ -92,7 +73,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem onClick={logoutUser}>
               <LogOut />
               로그아웃
             </DropdownMenuItem>
