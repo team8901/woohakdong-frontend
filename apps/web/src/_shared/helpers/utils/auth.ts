@@ -1,4 +1,5 @@
 import { showToast } from '@/_shared/helpers/utils/showToast';
+import { deleteClubMemberRole } from '@/data/user/deleteClubMemberRole/delete';
 import { deleteUserRole } from '@/data/user/deleteUserRole/delete';
 import { signOutWithGoogle } from '@workspace/firebase/auth';
 
@@ -6,6 +7,7 @@ export const logoutUser = async (): Promise<void> => {
   try {
     await signOutWithGoogle();
     await deleteUserRole();
+    await deleteClubMemberRole();
 
     console.log('✅ 로그아웃 성공');
 
