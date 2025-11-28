@@ -1,28 +1,32 @@
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
+import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { ClubInfoFormClient } from '@/app/(dashboard)/club-info/_clientBoundary/ClubInfoFormClient';
 import { type ClubMemberRole } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
 import { getJoinedClubs } from '@workspace/api/generated';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { cookies } from 'next/headers';
-import { notFound } from 'next/navigation';
 
 export const ClubInfoFormSuspense = withSuspense(
   async () => {
     try {
-      const clubsData = await getJoinedClubs();
-      const clubs = clubsData.data ?? [];
-      // TODO: clubEnglishName으로 동아리 정보 조회하도록 수정
-      const clubInfo = clubs[0];
+      // TODO: URL에 동아리 영문명 포함하고 하드코딩 제거
+      const clubEnglishName = 'doit';
+      const clubId = await getClubIdByEnglishName(clubEnglishName);
+
+      const { data } = await getJoinedClubs();
+      const clubs = data ?? [];
+
+      const clubInfo = clubs.find((club) => club.id === clubId);
 
       if (!clubInfo) {
-        notFound();
+        throw new Error('동아리 정보를 찾을 수 없어요.');
       }
 
       const cookieStore = await cookies();
       const clubMemberRole = cookieStore.get('clubMemberRole')?.value;
 
       if (!clubMemberRole) {
-        notFound();
+        throw new Error('동아리 멤버 권한 정보를 찾을 수 없어요.');
       }
 
       return (

@@ -17,18 +17,22 @@ import {
 
 type Props = {
   initialData: ListWrapperClubMembershipResponse;
+  clubId: number;
 };
 
-export const MemberListClient = ({ initialData }: Props) => {
-  const { data } = useGetClubMembers(1, {
+export const MemberListClient = ({ initialData, clubId }: Props) => {
+  const { data } = useGetClubMembers(clubId, {
     query: {
-      queryKey: getGetClubMembersQueryKey(1),
+      queryKey: getGetClubMembersQueryKey(clubId),
       initialData,
     },
   });
 
   // initialData가 있으므로 data는 항상 존재
-  const members = useMemo(() => data!.data ?? [], [data]);
+  const members: ClubMembershipResponse[] = useMemo(
+    () => data!.data ?? [],
+    [data],
+  );
 
   const [selectedMembers, setSelectedMembers] = useState<
     ClubMembershipResponse[]

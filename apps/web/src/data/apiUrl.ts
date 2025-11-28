@@ -20,4 +20,8 @@ export const API_URL = {
   UTIL: {
     PRESIGNED_URL: '/utils/images/presigned-url',
   },
+  COOKIE: {
+    USER_ROLE: '/api/auth/roles',
+    CLUB_MEMBER_ROLE: '/api/auth/club-roles',
+  },
 } as const;
