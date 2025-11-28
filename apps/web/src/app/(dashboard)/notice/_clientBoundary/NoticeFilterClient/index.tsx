@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { JwtTestButton } from '@/_shared/clientBoundary/JwtTestButton';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
@@ -86,6 +87,7 @@ export const NoticeFilterClient = () => {
           <span className="text-foreground font-semibold">{0}</span> 개 공지사항
           조회됨
         </p>
+        <JwtTestButton />
         {/** @todo 공지사항 등록 기능 연동해야 함*/}
         <NoticePostingDialogClient />
       </div>
