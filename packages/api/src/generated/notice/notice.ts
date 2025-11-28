@@ -6,6 +6,19 @@
  * 우학동 서버 API 명세서
  * OpenAPI spec version: 1.0.0
  */
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import type {
+  MutationFunction,
+  QueryFunction,
+  QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
+  UseQueryOptions,
+  UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query';
+
 import type {
   ListWrapperNoticeResponse,
   NoticeCreateRequest,
@@ -20,12 +33,158 @@ import { customInstance } from '../../axios';
  * 동아리 공지사항을 조회합니다.
  * @summary 공지사항 단건 조회
  */
-export const getNotice = (clubId: number, noticeId: number) => {
+export const getNotice = (
+  clubId: number,
+  noticeId: number,
+  signal?: AbortSignal,
+) => {
   return customInstance<NoticeResponse>({
     url: `/api/clubs/${clubId}/notices/${noticeId}`,
     method: 'GET',
+    signal,
   });
 };
+
+export const getGetNoticeQueryKey = (clubId?: number, noticeId?: number) => {
+  return [`/api/clubs/${clubId}/notices/${noticeId}`] as const;
+};
+
+export const getGetNoticeQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNotice>>,
+  TError = unknown,
+>(
+  clubId: number,
+  noticeId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNotice>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetNoticeQueryKey(clubId, noticeId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getNotice>>> = ({
+    signal,
+  }) => getNotice(clubId, noticeId, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!(clubId && noticeId),
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof getNotice>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type GetNoticeQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNotice>>
+>;
+export type GetNoticeQueryError = unknown;
+
+/**
+ * @summary 공지사항 단건 조회
+ */
+
+export function useGetNotice<
+  TData = Awaited<ReturnType<typeof getNotice>>,
+  TError = unknown,
+>(
+  clubId: number,
+  noticeId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNotice>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNoticeQueryOptions(clubId, noticeId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetNoticeSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNotice>>,
+  TError = unknown,
+>(
+  clubId: number,
+  noticeId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getNotice>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetNoticeQueryKey(clubId, noticeId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getNotice>>> = ({
+    signal,
+  }) => getNotice(clubId, noticeId, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getNotice>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetNoticeSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNotice>>
+>;
+export type GetNoticeSuspenseQueryError = unknown;
+
+/**
+ * @summary 공지사항 단건 조회
+ */
+
+export function useGetNoticeSuspense<
+  TData = Awaited<ReturnType<typeof getNotice>>,
+  TError = unknown,
+>(
+  clubId: number,
+  noticeId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getNotice>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNoticeSuspenseQueryOptions(
+    clubId,
+    noticeId,
+    options,
+  );
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
 /**
  * 동아리 공지사항을 수정합니다.
  * @summary 공지사항 수정
@@ -42,6 +201,73 @@ export const updateNotice = (
     data: noticeUpdateRequest,
   });
 };
+
+export const getUpdateNoticeMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateNotice>>,
+    TError,
+    { clubId: number; noticeId: number; data: NoticeUpdateRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateNotice>>,
+  TError,
+  { clubId: number; noticeId: number; data: NoticeUpdateRequest },
+  TContext
+> => {
+  const mutationKey = ['updateNotice'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateNotice>>,
+    { clubId: number; noticeId: number; data: NoticeUpdateRequest }
+  > = (props) => {
+    const { clubId, noticeId, data } = props ?? {};
+
+    return updateNotice(clubId, noticeId, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateNoticeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateNotice>>
+>;
+export type UpdateNoticeMutationBody = NoticeUpdateRequest;
+export type UpdateNoticeMutationError = unknown;
+
+/**
+ * @summary 공지사항 수정
+ */
+export const useUpdateNotice = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateNotice>>,
+    TError,
+    { clubId: number; noticeId: number; data: NoticeUpdateRequest },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateNotice>>,
+  TError,
+  { clubId: number; noticeId: number; data: NoticeUpdateRequest },
+  TContext
+> => {
+  const mutationOptions = getUpdateNoticeMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};
 /**
  * 동아리 공지사항을 삭제합니다.
  * @summary 공지사항 삭제
@@ -52,16 +278,217 @@ export const deleteNotice = (clubId: number, noticeId: number) => {
     method: 'DELETE',
   });
 };
+
+export const getDeleteNoticeMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteNotice>>,
+    TError,
+    { clubId: number; noticeId: number },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteNotice>>,
+  TError,
+  { clubId: number; noticeId: number },
+  TContext
+> => {
+  const mutationKey = ['deleteNotice'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteNotice>>,
+    { clubId: number; noticeId: number }
+  > = (props) => {
+    const { clubId, noticeId } = props ?? {};
+
+    return deleteNotice(clubId, noticeId);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteNoticeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteNotice>>
+>;
+
+export type DeleteNoticeMutationError = unknown;
+
+/**
+ * @summary 공지사항 삭제
+ */
+export const useDeleteNotice = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteNotice>>,
+    TError,
+    { clubId: number; noticeId: number },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteNotice>>,
+  TError,
+  { clubId: number; noticeId: number },
+  TContext
+> => {
+  const mutationOptions = getDeleteNoticeMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};
 /**
  * 동아리 공지사항 목록을 조회합니다. 고정된 공지가 먼저 표시됩니다.
  * @summary 공지사항 목록 조회
  */
-export const getNotices = (clubId: number) => {
+export const getNotices = (clubId: number, signal?: AbortSignal) => {
   return customInstance<ListWrapperNoticeResponse>({
     url: `/api/clubs/${clubId}/notices`,
     method: 'GET',
+    signal,
   });
 };
+
+export const getGetNoticesQueryKey = (clubId?: number) => {
+  return [`/api/clubs/${clubId}/notices`] as const;
+};
+
+export const getGetNoticesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNotices>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNotices>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetNoticesQueryKey(clubId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getNotices>>> = ({
+    signal,
+  }) => getNotices(clubId, signal);
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!clubId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getNotices>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetNoticesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNotices>>
+>;
+export type GetNoticesQueryError = unknown;
+
+/**
+ * @summary 공지사항 목록 조회
+ */
+
+export function useGetNotices<
+  TData = Awaited<ReturnType<typeof getNotices>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getNotices>>,
+      TError,
+      TData
+    >;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNoticesQueryOptions(clubId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+export const getGetNoticesSuspenseQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNotices>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getNotices>>,
+      TError,
+      TData
+    >;
+  },
+) => {
+  const { query: queryOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetNoticesQueryKey(clubId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getNotices>>> = ({
+    signal,
+  }) => getNotices(clubId, signal);
+
+  return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+    Awaited<ReturnType<typeof getNotices>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetNoticesSuspenseQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNotices>>
+>;
+export type GetNoticesSuspenseQueryError = unknown;
+
+/**
+ * @summary 공지사항 목록 조회
+ */
+
+export function useGetNoticesSuspense<
+  TData = Awaited<ReturnType<typeof getNotices>>,
+  TError = unknown,
+>(
+  clubId: number,
+  options?: {
+    query?: UseSuspenseQueryOptions<
+      Awaited<ReturnType<typeof getNotices>>,
+      TError,
+      TData
+    >;
+  },
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNoticesSuspenseQueryOptions(clubId, options);
+
+  const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+    TData,
+    TError
+  > & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
 /**
  * 동아리 공지사항을 작성합니다.
  * @summary 공지사항 작성
@@ -69,26 +496,80 @@ export const getNotices = (clubId: number) => {
 export const createNotice = (
   clubId: number,
   noticeCreateRequest: NoticeCreateRequest,
+  signal?: AbortSignal,
 ) => {
   return customInstance<NoticeIdResponse>({
     url: `/api/clubs/${clubId}/notices`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     data: noticeCreateRequest,
+    signal,
   });
 };
-export type GetNoticeResult = NonNullable<
-  Awaited<ReturnType<typeof getNotice>>
->;
-export type UpdateNoticeResult = NonNullable<
-  Awaited<ReturnType<typeof updateNotice>>
->;
-export type DeleteNoticeResult = NonNullable<
-  Awaited<ReturnType<typeof deleteNotice>>
->;
-export type GetNoticesResult = NonNullable<
-  Awaited<ReturnType<typeof getNotices>>
->;
-export type CreateNoticeResult = NonNullable<
+
+export const getCreateNoticeMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createNotice>>,
+    TError,
+    { clubId: number; data: NoticeCreateRequest },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createNotice>>,
+  TError,
+  { clubId: number; data: NoticeCreateRequest },
+  TContext
+> => {
+  const mutationKey = ['createNotice'];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      'mutationKey' in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createNotice>>,
+    { clubId: number; data: NoticeCreateRequest }
+  > = (props) => {
+    const { clubId, data } = props ?? {};
+
+    return createNotice(clubId, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateNoticeMutationResult = NonNullable<
   Awaited<ReturnType<typeof createNotice>>
 >;
+export type CreateNoticeMutationBody = NoticeCreateRequest;
+export type CreateNoticeMutationError = unknown;
+
+/**
+ * @summary 공지사항 작성
+ */
+export const useCreateNotice = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createNotice>>,
+    TError,
+    { clubId: number; data: NoticeCreateRequest },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createNotice>>,
+  TError,
+  { clubId: number; data: NoticeCreateRequest },
+  TContext
+> => {
+  const mutationOptions = getCreateNoticeMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};

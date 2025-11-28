@@ -22,8 +22,10 @@ export const useGoogleAuthFlow = () => {
       console.log('✅ Google 로그인 성공');
 
       await authorizationMutation({
-        provider: 'google',
-        providerAccessToken: firebaseIdToken,
+        data: {
+          provider: 'google',
+          providerAccessToken: firebaseIdToken,
+        },
       });
     } catch (err) {
       console.error('🚨 Google 로그인 실패 또는 토큰 처리 중 오류:', err);

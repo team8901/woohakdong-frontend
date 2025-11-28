@@ -8,11 +8,18 @@ export default defineConfig({
     output: {
       mode: 'tags-split',
       target: 'packages/api/src/generated',
-      client: 'axios-functions',
+      client: 'react-query',
       override: {
         mutator: {
           path: 'packages/api/src/axios.ts',
           name: 'customInstance',
+        },
+        query: {
+          useQuery: true,
+          useSuspenseQuery: true,
+          useMutation: true,
+          useInfinite: false,
+          signal: true,
         },
       },
       fileExtension: '.ts',

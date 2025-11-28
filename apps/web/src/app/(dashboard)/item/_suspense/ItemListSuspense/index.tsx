@@ -2,7 +2,6 @@ import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { ItemListClient } from '@/app/(dashboard)/item/_clientBoundary/ItemListClient';
 import { getClubItems } from '@/data/club/getClubItems/fetch';
-import { notFound } from 'next/navigation';
 
 export const ItemListSuspense = withSuspense(
   async () => {
@@ -13,13 +12,13 @@ export const ItemListSuspense = withSuspense(
       // 동아리 영문명으로 clubId 조회
       const clubId = await getClubIdByEnglishName(clubEnglishName);
 
-      if (!clubId) {
-        notFound();
+      if (clubId === null) {
+        throw new Error('동아리 정보를 찾을 수 없어요.');
       }
 
       const data = await getClubItems({ clubId });
 
-      return <ItemListClient initialData={data} />;
+      return <ItemListClient initialData={data} clubId={clubId} />;
     } catch (error) {
       console.error('ItemListSuspense', error);
 
