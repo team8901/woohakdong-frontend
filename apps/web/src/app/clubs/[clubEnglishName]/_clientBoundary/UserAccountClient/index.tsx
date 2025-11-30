@@ -1,6 +1,7 @@
 'use client';
 
 import { logoutUser } from '@/_shared/helpers/utils/auth';
+import { type UserProfileResponse } from '@workspace/api/generated';
 import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
 import {
   DropdownMenu,
@@ -19,9 +20,7 @@ import {
 } from '@workspace/ui/components/sidebar';
 import { BadgeCheck, CreditCard, LogOut } from 'lucide-react';
 
-import { type UserAccountInfo } from '../../_helpers/types';
-
-export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
+export const UserAccountClient = ({ user }: { user: UserProfileResponse }) => {
   const { isMobile } = useSidebar();
 
   return (
@@ -34,7 +33,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarFallback className="rounded-lg">
-                  {user.name[0]} {/** @todo: 아바타로 변경해야 함 */}
+                  {user.name} {/** @todo: 아바타로 변경해야 함 */}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -52,7 +51,7 @@ export const UserAccountClient = ({ user }: { user: UserAccountInfo }) => {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarFallback className="rounded-lg">
-                    {user.name[0]} {/** @todo: 아바타로 변경해야 함 */}
+                    {user.name} {/** @todo: 아바타로 변경해야 함 */}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

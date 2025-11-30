@@ -3,7 +3,8 @@
 import React from 'react';
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
-import { type UserJoinedClub } from '@/app/clubs/[clubEnglishName]/_helpers/types';
+import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
+import { type ClubInfoResponse } from '@workspace/api/generated';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +20,14 @@ import {
   useSidebar,
 } from '@workspace/ui/components/sidebar';
 import { ChevronsUpDown, Plus } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-export const ClubSwitcherClient = ({ clubs }: { clubs: UserJoinedClub[] }) => {
+export const ClubSwitcherClient = ({
+  clubs,
+}: {
+  clubs: ClubInfoResponse[];
+}) => {
   const { isMobile } = useSidebar();
   const [activeClub, setActiveClub] = React.useState(clubs[0]);
   const router = useRouter();
@@ -55,15 +61,29 @@ export const ClubSwitcherClient = ({ clubs }: { clubs: UserJoinedClub[] }) => {
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               동아리 목록
             </DropdownMenuLabel>
-            {clubs.map((team) => (
+            {clubs.map((club) => (
               <DropdownMenuItem
-                key={team.id}
-                onClick={() => setActiveClub(team)}
+                key={club.id}
+                onClick={() => {
+                  setActiveClub(club);
+                  router.push(
+                    buildUrlWithParams({
+                      url: APP_PATH.CLUBS.HOME,
+                      pathParams: { clubEnglishName: club.nameEn! },
+                    }),
+                  );
+                }}
                 className="gap-2 p-2">
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  {/** TODO: 동아리 이미지로 추가해야 함 */}
-                </div>
-                {team.name}
+                {club.bannerImageUrl && (
+                  <Image
+                    className="size-6 rounded-md border"
+                    alt=""
+                    src={club.bannerImageUrl}
+                    width={24}
+                    height={24}
+                  />
+                )}
+                {club.name}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />

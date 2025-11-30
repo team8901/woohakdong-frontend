@@ -1,3 +1,5 @@
+import { NAV_MENU } from '@/app/clubs/[clubEnglishName]/_helpers/constants';
+import { getJoinedClubs, getMyProfile } from '@workspace/api/generated';
 import {
   Sidebar,
   SidebarContent,
@@ -8,23 +10,29 @@ import {
 import { ClubSwitcherClient } from '../../_clientBoundary/ClubSwitcherClient';
 import { NavClient } from '../../_clientBoundary/NavClient';
 import { UserAccountClient } from '../../_clientBoundary/UserAccountClient';
-import { DASHBOARD_SIDEBAR_MAP } from '../../_helpers/constants';
 
-export const DashboardSidebar = ({
+export const DashboardSidebar = async ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
+  const [clubsResponse, user] = await Promise.all([
+    getJoinedClubs(),
+    getMyProfile(),
+  ]);
+
+  const clubs = clubsResponse.data ?? [];
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <ClubSwitcherClient clubs={DASHBOARD_SIDEBAR_MAP.userJoinedClubs} />
+        <ClubSwitcherClient clubs={clubs} />
       </SidebarHeader>
 
       <SidebarContent>
-        <NavClient navMenus={DASHBOARD_SIDEBAR_MAP.navMenus} />
+        <NavClient navMenus={NAV_MENU} />
       </SidebarContent>
 
       <SidebarFooter>
-        <UserAccountClient user={DASHBOARD_SIDEBAR_MAP.userAccountInfo} />
+        <UserAccountClient user={user} />
       </SidebarFooter>
     </Sidebar>
   );
