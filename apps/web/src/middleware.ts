@@ -24,7 +24,7 @@ const createRedirectResponse = (
 const getDefaultPageByRole = (userRole: UserRole): string => {
   return userRole === USER_ROLE.준회원
     ? APP_PATH.SIGN_UP
-    : APP_PATH.DASHBOARD.NOTICE;
+    : APP_PATH.CLUB_LIST;
 };
 
 export const middleware = (request: NextRequest) => {
@@ -64,7 +64,7 @@ export const middleware = (request: NextRequest) => {
   if (userRole === USER_ROLE.정회원) {
     // 정회원은 SIGN_UP 페이지 접근 불가
     if (pathname === APP_PATH.SIGN_UP) {
-      return createRedirectResponse(request, APP_PATH.DASHBOARD.NOTICE);
+      return createRedirectResponse(request, APP_PATH.CLUB_LIST);
     }
   }
 

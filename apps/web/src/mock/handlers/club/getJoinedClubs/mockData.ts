@@ -18,10 +18,9 @@ export const 내가_가입한_동아리_목록: ListWrapperClubInfoResponse = {
     },
     {
       id: 2,
-      name: '멋쟁이사자처럼',
-      nameEn: 'likelion',
-      description:
-        '멋쟁이사자처럼은 기획자, 디자이너, 개발자가 함께 서비스를 만드는 동아리입니다.',
+      name: 'SWeat',
+      nameEn: 'sweat',
+      description: 'SWeat은 코딩 교육 봉사 동아리입니다.',
       thumbnailImageUrl:
         'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=256&h=256&fit=crop',
       bannerImageUrl:

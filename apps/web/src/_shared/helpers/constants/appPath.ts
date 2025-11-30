@@ -10,15 +10,12 @@ export const APP_PATH = {
   /** 동아리 전용 페이지 */
   CLUBS: {
     HOME: '/clubs/:clubEnglishName',
-  },
-  // TODO: 동아리 전용 페이지 안에 대시보드 넣기
-  DASHBOARD: {
-    NOTICE: '/notice',
-    ACTIVITY: '/activity',
-    SCHEDULE: '/schedule',
-    MEMBER: '/member',
-    ITEM: '/item',
-    ITEM_HISTORY: '/item-history',
-    CLUB_INFO: '/club-info',
+    NOTICE: '/clubs/:clubEnglishName/notice',
+    ACTIVITY: '/clubs/:clubEnglishName/activity',
+    SCHEDULE: '/clubs/:clubEnglishName/schedule',
+    MEMBER: '/clubs/:clubEnglishName/member',
+    ITEM: '/clubs/:clubEnglishName/item',
+    ITEM_HISTORY: '/clubs/:clubEnglishName/item-history',
+    CLUB_INFO: '/clubs/:clubEnglishName/club-info',
   },
 };

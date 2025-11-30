@@ -1,41 +1,33 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { showToast } from '@/_shared/helpers/utils/showToast';
 import { RegisterClubSuccessCardFooter } from '@/app/register-club/success/_components/RegisterClubSuccessCardFooter';
 import { CardContent } from '@workspace/ui/components/card';
-import { FormLabel } from '@workspace/ui/components/form';
 import { Input } from '@workspace/ui/components/input';
 import { toPng } from 'html-to-image';
 import { Check, Copy } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
 
 export const COPY_SUCCESS_TIMEOUT = 2000;
 export const QR_CODE_SIZE = 183;
 
 export const QrCardClient = () => {
-  const searchParams = useSearchParams();
-  const clubEnglishName = searchParams.get('clubEnglishName');
+  const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
   const [isCopied, setIsCopied] = useState(false);
+  const [origin, setOrigin] = useState('');
 
   const qrCodeRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
 
-  if (!clubEnglishName) {
-    showToast({
-      message: '유효하지 않은 동아리입니다.',
-      type: 'error',
-    });
-
-    router.replace(APP_PATH.REGISTER_CLUB.HOME);
-
-    return null;
-  }
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const onDownloadQr = () => {
     if (!qrCodeRef.current) {
@@ -64,11 +56,11 @@ export const QrCardClient = () => {
     pathParams: { clubEnglishName },
   });
 
-  const clubFullUrl = `${window.location.origin}${clubUrl}`;
-
   const onGoNext = () => {
     router.replace(clubUrl);
   };
+
+  const clubFullUrl = origin + clubUrl;
 
   const onCopy = () => {
     navigator.clipboard.writeText(clubFullUrl).then(() => {
@@ -80,7 +72,7 @@ export const QrCardClient = () => {
   return (
     <CardContent className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <FormLabel>동아리 웹 페이지 주소</FormLabel>
+        <span className="text-sm text-gray-900">동아리 웹 페이지 주소</span>
         <div className="relative w-full">
           <Input value={clubFullUrl} readOnly />
           <button
@@ -96,7 +88,7 @@ export const QrCardClient = () => {
       </div>
 
       <div className="flex flex-col items-center gap-2">
-        <FormLabel className="self-start">QR 카드</FormLabel>
+        <span className="self-start text-sm text-gray-900">QR 카드</span>
         <div
           ref={qrCodeRef}
           className="flex w-[285px] flex-col items-center gap-4 rounded-2xl border border-gray-200 bg-white px-12 py-6">
