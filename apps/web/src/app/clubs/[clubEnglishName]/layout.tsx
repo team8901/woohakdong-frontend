@@ -6,6 +6,7 @@ import {
 } from '@workspace/ui/components/sidebar';
 import { cookies } from 'next/headers';
 
+import { ClubRoleInitializer } from './_clientBoundary/ClubRoleInitializer';
 import { DashboardHeader } from './_components/DashboardHeader';
 import { DashboardSidebar } from './_components/DashboardSidebar';
 
@@ -17,6 +18,7 @@ const DashboardLayout = async ({ children }: PropsWithChildren) => {
 
   return (
     <div className="flex min-h-screen w-screen">
+      <ClubRoleInitializer />
       <SidebarProvider defaultOpen={isDefaultOpen}>
         <DashboardSidebar />
         <SidebarInset>
