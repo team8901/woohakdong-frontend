@@ -10,14 +10,16 @@ import { CardContent } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
 import { toPng } from 'html-to-image';
 import { Check, Copy } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
 
 export const COPY_SUCCESS_TIMEOUT = 2000;
 export const QR_CODE_SIZE = 183;
 
 export const QrCardClient = () => {
-  const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
+  const searchParams = useSearchParams();
+  const clubEnglishName = searchParams.get('clubEnglishName');
+
   const [isCopied, setIsCopied] = useState(false);
   const [origin, setOrigin] = useState('');
 
@@ -50,6 +52,17 @@ export const QrCardClient = () => {
         });
       });
   };
+
+  if (!clubEnglishName) {
+    showToast({
+      message: '동아리 정보를 불러오지 못했어요. 다시 시도해주세요.',
+      type: 'error',
+    });
+
+    router.replace(APP_PATH.HOME);
+
+    return null;
+  }
 
   const clubUrl = buildUrlWithParams({
     url: APP_PATH.CLUBS.HOME,
