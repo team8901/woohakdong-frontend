@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
+import { showToast } from '@/_shared/helpers/utils/showToast';
 import {
   getGetJoinedClubsQueryKey,
   type ListWrapperClubInfoResponse,
@@ -34,7 +35,16 @@ export const ClubListClient = ({ initialData }: Props) => {
 
   const clubs = useMemo(() => data!.data ?? [], [data]);
 
-  const handleClubClick = (nameEn: string) => {
+  const handleClubClick = (nameEn: string | undefined) => {
+    if (!nameEn) {
+      showToast({
+        message: '동아리 정보를 불러오지 못했어요. 다시 시도해주세요.',
+        type: 'error',
+      });
+
+      return;
+    }
+
     router.push(
       buildUrlWithParams({
         url: APP_PATH.CLUBS.HOME,
@@ -54,7 +64,7 @@ export const ClubListClient = ({ initialData }: Props) => {
             <Card
               key={club.id}
               className="cursor-pointer transition-shadow hover:shadow-lg"
-              onClick={() => handleClubClick(club.nameEn!)}>
+              onClick={() => handleClubClick(club.nameEn)}>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   {club.name}
