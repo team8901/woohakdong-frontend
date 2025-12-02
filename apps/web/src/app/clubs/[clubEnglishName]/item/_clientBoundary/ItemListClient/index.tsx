@@ -24,7 +24,7 @@ type Props = {
 export const ItemListClient = ({ initialData, clubId }: Props) => {
   const { data } = useGetClubItems(clubId, undefined, {
     query: {
-      queryKey: getGetClubItemsQueryKey(),
+      queryKey: getGetClubItemsQueryKey(clubId),
       initialData,
     },
   });
