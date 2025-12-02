@@ -1,4 +1,4 @@
-import { type ClubMemberRole } from '@/app/(dashboard)/member/_helpers/constants/clubMemberRole';
+import { type ClubMemberRole } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/clubMemberRole';
 import { API_URL } from '@/data/apiUrl';
 
 export const postClubMemberRole = async (clubMemberRole: ClubMemberRole) => {

@@ -1,0 +1,36 @@
+import { sampleActivityData } from '../_helpers/types/sampleActivityData';
+import { ActivityDetailContents } from './_components/ActivityDetailContents';
+import { ActivityNotFound } from './_components/ActivityNotFound';
+import { ToolbarHeader } from './_components/ToolbarHeader';
+
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+const ActivityDetailPage = async ({ params }: Props) => {
+  const { id } = await params;
+  const activityId = parseInt(id, 10);
+
+  // 유효성 검사
+  if (isNaN(activityId) || activityId <= 0) {
+    return <ActivityNotFound />;
+  }
+
+  // 실제로는 API에서 데이터를 가져와야 함
+  const activity = sampleActivityData.find((n) => n.id === activityId);
+
+  if (!activity) {
+    return <ActivityNotFound />;
+  }
+
+  return (
+    <div className="space-y-6 md:space-y-10">
+      <ToolbarHeader />
+      <ActivityDetailContents activity={activity} />
+    </div>
+  );
+};
+
+export default ActivityDetailPage;

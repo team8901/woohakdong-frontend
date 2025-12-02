@@ -1,4 +1,4 @@
-import { type ClubItemCategory } from '@/app/(dashboard)/item/_helpers/constants/clubItemCategory';
+import { type ClubItemCategory } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemCategory';
 
 export type ClubItemHistoryRequest = {
   clubId: number;

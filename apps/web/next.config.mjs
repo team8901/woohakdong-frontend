@@ -8,6 +8,14 @@ const nextConfig = {
     '@workspace/react-query',
     '@workspace/msw',
   ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
