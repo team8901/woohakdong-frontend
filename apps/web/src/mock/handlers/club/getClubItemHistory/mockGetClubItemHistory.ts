@@ -1,10 +1,10 @@
 import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { API_URL } from '@/data/apiUrl';
-import { type ClubItemHistoryResponse } from '@/data/club/getClubItemHistory/type';
 import {
   동아리_물품_대여_내역_없음,
   동아리_물품_대여_내역_있음,
 } from '@/mock/handlers/club/getClubItemHistory/mockData';
+import { type ClubItemHistoryResponse } from '@workspace/api/generated';
 import { type MockApiResponse } from '@workspace/msw/types';
 
 export const mockGetClubItemHistory = {

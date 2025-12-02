@@ -1,5 +1,5 @@
 import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
-import { type ClubItemHistoryResponse } from '@/data/club/getClubItemHistory/type';
+import { type ClubItemHistoryResponse } from '@workspace/api/generated';
 
 export const 동아리_물품_대여_내역_없음: ApiResponse<
   ClubItemHistoryResponse[]
@@ -21,7 +21,7 @@ export const 동아리_물품_대여_내역_있음: ApiResponse<
       rentalDate: '2024-06-10',
       dueDate: '2024-06-17',
       returnDate: '2024-06-16',
-      returnImage: null,
+      returnImage: undefined,
       overdue: false,
     },
     {
@@ -33,8 +33,8 @@ export const 동아리_물품_대여_내역_있음: ApiResponse<
       category: 'DIGITAL',
       rentalDate: '2024-06-12',
       dueDate: '2024-06-15',
-      returnDate: null,
-      returnImage: null,
+      returnDate: undefined,
+      returnImage: undefined,
       overdue: true,
     },
     {
@@ -46,8 +46,8 @@ export const 동아리_물품_대여_내역_있음: ApiResponse<
       category: 'DIGITAL',
       rentalDate: '2024-06-14',
       dueDate: '2024-06-19',
-      returnDate: null,
-      returnImage: null,
+      returnDate: undefined,
+      returnImage: undefined,
       overdue: false,
     },
   ],

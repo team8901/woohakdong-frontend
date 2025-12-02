@@ -5,8 +5,8 @@ import { CLUB_ITEM_CATEGORY } from '@/app/clubs/[clubEnglishName]/item/_helpers/
 import { CLUB_ITEM_HISTORY_RENTAL_STATUS } from '@/app/clubs/[clubEnglishName]/item-history/_helpers/constants/clubItemHistoryRentalStatus';
 import { CLUB_ITEM_HISTORY_RENTAL_STATUS_TAG_STYLE } from '@/app/clubs/[clubEnglishName]/item-history/_helpers/constants/clubItemHistoryRentalStatusTagStyle';
 import { getHistoryRentalStatusLabel } from '@/app/clubs/[clubEnglishName]/item-history/_helpers/utils/getHistoryRentalStatusLabel';
-import { type ClubItemHistoryResponse } from '@/data/club/getClubItemHistory/type';
 import { type ColumnDef } from '@tanstack/react-table';
+import { type ClubItemHistoryResponse } from '@workspace/api/generated';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 
 export const columns: ColumnDef<ClubItemHistoryResponse>[] = [
