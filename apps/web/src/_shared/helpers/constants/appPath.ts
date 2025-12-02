@@ -11,7 +11,9 @@ export const APP_PATH = {
   CLUBS: {
     HOME: '/clubs/:clubEnglishName',
     NOTICE: '/clubs/:clubEnglishName/notice',
+    NOTICE_DETAIL: '/clubs/:clubEnglishName/notice/:noticeId',
     ACTIVITY: '/clubs/:clubEnglishName/activity',
+    ACTIVITY_DETAIL: '/clubs/:clubEnglishName/activity/:activityId',
     SCHEDULE: '/clubs/:clubEnglishName/schedule',
     MEMBER: '/clubs/:clubEnglishName/member',
     ITEM: '/clubs/:clubEnglishName/item',

@@ -1,5 +1,7 @@
 'use client';
 
+import { APP_PATH } from '@/_shared/helpers/constants/appPath';
+import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -22,7 +24,7 @@ import {
   UsersIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { type Activity, tagIconMap } from '../../_helpers/types';
 
@@ -33,6 +35,7 @@ type Props = {
 export const ActivityCardClient = ({ activity }: Props) => {
   const TagIcon = tagIconMap[activity.tag] ?? CircleEllipsisIcon;
   const router = useRouter();
+  const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
 
   const handleCardClick = (e: React.MouseEvent) => {
     // 드롭다운 메뉴 클릭 시에는 페이지 이동하지 않음
@@ -43,7 +46,12 @@ export const ActivityCardClient = ({ activity }: Props) => {
       return;
     }
 
-    router.push(`/activity/${activity.id}`);
+    router.push(
+      buildUrlWithParams({
+        url: APP_PATH.CLUBS.ACTIVITY_DETAIL,
+        pathParams: { clubEnglishName, activityId: activity.id },
+      }),
+    );
   };
 
   return (

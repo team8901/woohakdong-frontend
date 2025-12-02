@@ -1,5 +1,7 @@
 'use client';
 
+import { APP_PATH } from '@/_shared/helpers/constants/appPath';
+import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -16,16 +18,17 @@ import {
   DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { MoreVerticalIcon, PinIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { type Notice } from '../../_helpers/types';
 
-type props = {
+type Props = {
   notice: Notice;
 };
 
-export const NoticeCardClient = ({ notice }: props) => {
+export const NoticeCardClient = ({ notice }: Props) => {
   const router = useRouter();
+  const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
 
   const handleCardClick = (e: React.MouseEvent) => {
     // 드롭다운 메뉴 클릭 시에는 페이지 이동하지 않음
@@ -36,7 +39,12 @@ export const NoticeCardClient = ({ notice }: props) => {
       return;
     }
 
-    router.push(`/notice/${notice.id}`);
+    router.push(
+      buildUrlWithParams({
+        url: APP_PATH.CLUBS.NOTICE_DETAIL,
+        pathParams: { clubEnglishName, noticeId: notice.id },
+      }),
+    );
   };
 
   return (
