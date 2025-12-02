@@ -51,12 +51,11 @@ export const columns: ColumnDef<ClubItemHistoryResponse>[] = [
       <span>{getKeyByValue(CLUB_ITEM_CATEGORY, row.getValue('category'))}</span>
     ),
   },
-  // TODO: 대여자 필드 추가되면 활성화
-  // {
-  //   accessorKey: 'renter',
-  //   header: '대여자',
-  //   cell: ({ row }) => <span>{row.getValue('renter')}</span>,
-  // },
+  {
+    accessorKey: 'memberName',
+    header: '대여자',
+    cell: ({ row }) => <span>{row.getValue('memberName')}</span>,
+  },
   {
     id: 'rentalStatus',
     header: '대여 상태',

@@ -39,7 +39,7 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
 
   const {
     nameQuery,
-    // renterQuery,
+    renterQuery,
     categoryQuery,
     rentalStatusQuery,
     sortOption,
@@ -56,12 +56,11 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
     }
 
     // Apply renter filter
-    // TODO: 대여자 필드 추가되면 활성화
-    // if (renterQuery) {
-    //   filtered = filtered.filter((item) =>
-    //     item.renter.toLowerCase().includes(renterQuery.toLowerCase()),
-    //   );
-    // }
+    if (renterQuery) {
+      filtered = filtered.filter((item) =>
+        item.memberName?.toLowerCase().includes(renterQuery.toLowerCase()),
+      );
+    }
 
     // Apply category filter
     if (categoryQuery !== DEFAULT_OPTION) {
@@ -120,7 +119,7 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
   }, [
     items,
     nameQuery,
-    // renterQuery,
+    renterQuery,
     categoryQuery,
     rentalStatusQuery,
     sortOption,

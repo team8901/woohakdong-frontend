@@ -34,13 +34,7 @@ export const ItemListClient = ({ initialData, clubId }: Props) => {
   const [selectedItems, setSelectedItems] = useState<ClubItemResponse[]>([]);
   const { filters, handlers } = useItemFilter();
 
-  const {
-    nameQuery,
-    // renterQuery,
-    categoryQuery,
-    rentalStatusQuery,
-    sortOption,
-  } = filters;
+  const { nameQuery, categoryQuery, rentalStatusQuery, sortOption } = filters;
 
   const filteredItems = useMemo(() => {
     let filtered = items;
@@ -51,14 +45,6 @@ export const ItemListClient = ({ initialData, clubId }: Props) => {
         item.name?.toLowerCase().includes(nameQuery.toLowerCase()),
       );
     }
-
-    // Apply renter filter
-    // TODO: 대여자 필드 추가되면 활성화
-    // if (renterQuery) {
-    //   filtered = filtered.filter((item) =>
-    //     item.renter.toLowerCase().includes(renterQuery.toLowerCase()),
-    //   );
-    // }
 
     // Apply category filter
     if (categoryQuery !== DEFAULT_OPTION) {

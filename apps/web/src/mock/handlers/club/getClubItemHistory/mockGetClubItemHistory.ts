@@ -1,10 +1,9 @@
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { API_URL } from '@/data/apiUrl';
 import {
   동아리_물품_대여_내역_없음,
   동아리_물품_대여_내역_있음,
 } from '@/mock/handlers/club/getClubItemHistory/mockData';
-import { type ClubItemHistoryResponse } from '@workspace/api/generated';
+import { type ListWrapperClubItemHistoryResponse } from '@workspace/api/generated';
 import { type MockApiResponse } from '@workspace/msw/types';
 
 export const mockGetClubItemHistory = {
@@ -33,5 +32,5 @@ export const mockGetClubItemHistory = {
   },
 } satisfies MockApiResponse<
   '동아리_물품_대여_내역_없음' | '동아리_물품_대여_내역_있음' | '에러',
-  ApiResponse<ClubItemHistoryResponse[]>
+  ListWrapperClubItemHistoryResponse
 >;

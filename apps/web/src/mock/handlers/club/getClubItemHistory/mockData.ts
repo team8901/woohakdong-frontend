@@ -1,15 +1,10 @@
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
-import { type ClubItemHistoryResponse } from '@workspace/api/generated';
+import { type ListWrapperClubItemHistoryResponse } from '@workspace/api/generated';
 
-export const 동아리_물품_대여_내역_없음: ApiResponse<
-  ClubItemHistoryResponse[]
-> = {
+export const 동아리_물품_대여_내역_없음: ListWrapperClubItemHistoryResponse = {
   data: [],
 };
 
-export const 동아리_물품_대여_내역_있음: ApiResponse<
-  ClubItemHistoryResponse[]
-> = {
+export const 동아리_물품_대여_내역_있음: ListWrapperClubItemHistoryResponse = {
   data: [
     {
       id: 0,
