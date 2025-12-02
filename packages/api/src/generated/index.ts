@@ -10,6 +10,7 @@
 
 // Re-export all API functions
 export * from './auth/auth';
+export * from './club-item/club-item';
 export * from './club-membership/club-membership';
 export * from './club/club';
 export * from './notice/notice';
