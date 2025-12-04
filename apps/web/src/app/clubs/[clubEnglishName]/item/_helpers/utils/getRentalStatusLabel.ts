@@ -1,5 +1,5 @@
 import { type ClubItemRentalStatusLabel } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemRentalStatus';
-import { type ClubItemResponse } from '@/data/club/getClubItems/type';
+import { type ClubItemResponse } from '@workspace/api/generated';
 
 export const getRentalStatusLabel = (
   item: ClubItemResponse,

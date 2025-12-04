@@ -5,8 +5,8 @@ import { CLUB_ITEM_CATEGORY } from '@/app/clubs/[clubEnglishName]/item/_helpers/
 import { CLUB_ITEM_RENTAL_STATUS } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemRentalStatus';
 import { CLUB_ITEM_RENTAL_STATUS_TAG_STYLE } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemRentalStatusTagStyle';
 import { getRentalStatusLabel } from '@/app/clubs/[clubEnglishName]/item/_helpers/utils/getRentalStatusLabel';
-import { type ClubItemResponse } from '@/data/club/getClubItems/type';
 import { type ColumnDef } from '@tanstack/react-table';
+import { type ClubItemResponse } from '@workspace/api/generated';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 
 export const columns: ColumnDef<ClubItemResponse>[] = [

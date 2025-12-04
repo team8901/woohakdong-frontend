@@ -1,7 +1,7 @@
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { ItemListClient } from '@/app/clubs/[clubEnglishName]/item/_clientBoundary/ItemListClient';
-import { getClubItems } from '@/data/club/getClubItems/fetch';
+import { getClubItems } from '@workspace/api/generated';
 
 type Props = {
   params: Promise<{ clubEnglishName: string }>;
@@ -19,7 +19,7 @@ export const ItemListSuspense = withSuspense(
         throw new Error('동아리 정보를 찾을 수 없어요.');
       }
 
-      const data = await getClubItems({ clubId });
+      const data = await getClubItems(clubId);
 
       return <ItemListClient initialData={data} clubId={clubId} />;
     } catch (error) {

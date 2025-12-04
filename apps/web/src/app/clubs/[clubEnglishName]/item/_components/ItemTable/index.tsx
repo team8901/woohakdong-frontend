@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 
-import { type ClubItemResponse } from '@/data/club/getClubItems/type';
 import {
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { type ClubItemResponse } from '@workspace/api/generated';
 import {
   Table,
   TableBody,

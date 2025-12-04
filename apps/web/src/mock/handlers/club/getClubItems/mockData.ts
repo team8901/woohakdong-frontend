@@ -1,11 +1,10 @@
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
-import { type ClubItemResponse } from '@/data/club/getClubItems/type';
+import { type ListWrapperClubItemResponse } from '@workspace/api/generated';
 
-export const 동아리_물품_없음: ApiResponse<ClubItemResponse[]> = {
+export const 동아리_물품_없음: ListWrapperClubItemResponse = {
   data: [],
 };
 
-export const 동아리_물품_있음: ApiResponse<ClubItemResponse[]> = {
+export const 동아리_물품_있음: ListWrapperClubItemResponse = {
   data: [
     {
       id: 0,
@@ -17,7 +16,7 @@ export const 동아리_물품_있음: ApiResponse<ClubItemResponse[]> = {
       rentalMaxDay: 7,
       available: true,
       using: false,
-      rentalDate: null,
+      rentalDate: undefined,
       rentalTime: 0,
     },
     {
@@ -43,7 +42,7 @@ export const 동아리_물품_있음: ApiResponse<ClubItemResponse[]> = {
       rentalMaxDay: 5,
       available: true,
       using: false,
-      rentalDate: null,
+      rentalDate: undefined,
       rentalTime: 0,
     },
     {
@@ -69,7 +68,7 @@ export const 동아리_물품_있음: ApiResponse<ClubItemResponse[]> = {
       rentalMaxDay: 2,
       available: true,
       using: false,
-      rentalDate: null,
+      rentalDate: undefined,
       rentalTime: 0,
     },
     {
@@ -82,7 +81,7 @@ export const 동아리_물품_있음: ApiResponse<ClubItemResponse[]> = {
       rentalMaxDay: 14,
       available: true,
       using: false,
-      rentalDate: null,
+      rentalDate: undefined,
       rentalTime: 0,
     },
   ],

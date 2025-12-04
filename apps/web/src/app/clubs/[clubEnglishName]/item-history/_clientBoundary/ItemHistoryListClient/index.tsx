@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { CLUB_ITEM_SORT_OPTION } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/sortOption';
 import { ExportButtonClient } from '@/app/clubs/[clubEnglishName]/item-history/_clientBoundary/ExportButtonClient';
 import { ItemHistoryFilter } from '@/app/clubs/[clubEnglishName]/item-history/_components/ItemHistoryFilter';
@@ -11,18 +10,27 @@ import { ItemHistoryTable } from '@/app/clubs/[clubEnglishName]/item-history/_co
 import { CLUB_ITEM_HISTORY_RENTAL_STATUS } from '@/app/clubs/[clubEnglishName]/item-history/_helpers/constants/clubItemHistoryRentalStatus';
 import { useItemHistoryFilter } from '@/app/clubs/[clubEnglishName]/item-history/_helpers/hooks/useItemHistoryFilter';
 import { DEFAULT_OPTION } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/defaultOption';
-import { useGetClubItemHistorySuspenseQuery } from '@/data/club/getClubItemHistory/query';
-import { type ClubItemHistoryResponse } from '@/data/club/getClubItemHistory/type';
+import {
+  type ClubItemHistoryResponse,
+  getGetClubItemHistoryQueryKey,
+  type ListWrapperClubItemHistoryResponse,
+  useGetClubItemHistory,
+} from '@workspace/api/generated';
 
 type Props = {
-  initialData: ApiResponse<ClubItemHistoryResponse[]>;
+  initialData: ListWrapperClubItemHistoryResponse;
   clubId: number;
 };
 
 export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
-  const {
-    data: { data: items },
-  } = useGetClubItemHistorySuspenseQuery({ clubId }, { initialData });
+  const { data } = useGetClubItemHistory(clubId, {
+    query: {
+      queryKey: getGetClubItemHistoryQueryKey(clubId),
+      initialData,
+    },
+  });
+
+  const items = useMemo(() => data?.data ?? [], [data]);
 
   const [selectedItems, setSelectedItems] = useState<ClubItemHistoryResponse[]>(
     [],
@@ -31,7 +39,7 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
 
   const {
     nameQuery,
-    // renterQuery,
+    renterQuery,
     categoryQuery,
     rentalStatusQuery,
     sortOption,
@@ -43,17 +51,16 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
     // Apply name filter
     if (nameQuery) {
       filtered = filtered.filter((item) =>
-        item.name.toLowerCase().includes(nameQuery.toLowerCase()),
+        item.name?.toLowerCase().includes(nameQuery.toLowerCase()),
       );
     }
 
     // Apply renter filter
-    // TODO: 대여자 필드 추가되면 활성화
-    // if (renterQuery) {
-    //   filtered = filtered.filter((item) =>
-    //     item.renter.toLowerCase().includes(renterQuery.toLowerCase()),
-    //   );
-    // }
+    if (renterQuery) {
+      filtered = filtered.filter((item) =>
+        item.memberName?.toLowerCase().includes(renterQuery.toLowerCase()),
+      );
+    }
 
     // Apply category filter
     if (categoryQuery !== DEFAULT_OPTION) {
@@ -84,9 +91,9 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
     // Apply sorting
     filtered = [...filtered].sort((a, b) => {
       if (sortOption === CLUB_ITEM_SORT_OPTION.최신순) {
-        if (a.rentalDate === null) return 1;
+        if (!a.rentalDate) return 1;
 
-        if (b.rentalDate === null) return -1;
+        if (!b.rentalDate) return -1;
 
         return (
           new Date(b.rentalDate).getTime() - new Date(a.rentalDate).getTime()
@@ -94,10 +101,14 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
       }
 
       if (sortOption === CLUB_ITEM_SORT_OPTION.이름) {
+        if (!a.name || !b.name) return 0;
+
         return a.name.localeCompare(b.name);
       }
 
       if (sortOption === CLUB_ITEM_SORT_OPTION.카테고리) {
+        if (!a.category || !b.category) return 0;
+
         return a.category.localeCompare(b.category);
       }
 
@@ -108,7 +119,7 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
   }, [
     items,
     nameQuery,
-    // renterQuery,
+    renterQuery,
     categoryQuery,
     rentalStatusQuery,
     sortOption,
