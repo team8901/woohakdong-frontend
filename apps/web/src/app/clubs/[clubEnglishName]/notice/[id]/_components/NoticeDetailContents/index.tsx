@@ -1,13 +1,16 @@
+import { type NoticeResponse } from '@workspace/api/generated';
 import { Badge } from '@workspace/ui/components/badge';
 import { PinIcon } from 'lucide-react';
 
-import { type Notice } from '../../../_helpers/types';
+type Props = {
+  notice: NoticeResponse;
+};
 
-export const NoticeDetailContents = ({ notice }: { notice: Notice }) => {
+export const NoticeDetailContents = ({ notice }: Props) => {
   return (
     <div className="flex w-full flex-col items-center">
       <div className="flex w-full max-w-3xl flex-col space-y-6">
-        <div className="flex w-full flex-col space-y-2">
+        <div className="flex w-full flex-col space-y-3">
           {notice.isPinned && (
             <Badge className="bg-primary/15 text-primary" size="lg">
               <PinIcon />
@@ -20,7 +23,7 @@ export const NoticeDetailContents = ({ notice }: { notice: Notice }) => {
           </h1>
 
           <div className="text-muted-foreground flex items-center gap-2">
-            <p>{notice.createdAt}</p>
+            <p>{notice.updatedAt}</p>
             <p>{notice.writer} 작성</p>
           </div>
         </div>

@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { usePostingNoticeForm } from '@/app/clubs/[clubEnglishName]/notice/_helpers/hooks/usePostingNoticeForm';
 import { trackEvent } from '@/eventTracker/trackEvent';
 import { Button } from '@workspace/ui/components/button';
@@ -22,25 +24,38 @@ import {
 } from '@workspace/ui/components/form';
 import { Input } from '@workspace/ui/components/input';
 import { Spinner } from '@workspace/ui/components/spinner';
+import { Switch } from '@workspace/ui/components/switch';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { PlusIcon } from 'lucide-react';
 
 type Props = {
+  clubId: number;
   trackingEventName?: string;
 };
 
 export const NoticePostingDialogClient = ({
+  clubId,
   trackingEventName = 'notice_posting_dialog_open',
 }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const { form, onSubmit, onQuit, isFormValid, isSubmitting } =
-    usePostingNoticeForm();
+    usePostingNoticeForm({ clubId });
 
   const handleTriggerClick = () => {
     trackEvent(trackingEventName);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+
+    if (!open) {
+      onQuit();
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild onClick={handleTriggerClick}>
         <Button type="button">
           <PlusIcon />
@@ -56,6 +71,24 @@ export const NoticePostingDialogClient = ({
               <DialogTitle>공지사항 등록</DialogTitle>
             </DialogHeader>
             <div className="grid w-full items-center gap-6 py-4">
+              {/* 고정 여부 */}
+              <FormField
+                control={form.control}
+                name="isPinned"
+                render={({ field }) => (
+                  <FormItem className="flex h-9 items-center justify-between">
+                    <FormLabel className="cursor-pointer">
+                      상단에 고정
+                    </FormLabel>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               {/* 제목 입력 */}
               <FormField
                 control={form.control}

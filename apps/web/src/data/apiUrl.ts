@@ -5,6 +5,8 @@ export const API_URL = {
     TEST: '/api/auth/test',
   },
   CLUB: {
+    CLUB_NOTICES: '/api/clubs/:clubId/notices',
+    CLUB_NOTICES_DETAIL: '/api/clubs/:clubId/notices/:noticeId',
     CLUB_INFO_SEARCH: '/api/clubs/search',
     REGISTER_CLUB: '/api/clubs',
     GET_JOINED_CLUBS: '/api/clubs',

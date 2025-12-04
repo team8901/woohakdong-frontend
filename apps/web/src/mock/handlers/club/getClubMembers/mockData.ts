@@ -5,7 +5,7 @@ export const 동아리_회원_목록: ListWrapperClubMembershipResponse = {
     {
       clubMembershipId: 1,
       nickname: 'honggildong',
-      clubMemberRole: 'OFFICER',
+      clubMemberRole: 'PRESIDENT',
       clubJoinDate: '2023-03-01',
       name: '홍길동',
       email: 'honggildong@example.com',

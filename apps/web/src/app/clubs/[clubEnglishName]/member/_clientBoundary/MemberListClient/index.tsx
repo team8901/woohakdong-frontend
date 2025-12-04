@@ -109,11 +109,11 @@ export const MemberListClient = ({ initialData, clubId }: Props) => {
             selectedMembers={selectedMembers}
           />
         </div>
-        <MemberTable
-          members={filteredMembers}
-          onSelectionChange={setSelectedMembers}
-        />
       </div>
+      <MemberTable
+        members={filteredMembers}
+        onSelectionChange={setSelectedMembers}
+      />
     </div>
   );
 };
