@@ -1,27 +1,23 @@
-import { NoticeCardClient } from './_clientBoundary/NoticeCardClient';
-import { NoticeFilterClient } from './_clientBoundary/NoticeFilterClient';
 import { NoticeHeader } from './_components/NoticeHeader';
-import { sampleNoticeData } from './_helpers/types/sampleNoticeData';
+import { NoticeListSuspense } from './_suspense/NoticeListSuspense';
 
-const NoticePage = () => {
-  /** @todo 공지사항 고정하면 서버에서 정렬해주는 방식으로 변경해야할 듯 함 */
-  const sortedNotices = [...sampleNoticeData].sort((a, b) => {
-    if (a.isPinned && !b.isPinned) return -1;
+/**
+ * 동적 렌더링 강제 설정
+ * - 서버에서 인증 필요한 API(getClubMembers)를 호출하므로 빌드 타임 정적 생성 방지
+ * - 런타임에만 렌더링하여 실제 유저의 인증 정보로 데이터 fetch
+ * @see https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic
+ */
+export const dynamic = 'force-dynamic';
 
-    if (!a.isPinned && b.isPinned) return 1;
+type Props = {
+  params: Promise<{ clubEnglishName: string }>;
+};
 
-    return 0;
-  });
-
+const NoticePage = ({ params }: Props) => {
   return (
     <div className="space-y-6">
       <NoticeHeader />
-      <NoticeFilterClient />
-      <div className="grid gap-6">
-        {sortedNotices.map((notice) => (
-          <NoticeCardClient key={notice.id} notice={notice} />
-        ))}
-      </div>
+      <NoticeListSuspense params={params} />
     </div>
   );
 };

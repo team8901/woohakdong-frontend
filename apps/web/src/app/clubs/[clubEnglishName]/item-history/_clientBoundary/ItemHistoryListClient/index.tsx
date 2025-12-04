@@ -140,18 +140,18 @@ export const ItemHistoryListClient = ({ initialData, clubId }: Props) => {
             <span className="text-foreground font-semibold">
               {filteredItems.length}
             </span>{' '}
-            개 물품 조회됨
+            개 물품 대역 내역 조회됨
           </p>
           <ExportButtonClient
             items={filteredItems}
             selectedItems={selectedItems}
           />
         </div>
-        <ItemHistoryTable
-          items={filteredItems}
-          onSelectionChange={setSelectedItems}
-        />
       </div>
+      <ItemHistoryTable
+        items={filteredItems}
+        onSelectionChange={setSelectedItems}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
+import { type NoticeResponse } from '@workspace/api/generated';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -20,13 +21,17 @@ import {
 import { MoreVerticalIcon, PinIcon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 
-import { type Notice } from '../../_helpers/types';
+import {
+  CLUB_MEMBER_ROLE,
+  type ClubMemberRole,
+} from '../../../member/_helpers/constants/clubMemberRole';
 
 type Props = {
-  notice: Notice;
+  notice: NoticeResponse;
+  clubMemberRole: ClubMemberRole;
 };
 
-export const NoticeCardClient = ({ notice }: Props) => {
+export const NoticeCardClient = ({ notice, clubMemberRole }: Props) => {
   const router = useRouter();
   const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
 
@@ -42,10 +47,12 @@ export const NoticeCardClient = ({ notice }: Props) => {
     router.push(
       buildUrlWithParams({
         url: APP_PATH.CLUBS.NOTICE_DETAIL,
-        pathParams: { clubEnglishName, noticeId: notice.id },
+        pathParams: { clubEnglishName, noticeId: notice.id!.toString() },
       }),
     );
   };
+
+  const isEditable = clubMemberRole === CLUB_MEMBER_ROLE.회장;
 
   return (
     <Card
@@ -62,25 +69,26 @@ export const NoticeCardClient = ({ notice }: Props) => {
         <div className="flex-1 flex-col space-y-1">
           <CardTitle className="line-clamp-2">{notice.title}</CardTitle>
           <CardDescription className="flex items-center gap-2">
-            <p>{notice.createdAt}</p>
+            <p>{notice.updatedAt}</p>
             <p>{notice.writer}</p>
           </CardDescription>
         </div>
 
-        {/** @todo 공지사항 고정, 수정, 삭제 기능 연동해야 함, 임원진만 보일 수 있게 해야 함*/}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button size="icon" variant="ghost" className="h-6 w-6">
-              <MoreVerticalIcon className="h-4 w-4" />
-              <span className="sr-only">메뉴 열기</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>고정</DropdownMenuItem>
-            <DropdownMenuItem>수정</DropdownMenuItem>
-            <DropdownMenuItem>삭제</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {isEditable && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button size="icon" variant="ghost" className="h-6 w-6">
+                <MoreVerticalIcon className="h-4 w-4" />
+                <span className="sr-only">메뉴 열기</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>고정</DropdownMenuItem>
+              <DropdownMenuItem>수정</DropdownMenuItem>
+              <DropdownMenuItem>삭제</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
 
       <CardContent>
