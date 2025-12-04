@@ -85,7 +85,20 @@ export const NoticeCardClient = ({ clubId, notice, clubMemberRole }: Props) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => {}}>수정</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  router.push(
+                    buildUrlWithParams({
+                      url: APP_PATH.CLUBS.NOTICE_EDIT,
+                      pathParams: {
+                        clubEnglishName,
+                        noticeId: notice.id!.toString(),
+                      },
+                    }),
+                  )
+                }>
+                수정
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>
                   mutateDeleteNotice({ clubId, noticeId: notice.id! })

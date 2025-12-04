@@ -1,17 +1,16 @@
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
+import { NoticeNotFound } from '@/app/clubs/[clubEnglishName]/notice/[id]/_components/NoticeNotFound';
 import { getNotice } from '@workspace/api/generated';
 import { Spinner } from '@workspace/ui/components/spinner';
 
-import { NoticeDetailContents } from '../../_components/NoticeDetailContents';
-import { NoticeNotFound } from '../../_components/NoticeNotFound';
-import { ToolbarHeader } from '../../_components/ToolbarHeader';
+import { NoticeEditFormClient } from '../../_clientBoundary/NoticeEditFormClient';
 
 type Props = {
   params: Promise<{ clubEnglishName: string; id: string }>;
 };
 
-export const NoticeDetailSuspense = withSuspense(
+export const NoticeEditSuspense = withSuspense(
   async ({ params }: Props) => {
     const { clubEnglishName, id } = await params;
     const noticeId = Number.parseInt(id, 10);
@@ -30,19 +29,14 @@ export const NoticeDetailSuspense = withSuspense(
       }
 
       return (
-        <>
-          <ToolbarHeader
-            clubId={clubId}
-            noticeId={noticeId}
-            title={notice.title ?? ''}
-            content={notice.content ?? ''}
-            isPinned={notice.isPinned ?? false}
-          />
-          <NoticeDetailContents notice={notice} />
-        </>
+        <NoticeEditFormClient
+          clubId={clubId}
+          noticeId={noticeId}
+          initialData={notice}
+        />
       );
     } catch (error) {
-      console.error('NoticeDetailPage', error);
+      console.error('NoticeEditPage', error);
 
       return <NoticeNotFound />;
     }
