@@ -2,7 +2,7 @@
 
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
-import { type NoticeResponse } from '@workspace/api/generated';
+import { type NoticeResponse, useDeleteNotice } from '@workspace/api/generated';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -27,13 +27,15 @@ import {
 } from '../../../member/_helpers/constants/clubMemberRole';
 
 type Props = {
+  clubId: number;
   notice: NoticeResponse;
   clubMemberRole: ClubMemberRole;
 };
 
-export const NoticeCardClient = ({ notice, clubMemberRole }: Props) => {
+export const NoticeCardClient = ({ clubId, notice, clubMemberRole }: Props) => {
   const router = useRouter();
   const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
+  const { mutateAsync: mutateDeleteNotice } = useDeleteNotice();
 
   const handleCardClick = (e: React.MouseEvent) => {
     // 드롭다운 메뉴 클릭 시에는 페이지 이동하지 않음
@@ -83,9 +85,13 @@ export const NoticeCardClient = ({ notice, clubMemberRole }: Props) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>고정</DropdownMenuItem>
-              <DropdownMenuItem>수정</DropdownMenuItem>
-              <DropdownMenuItem>삭제</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {}}>수정</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  mutateDeleteNotice({ clubId, noticeId: notice.id! })
+                }>
+                삭제
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}

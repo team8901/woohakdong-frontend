@@ -74,13 +74,14 @@ export const NoticeListClient = ({
             </span>{' '}
             개 공지사항 조회됨
           </p>
-          {isEditable && <NoticePostingDialogClient />}
+          {isEditable && <NoticePostingDialogClient clubId={clubId} />}
         </div>
       </div>
       <div className="grid gap-6">
         {filteredNotices.map((notice) => (
           <NoticeCardClient
             key={notice.id}
+            clubId={clubId}
             notice={notice}
             clubMemberRole={clubMemberRole}
           />
