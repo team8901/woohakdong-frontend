@@ -5,22 +5,9 @@ import type { PropsWithChildren } from 'react';
 import { ProviderClient } from '@/_shared/clientBoundary/ProviderClient';
 import { InitEventTracker } from '@/eventTracker/InitEventTracker';
 import { EnableMockClient } from '@/mock/browser';
-import { initServerHeaders } from '@workspace/api';
 import { Toaster } from '@workspace/ui/components/sonner';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import { headers } from 'next/headers';
-
-/**
- * 서버 컴포넌트에서 axios API 호출 시 쿠키를 자동으로 포함시키기 위해
- * Next.js의 headers 함수 참조를 등록합니다.
- *
- * 미들웨어에서 쿠키를 읽어 x-auth-cookies 헤더로 전달하고,
- * axios 인터셉터에서 이 헤더를 읽어 Cookie 헤더로 변환합니다.
- *
- * @see https://nextjs.org/docs/app/api-reference/functions/headers
- */
-initServerHeaders(headers);
 
 const pretendard = localFont({
   src: '../../../../packages/ui/src/fonts/pretendard/PretendardVariable.woff2',

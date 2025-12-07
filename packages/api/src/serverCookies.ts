@@ -8,23 +8,11 @@
  * - 서버: Node.js 환경이므로 브라우저 쿠키에 접근 불가
  *
  * ## 해결 방법
- * 미들웨어에서 쿠키를 읽어 커스텀 헤더(x-auth-cookies)로 전달하고,
- * 서버 컴포넌트에서 headers() 함수로 이 헤더를 읽어 axios에 주입합니다.
+ * axios 인터셉터에서 next/headers의 cookies()를 직접 호출하여
+ * 필요한 쿠키만 읽어 Cookie 헤더로 전달합니다.
  *
- * ## 왜 미들웨어를 사용하는가?
- * - 미들웨어는 모든 요청에서 실행되며, request.cookies에 접근 가능
- * - 서버 컴포넌트보다 먼저 실행되므로 헤더 설정이 보장됨
- * - headers() 함수는 서버 컴포넌트에서 안정적으로 동작
- *
- * @see https://nextjs.org/docs/app/api-reference/functions/headers
+ * @see https://nextjs.org/docs/app/api-reference/functions/cookies
  */
-
-type HeadersFn = () => Promise<{ get: (name: string) => string | null }>;
-
-/**
- * Next.js headers() 함수의 참조를 저장하는 전역 변수
- */
-let headersFnRef: HeadersFn | null = null;
 
 /**
  * 서버 환경 여부 확인
@@ -32,61 +20,41 @@ let headersFnRef: HeadersFn | null = null;
 export const isServer = typeof window === 'undefined';
 
 /**
- * 현재 요청 컨텍스트의 인증 쿠키 문자열을 반환
+ * API 요청에 필요한 쿠키 이름 목록
+ */
+const REQUIRED_COOKIE_NAMES = ['accessToken', 'refreshToken'] as const;
+
+/**
+ * 서버 환경에서 인증 쿠키를 읽어 Cookie 헤더 형식으로 반환
  * axios 인터셉터에서 호출됩니다.
  *
- * 미들웨어에서 설정한 x-auth-cookies 헤더를 읽어 반환합니다.
- *
- * @returns 쿠키 문자열 또는 undefined (클라이언트 환경이거나 초기화 전)
+ * @returns 쿠키 문자열 또는 undefined
  */
 export const getServerCookies = async (): Promise<string | undefined> => {
-  // 개발 환경에서 DEV_SERVER_COOKIES 환경변수가 설정되어 있으면 우선 사용
-  const devCookies = process.env.DEV_SERVER_COOKIES;
-
-  if (process.env.NODE_ENV === 'development' && devCookies) {
-    return devCookies;
-  }
-
-  if (!headersFnRef) {
+  if (!isServer) {
     return undefined;
   }
 
   try {
-    const headersStore = await headersFnRef();
-    const authCookies = headersStore.get('x-auth-cookies');
+    // 동적 import로 next/headers 로드 (서버 환경에서만 실행)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { cookies } = require('next/headers') as {
+      cookies: () => Promise<{ get: (name: string) => { value: string } | undefined }>;
+    };
+    const cookieStore = await cookies();
+    const cookieParts: string[] = [];
 
-    return authCookies || undefined;
+    for (const name of REQUIRED_COOKIE_NAMES) {
+      const cookie = cookieStore.get(name);
+
+      if (cookie?.value) {
+        cookieParts.push(`${name}=${cookie.value}`);
+      }
+    }
+
+    return cookieParts.length > 0 ? cookieParts.join('; ') : undefined;
   } catch {
-    // headers()가 서버 컴포넌트 컨텍스트 밖에서 호출되면 에러 발생
+    // cookies()가 서버 컴포넌트 컨텍스트 밖에서 호출되면 에러 발생
     return undefined;
   }
 };
-
-/**
- * Next.js의 headers 함수를 등록합니다.
- * 앱의 루트 레이아웃에서 한 번만 호출하면 됩니다.
- *
- * @param headersFn - next/headers의 headers 함수
- *
- * @example
- * ```tsx
- * // layout.tsx
- * import { initServerHeaders } from '@workspace/api';
- * import { headers } from 'next/headers';
- *
- * // 모듈 레벨에서 한 번만 초기화
- * initServerHeaders(headers);
- *
- * export default function RootLayout({ children }) {
- *   return <html><body>{children}</body></html>;
- * }
- * ```
- */
-export const initServerHeaders = (headersFn: HeadersFn): void => {
-  headersFnRef = headersFn;
-};
-
-/**
- * @deprecated Use initServerHeaders instead
- */
-export const initServerCookies = initServerHeaders;

@@ -11,7 +11,7 @@ export type { AxiosError, AxiosRequestConfig, AxiosResponse } from './axios';
 export { refreshAccessToken } from './manageToken';
 
 // Export server-side cookie utilities
-export { initServerHeaders, initServerCookies } from './serverCookies';
+export { getServerCookies, isServer } from './serverCookies';
 
 // Export auto-generated API clients and types
 export * from './generated';

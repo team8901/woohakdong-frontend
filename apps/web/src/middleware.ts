@@ -69,26 +69,7 @@ export const middleware = (request: NextRequest) => {
   }
 
   // 위 모든 조건에 해당하지 않으면 접근 허용
-  // 서버 컴포넌트에서 axios 요청 시 쿠키를 사용할 수 있도록 커스텀 헤더로 전달
-  const response = NextResponse.next();
-  const accessToken = request.cookies.get('accessToken')?.value;
-  const refreshToken = request.cookies.get('refreshToken')?.value;
-
-  if (accessToken || refreshToken) {
-    const cookieParts: string[] = [];
-
-    if (accessToken) {
-      cookieParts.push(`accessToken=${accessToken}`);
-    }
-
-    if (refreshToken) {
-      cookieParts.push(`refreshToken=${refreshToken}`);
-    }
-
-    response.headers.set('x-auth-cookies', cookieParts.join('; '));
-  }
-
-  return response;
+  return NextResponse.next();
 };
 
 export const config = {
