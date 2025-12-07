@@ -6,6 +6,7 @@ import { type ClubMemberRole } from '@/app/clubs/[clubEnglishName]/member/_helpe
 import { getJoinedClubs } from '@workspace/api/generated';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { cookies } from 'next/headers';
+import { notFound } from 'next/navigation';
 
 type Props = {
   params: Promise<{ clubEnglishName: string }>;
@@ -23,14 +24,16 @@ export const ClubInfoFormSuspense = withSuspense(
       const clubInfo = clubs.find((club) => club.id === clubId);
 
       if (!clubInfo) {
-        return <ServerErrorFallback message="동아리 정보를 찾을 수 없어요" />;
+        notFound();
       }
 
       const cookieStore = await cookies();
       const clubMemberRole = cookieStore.get('clubMemberRole')?.value;
 
       if (!clubMemberRole) {
-        return <ServerErrorFallback message="동아리 멤버 권한 정보를 찾을 수 없어요" />;
+        return (
+          <ServerErrorFallback message="동아리 멤버 권한 정보를 찾을 수 없어요" />
+        );
       }
 
       return (

@@ -3,6 +3,7 @@ import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { ItemListClient } from '@/app/clubs/[clubEnglishName]/item/_clientBoundary/ItemListClient';
 import { getClubItems } from '@workspace/api/generated';
+import { notFound } from 'next/navigation';
 
 type Props = {
   params: Promise<{ clubEnglishName: string }>;
@@ -17,7 +18,7 @@ export const ItemListSuspense = withSuspense(
       const clubId = await getClubIdByEnglishName(clubEnglishName);
 
       if (clubId === null) {
-        return <ServerErrorFallback message="동아리 정보를 찾을 수 없어요" />;
+        notFound();
       }
 
       const data = await getClubItems(clubId);
@@ -26,7 +27,9 @@ export const ItemListSuspense = withSuspense(
     } catch (error) {
       console.error('ItemListSuspense', error);
 
-      return <ServerErrorFallback message="동아리 물품 목록을 불러오지 못했어요" />;
+      return (
+        <ServerErrorFallback message="동아리 물품 목록을 불러오지 못했어요" />
+      );
     }
   },
   // TODO: fallback 구현
