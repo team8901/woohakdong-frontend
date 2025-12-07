@@ -1,12 +1,14 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { ClubListClient } from '@/app/club-list/_clientBoundary/ClubListClient';
+import { withServerCookies } from '@workspace/api';
 import { getJoinedClubs } from '@workspace/api/generated';
+import { cookies } from 'next/headers';
 
 export const ClubListSuspense = withSuspense(
   async () => {
     try {
-      const data = await getJoinedClubs();
+      const data = await withServerCookies(cookies, () => getJoinedClubs());
 
       return <ClubListClient initialData={data} />;
     } catch (error) {

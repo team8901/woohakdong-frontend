@@ -1,8 +1,9 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
-import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { ItemHistoryListClient } from '@/app/clubs/[clubEnglishName]/item-history/_clientBoundary/ItemHistoryListClient';
-import { getClubItemHistory } from '@workspace/api/generated';
+import { withServerCookies } from '@workspace/api';
+import { getClubItemHistory, searchClubs } from '@workspace/api/generated';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 
 type Props = {
@@ -14,16 +15,25 @@ export const ItemHistoryListSuspense = withSuspense(
     try {
       const { clubEnglishName } = await params;
 
-      // 동아리 영문명으로 clubId 조회
-      const clubId = await getClubIdByEnglishName(clubEnglishName);
+      const { clubId, data } = await withServerCookies(cookies, async () => {
+        // 동아리 영문명으로 clubId 조회
+        const clubsResponse = await searchClubs({ nameEn: clubEnglishName });
+        const foundClubId = clubsResponse.data?.[0]?.id ?? null;
+
+        if (foundClubId === null) {
+          return { clubId: null, data: null };
+        }
+
+        const historyData = await getClubItemHistory(foundClubId);
+
+        return { clubId: foundClubId, data: historyData };
+      });
 
       if (clubId === null) {
         notFound();
       }
 
-      const data = await getClubItemHistory(clubId);
-
-      return <ItemHistoryListClient initialData={data} clubId={clubId} />;
+      return <ItemHistoryListClient initialData={data!} clubId={clubId} />;
     } catch (error) {
       console.error('ItemHistoryListSuspense', error);
 

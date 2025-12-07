@@ -1,9 +1,9 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
-import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { ClubInfoFormClient } from '@/app/clubs/[clubEnglishName]/club-info/_clientBoundary/ClubInfoFormClient';
 import { type ClubMemberRole } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/clubMemberRole';
-import { getJoinedClubs } from '@workspace/api/generated';
+import { withServerCookies } from '@workspace/api';
+import { getJoinedClubs, searchClubs } from '@workspace/api/generated';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
@@ -16,18 +16,23 @@ export const ClubInfoFormSuspense = withSuspense(
   async ({ params }: Props) => {
     try {
       const { clubEnglishName } = await params;
-      const clubId = await getClubIdByEnglishName(clubEnglishName);
+      const cookieStore = await cookies();
 
-      const { data } = await getJoinedClubs();
-      const clubs = data ?? [];
+      const clubInfo = await withServerCookies(cookies, async () => {
+        // 동아리 영문명으로 clubId 조회
+        const clubsResponse = await searchClubs({ nameEn: clubEnglishName });
+        const clubId = clubsResponse.data?.[0]?.id ?? null;
 
-      const clubInfo = clubs.find((club) => club.id === clubId);
+        const { data } = await getJoinedClubs();
+        const clubs = data ?? [];
+
+        return clubs.find((club) => club.id === clubId) ?? null;
+      });
 
       if (!clubInfo) {
         notFound();
       }
 
-      const cookieStore = await cookies();
       const clubMemberRole = cookieStore.get('clubMemberRole')?.value;
 
       if (!clubMemberRole) {

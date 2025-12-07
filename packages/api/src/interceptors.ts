@@ -8,31 +8,28 @@ import {
 
 import { REFRESH_URL } from './_helpers/constants';
 import { refreshAccessToken } from './manageToken';
-import { getServerCookies, isServer } from './serverCookies';
+import { isServer } from './serverCookies';
 
 /**
  * Axios 인터셉터 설정
  *
- * ## 서버 사이드 쿠키 전달
- * 서버 컴포넌트에서 API 호출 시, 브라우저 쿠키가 자동으로 전달되지 않습니다.
- * Request 인터셉터에서 next/headers의 cookies()를 호출하여 쿠키를 헤더에 포함시킵니다.
- *
+ * ## 쿠키 전달 방식
  * - CSR: withCredentials: true로 브라우저가 자동으로 쿠키 포함
- * - SSR: cookies()로 읽은 쿠키를 Cookie 헤더에 명시적으로 추가
+ * - SSR: withServerCookies wrapper를 사용하여 쿠키 주입
+ *
+ * ## 개발 환경
+ * 환경변수로 쿠키를 주입할 수 있습니다.
+ * - SSR: DEV_SERVER_COOKIES (Cookie 헤더)
+ * - CSR: NEXT_PUBLIC_DEV_ACCESS_TOKEN (Authorization 헤더)
  *
  * @param api Axios 인스턴스
- * @see https://nextjs.org/docs/app/api-reference/functions/cookies
  */
 export const setupInterceptors = (api: AxiosInstance): void => {
   /**
-   * Request 인터셉터 - 서버 사이드 쿠키 주입
-   *
-   * 개발 환경에서는 환경변수로 쿠키를 주입할 수 있습니다.
-   * - SSR: DEV_SERVER_COOKIES (Cookie 헤더)
-   * - CSR: NEXT_PUBLIC_DEV_ACCESS_TOKEN (Authorization 헤더)
+   * Request 인터셉터 - 개발 환경 쿠키 주입
    */
   api.interceptors.request.use(
-    async (config: InternalAxiosRequestConfig) => {
+    (config: InternalAxiosRequestConfig) => {
       // 개발 환경: 환경변수로 쿠키 주입
       if (process.env.NODE_ENV === 'development') {
         if (isServer) {
@@ -51,15 +48,6 @@ export const setupInterceptors = (api: AxiosInstance): void => {
 
             return config;
           }
-        }
-      }
-
-      // SSR: cookies()로 쿠키 읽어서 헤더에 추가
-      if (isServer) {
-        const cookies = await getServerCookies();
-
-        if (cookies) {
-          config.headers.set('Cookie', cookies);
         }
       }
 
