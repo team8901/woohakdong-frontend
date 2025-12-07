@@ -8,12 +8,10 @@ export { api, customInstance, getBaseURL, isAxiosError } from './axios';
 export type { AxiosError, AxiosRequestConfig, AxiosResponse } from './axios';
 
 // Export token management
-export {
-  clearAccessToken,
-  getAccessToken,
-  refreshAccessToken,
-  setAccessToken,
-} from './manageToken';
+export { refreshAccessToken } from './manageToken';
+
+// Export server-side cookie utilities
+export { initServerCookies } from './serverCookies';
 
 // Export auto-generated API clients and types
 export * from './generated';
