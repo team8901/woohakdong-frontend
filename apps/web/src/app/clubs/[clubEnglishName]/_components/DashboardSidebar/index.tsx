@@ -1,3 +1,4 @@
+import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
 import { NAV_MENU } from '@/app/clubs/[clubEnglishName]/_helpers/constants';
 import { getJoinedClubs, getMyProfile } from '@workspace/api/generated';
 import {
@@ -14,26 +15,32 @@ import { UserAccountClient } from '../../_clientBoundary/UserAccountClient';
 export const DashboardSidebar = async ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
-  const [clubsResponse, user] = await Promise.all([
-    getJoinedClubs(),
-    getMyProfile(),
-  ]);
+  try {
+    const [clubsResponse, user] = await Promise.all([
+      getJoinedClubs(),
+      getMyProfile(),
+    ]);
 
-  const clubs = clubsResponse.data ?? [];
+    const clubs = clubsResponse.data ?? [];
 
-  return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <ClubSwitcherClient clubs={clubs} />
-      </SidebarHeader>
+    return (
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <ClubSwitcherClient clubs={clubs} />
+        </SidebarHeader>
 
-      <SidebarContent>
-        <NavClient navMenus={NAV_MENU} />
-      </SidebarContent>
+        <SidebarContent>
+          <NavClient navMenus={NAV_MENU} />
+        </SidebarContent>
 
-      <SidebarFooter>
-        <UserAccountClient user={user} />
-      </SidebarFooter>
-    </Sidebar>
-  );
+        <SidebarFooter>
+          <UserAccountClient user={user} />
+        </SidebarFooter>
+      </Sidebar>
+    );
+  } catch (error) {
+    console.error('DashboardSidebar', error);
+
+    return <ServerErrorFallback message="사이드바를 불러오지 못했어요" />;
+  }
 };
