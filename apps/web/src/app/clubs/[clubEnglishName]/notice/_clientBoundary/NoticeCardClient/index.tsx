@@ -1,5 +1,7 @@
 'use client';
 
+import type { MouseEvent } from 'react';
+
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import { type NoticeResponse, useDeleteNotice } from '@workspace/api/generated';
@@ -37,19 +39,28 @@ export const NoticeCardClient = ({ clubId, notice, clubMemberRole }: Props) => {
   const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
   const { mutateAsync: mutateDeleteNotice } = useDeleteNotice();
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const noticeId = notice.id;
+
+  const handleCardClick = (e: MouseEvent) => {
+    const target = e.target;
+
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
     // 드롭다운 메뉴 클릭 시에는 페이지 이동하지 않음
-    if (
-      (e.target as HTMLElement).closest('[role="menu"]') ||
-      (e.target as HTMLElement).closest('button')
-    ) {
+    if (target.closest('[role="menu"]') || target.closest('button')) {
+      return;
+    }
+
+    if (noticeId == null) {
       return;
     }
 
     router.push(
       buildUrlWithParams({
         url: APP_PATH.CLUBS.NOTICE_DETAIL,
-        pathParams: { clubEnglishName, noticeId: notice.id!.toString() },
+        pathParams: { clubEnglishName, noticeId: noticeId.toString() },
       }),
     );
   };
@@ -86,23 +97,27 @@ export const NoticeCardClient = ({ clubId, notice, clubMemberRole }: Props) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() =>
+                onClick={() => {
+                  if (noticeId == null) return;
+
                   router.push(
                     buildUrlWithParams({
                       url: APP_PATH.CLUBS.NOTICE_EDIT,
                       pathParams: {
                         clubEnglishName,
-                        noticeId: notice.id!.toString(),
+                        noticeId: noticeId.toString(),
                       },
                     }),
-                  )
-                }>
+                  );
+                }}>
                 수정
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() =>
-                  mutateDeleteNotice({ clubId, noticeId: notice.id! })
-                }>
+                onClick={() => {
+                  if (noticeId == null) return;
+
+                  return mutateDeleteNotice({ clubId, noticeId });
+                }}>
                 삭제
               </DropdownMenuItem>
             </DropdownMenuContent>

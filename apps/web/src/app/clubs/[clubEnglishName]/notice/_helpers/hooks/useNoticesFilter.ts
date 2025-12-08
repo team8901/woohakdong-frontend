@@ -19,8 +19,6 @@ export const useNoticesFilter = () => {
     setKeywordQuery(value);
   };
 
-  const handleSearch = () => {};
-
   const handleSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -36,7 +34,6 @@ export const useNoticesFilter = () => {
 
   const handlers = {
     handleKeywordQueryChange,
-    handleSearch,
     handleSearchQueryChange,
     handleSearchQueryClear,
   };

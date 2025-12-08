@@ -13,7 +13,7 @@ import {
 import { Input } from '@workspace/ui/components/input';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   clubId: number;
@@ -27,8 +27,6 @@ export const NoticeEditFormClient = ({
   initialData,
 }: Props) => {
   const router = useRouter();
-
-  useParams<{ clubEnglishName: string }>();
 
   const { form, onSubmit, isFormValid, isSubmitting, isDirty } =
     useEditNoticeForm({

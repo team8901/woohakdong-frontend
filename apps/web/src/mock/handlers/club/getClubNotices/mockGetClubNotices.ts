@@ -1,6 +1,5 @@
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { API_URL } from '@/data/apiUrl';
-import { type NoticeResponse } from '@workspace/api/generated';
+import { type ListWrapperNoticeResponse } from '@workspace/api/generated';
 import { type MockApiResponse } from '@workspace/msw/types';
 
 import { 동아리_공지사항_없음, 동아리_공지사항_있음 } from './mockData';
@@ -31,5 +30,5 @@ export const mockGetClubNotices = {
   },
 } satisfies MockApiResponse<
   '동아리_공지사항_없음' | '동아리_공지사항_있음' | '에러',
-  ApiResponse<NoticeResponse[]>
+  ListWrapperNoticeResponse
 >;
