@@ -1,4 +1,5 @@
 import { mockPostSocialLogin } from '@/mock/handlers/auth/postSocialLogin/mockPostSocialLogin';
+import { mockDeleteClubNotice } from '@/mock/handlers/club/deleteClubNotice/mockDeleteClubNotice';
 import { mockGetClubInfoSearch } from '@/mock/handlers/club/getClubInfoSearch/mockGetClubInfoSearch';
 import { mockGetClubItemHistory } from '@/mock/handlers/club/getClubItemHistory/mockGetClubItemHistory';
 import { mockGetClubItems } from '@/mock/handlers/club/getClubItems/mockGetClubItems';
@@ -6,8 +7,10 @@ import { mockGetClubMembers } from '@/mock/handlers/club/getClubMembers/mockGetC
 import { mockGetClubNotice } from '@/mock/handlers/club/getClubNotice/mockGetClubNotice';
 import { mockGetClubNotices } from '@/mock/handlers/club/getClubNotices/mockGetClubNotices';
 import { mockGetJoinedClubs } from '@/mock/handlers/club/getJoinedClubs/mockGetJoinedClubs';
+import { mockPostClubNotice } from '@/mock/handlers/club/postClubNotice/mockPostClubNotice';
 import { mockPostRegisterClub } from '@/mock/handlers/club/postRegisterClub/mockPostRegisterClub';
 import { mockPutClubInfo } from '@/mock/handlers/club/putClubInfo/mockPutClubInfo';
+import { mockPutClubNotice } from '@/mock/handlers/club/putClubNotice/mockPutClubNotice';
 import { mockGetMyProfile } from '@/mock/handlers/user-profile/getMyProfile/mockGetMyProfile';
 import { mockGetS3ImageUrl } from '@/mock/handlers/util/getS3ImageUrl/mockGetS3ImageUrl';
 import { createMockHandler } from '@workspace/msw/createMockHandler';
@@ -25,6 +28,9 @@ const handlers = [
   createMockHandler(mockPutClubInfo, '동아리_정보_수정_성공'),
   createMockHandler(mockGetClubNotices, '동아리_공지사항_있음'),
   createMockHandler(mockGetClubNotice, '동아리_공지사항_단건_있음'),
+  createMockHandler(mockPostClubNotice, '공지사항_등록_성공'),
+  createMockHandler(mockPutClubNotice, '공지사항_수정_성공'),
+  createMockHandler(mockDeleteClubNotice, '공지사항_삭제_성공'),
 ];
 
 export default handlers;
