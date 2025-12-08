@@ -1,37 +1,39 @@
 import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCreateNotice } from '@workspace/api/generated';
+import { type NoticeResponse, useUpdateNotice } from '@workspace/api/generated';
 import { type z } from 'zod';
 
 import { noticePostingSchema } from '../utils/zodSchemas';
 
-type NoticePostingFormData = z.infer<typeof noticePostingSchema>;
+type NoticeEditFormData = z.infer<typeof noticePostingSchema>;
 
 export type Props = {
   clubId: number;
+  noticeId: number;
+  initialData: NoticeResponse;
 };
 
-export const usePostingNoticeForm = ({ clubId }: Props) => {
-  const { mutateAsync: mutateCreateNotice } = useCreateNotice();
-  const form = useForm<NoticePostingFormData>({
+export const useEditNoticeForm = ({ clubId, noticeId, initialData }: Props) => {
+  const { mutateAsync: mutateUpdateNotice } = useUpdateNotice();
+  const form = useForm<NoticeEditFormData>({
     resolver: zodResolver(noticePostingSchema),
     mode: 'onChange',
     defaultValues: {
-      title: '',
-      content: '',
-      isPinned: false,
+      title: initialData.title ?? '',
+      content: initialData.content ?? '',
+      isPinned: initialData.isPinned ?? false,
     },
   });
 
-  const onSubmit = async (data: NoticePostingFormData): Promise<void> => {
+  const onSubmit = async (data: NoticeEditFormData): Promise<void> => {
     const notice = {
       title: data.title,
       content: data.content,
       isPinned: data.isPinned,
     };
 
-    await mutateCreateNotice({ clubId, data: notice });
+    await mutateUpdateNotice({ clubId, noticeId, data: notice });
   };
 
   const onQuit = async (): Promise<void> => {
@@ -45,5 +47,6 @@ export const usePostingNoticeForm = ({ clubId }: Props) => {
     onQuit,
     isFormValid: form.formState.isValid,
     isSubmitting: form.formState.isSubmitting,
+    isDirty: form.formState.isDirty,
   };
 };

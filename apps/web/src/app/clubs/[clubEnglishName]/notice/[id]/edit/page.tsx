@@ -1,4 +1,4 @@
-import { NoticeDetailSuspense } from './_suspense/NoticeDetailSuspense';
+import { NoticeEditSuspense } from './_suspense/NoticeEditSuspense';
 
 /**
  * 동적 렌더링 강제 설정
@@ -12,12 +12,12 @@ type Props = {
   params: Promise<{ clubEnglishName: string; id: string }>;
 };
 
-const NoticeDetailPage = ({ params }: Props) => {
+const NoticeEditPage = ({ params }: Props) => {
   return (
-    <div className="space-y-6 md:space-y-10">
-      <NoticeDetailSuspense params={params} />
+    <div className="py-6 md:py-10">
+      <NoticeEditSuspense params={params} />
     </div>
   );
 };
 
-export default NoticeDetailPage;
+export default NoticeEditPage;

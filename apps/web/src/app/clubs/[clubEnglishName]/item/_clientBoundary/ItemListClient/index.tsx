@@ -131,8 +131,8 @@ export const ItemListClient = ({ initialData, clubId }: Props) => {
             selectedItems={selectedItems}
           />
         </div>
-        <ItemTable items={filteredItems} onSelectionChange={setSelectedItems} />
       </div>
+      <ItemTable items={filteredItems} onSelectionChange={setSelectedItems} />
     </div>
   );
 };
