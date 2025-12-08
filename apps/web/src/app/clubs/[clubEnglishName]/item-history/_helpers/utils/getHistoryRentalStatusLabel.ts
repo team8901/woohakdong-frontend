@@ -1,5 +1,5 @@
 import { type ClubItemHistoryRentalStatusLabel } from '@/app/clubs/[clubEnglishName]/item-history/_helpers/constants/clubItemHistoryRentalStatus';
-import { type ClubItemHistoryResponse } from '@/data/club/getClubItemHistory/type';
+import { type ClubItemHistoryResponse } from '@workspace/api/generated';
 
 export const getHistoryRentalStatusLabel = (
   item: ClubItemHistoryResponse,

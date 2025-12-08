@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
 import { ExportButtonClient } from '@/app/clubs/[clubEnglishName]/item/_clientBoundary/ExportButtonClient';
 import { ItemFilter } from '@/app/clubs/[clubEnglishName]/item/_components/ItemFilter';
 import { ItemTable } from '@/app/clubs/[clubEnglishName]/item/_components/ItemTable';
@@ -10,29 +9,32 @@ import { CLUB_ITEM_RENTAL_STATUS } from '@/app/clubs/[clubEnglishName]/item/_hel
 import { CLUB_ITEM_SORT_OPTION } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/sortOption';
 import { useItemFilter } from '@/app/clubs/[clubEnglishName]/item/_helpers/hooks/useItemFilter';
 import { DEFAULT_OPTION } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/defaultOption';
-import { useGetClubItemsSuspenseQuery } from '@/data/club/getClubItems/query';
-import { type ClubItemResponse } from '@/data/club/getClubItems/type';
+import {
+  type ClubItemResponse,
+  getGetClubItemsQueryKey,
+  type ListWrapperClubItemResponse,
+  useGetClubItems,
+} from '@workspace/api/generated';
 
 type Props = {
-  initialData: ApiResponse<ClubItemResponse[]>;
+  initialData: ListWrapperClubItemResponse;
   clubId: number;
 };
 
 export const ItemListClient = ({ initialData, clubId }: Props) => {
-  const {
-    data: { data: items },
-  } = useGetClubItemsSuspenseQuery({ clubId }, { initialData });
+  const { data } = useGetClubItems(clubId, undefined, {
+    query: {
+      queryKey: getGetClubItemsQueryKey(clubId),
+      initialData,
+    },
+  });
+
+  const items = useMemo(() => data?.data ?? [], [data]);
 
   const [selectedItems, setSelectedItems] = useState<ClubItemResponse[]>([]);
   const { filters, handlers } = useItemFilter();
 
-  const {
-    nameQuery,
-    // renterQuery,
-    categoryQuery,
-    rentalStatusQuery,
-    sortOption,
-  } = filters;
+  const { nameQuery, categoryQuery, rentalStatusQuery, sortOption } = filters;
 
   const filteredItems = useMemo(() => {
     let filtered = items;
@@ -40,17 +42,9 @@ export const ItemListClient = ({ initialData, clubId }: Props) => {
     // Apply name filter
     if (nameQuery) {
       filtered = filtered.filter((item) =>
-        item.name.toLowerCase().includes(nameQuery.toLowerCase()),
+        item.name?.toLowerCase().includes(nameQuery.toLowerCase()),
       );
     }
-
-    // Apply renter filter
-    // TODO: 대여자 필드 추가되면 활성화
-    // if (renterQuery) {
-    //   filtered = filtered.filter((item) =>
-    //     item.renter.toLowerCase().includes(renterQuery.toLowerCase()),
-    //   );
-    // }
 
     // Apply category filter
     if (categoryQuery !== DEFAULT_OPTION) {
@@ -79,17 +73,29 @@ export const ItemListClient = ({ initialData, clubId }: Props) => {
     // Apply sorting
     filtered = [...filtered].sort((a, b) => {
       if (sortOption === CLUB_ITEM_SORT_OPTION.최신순) {
-        if (a.rentalDate === null) return 1;
+        if (a.rentalDate === null || a.rentalDate === undefined) {
+          return 1;
+        }
 
-        if (b.rentalDate === null) return -1;
+        if (b.rentalDate === null || b.rentalDate === undefined) {
+          return -1;
+        }
 
         return (
           new Date(b.rentalDate).getTime() - new Date(a.rentalDate).getTime()
         );
       }
 
+      if (a.name === undefined || b.name === undefined) {
+        return 0;
+      }
+
       if (sortOption === CLUB_ITEM_SORT_OPTION.이름) {
         return a.name.localeCompare(b.name);
+      }
+
+      if (a.category === undefined || b.category === undefined) {
+        return 0;
       }
 
       if (sortOption === CLUB_ITEM_SORT_OPTION.카테고리) {
