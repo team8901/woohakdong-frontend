@@ -1,9 +1,8 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
+import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { MemberListClient } from '@/app/clubs/[clubEnglishName]/member/_clientBoundary/MemberListClient';
-import { withServerCookies } from '@workspace/api';
-import { getClubMembers, searchClubs } from '@workspace/api/generated';
-import { cookies } from 'next/headers';
+import { getClubMembers } from '@workspace/api/generated';
 import { notFound } from 'next/navigation';
 
 type Props = {
@@ -14,26 +13,15 @@ export const MemberListSuspense = withSuspense(
   async ({ params }: Props) => {
     try {
       const { clubEnglishName } = await params;
-
-      const { clubId, data } = await withServerCookies(cookies, async () => {
-        // 동아리 영문명으로 clubId 조회
-        const clubsResponse = await searchClubs({ nameEn: clubEnglishName });
-        const foundClubId = clubsResponse.data?.[0]?.id ?? null;
-
-        if (foundClubId === null) {
-          return { clubId: null, data: null };
-        }
-
-        const membersData = await getClubMembers(foundClubId);
-
-        return { clubId: foundClubId, data: membersData };
-      });
+      const clubId = await getClubIdByEnglishName(clubEnglishName);
 
       if (clubId === null) {
         notFound();
       }
 
-      return <MemberListClient initialData={data!} clubId={clubId} />;
+      const data = await getClubMembers(clubId);
+
+      return <MemberListClient initialData={data} clubId={clubId} />;
     } catch (error) {
       console.error('MemberListSuspense', error);
 

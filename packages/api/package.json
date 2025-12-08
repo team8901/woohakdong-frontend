@@ -14,7 +14,6 @@
     "./interceptors": "./src/interceptors.ts",
     "./refreshToken": "./src/refreshToken.ts",
     "./manageToken": "./src/manageToken.ts",
-    "./serverCookies": "./src/serverCookies.ts",
     "./_helpers": "./src/_helpers/constants/index.ts",
     "./generated": "./src/generated/index.ts"
   },

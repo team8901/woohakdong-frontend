@@ -1,6 +1,5 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
 import { NAV_MENU } from '@/app/clubs/[clubEnglishName]/_helpers/constants';
-import { withServerCookies } from '@workspace/api';
 import { getJoinedClubs, getMyProfile } from '@workspace/api/generated';
 import {
   Sidebar,
@@ -8,7 +7,6 @@ import {
   SidebarFooter,
   SidebarHeader,
 } from '@workspace/ui/components/sidebar';
-import { cookies } from 'next/headers';
 
 import { ClubSwitcherClient } from '../../_clientBoundary/ClubSwitcherClient';
 import { NavClient } from '../../_clientBoundary/NavClient';
@@ -18,17 +16,13 @@ export const DashboardSidebar = async ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
   try {
-    const { clubs, user } = await withServerCookies(cookies, async () => {
-      const [clubsResponse, userResponse] = await Promise.all([
-        getJoinedClubs(),
-        getMyProfile(),
-      ]);
+    const [clubsResponse, userResponse] = await Promise.all([
+      getJoinedClubs(),
+      getMyProfile(),
+    ]);
 
-      return {
-        clubs: clubsResponse.data ?? [],
-        user: userResponse,
-      };
-    });
+    const clubs = clubsResponse.data ?? [];
+    const user = userResponse;
 
     return (
       <Sidebar collapsible="icon" {...props}>
