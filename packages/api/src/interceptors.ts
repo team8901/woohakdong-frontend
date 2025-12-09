@@ -18,11 +18,6 @@ const isServer = typeof window === 'undefined';
  * - CSR: withCredentials: true로 브라우저가 자동으로 쿠키 포함
  * - SSR: next/headers의 cookies()를 통해 쿠키를 읽어 헤더에 주입
  *
- * ## 개발 환경
- * 환경변수로 쿠키를 주입할 수 있습니다.
- * - SSR: DEV_SERVER_COOKIES (Cookie 헤더)
- * - CSR: NEXT_PUBLIC_DEV_ACCESS_TOKEN (Authorization 헤더)
- *
  * @param api Axios 인스턴스
  */
 export const setupInterceptors = (api: AxiosInstance): void => {
@@ -31,27 +26,6 @@ export const setupInterceptors = (api: AxiosInstance): void => {
    */
   api.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
-      // 개발 환경: 환경변수로 쿠키 주입
-      if (process.env.NODE_ENV === 'development') {
-        if (isServer) {
-          const devCookies = process.env.DEV_SERVER_COOKIES;
-
-          if (devCookies) {
-            config.headers.set('Cookie', devCookies);
-
-            return config;
-          }
-        } else {
-          const devAccessToken = process.env.NEXT_PUBLIC_DEV_ACCESS_TOKEN;
-
-          if (devAccessToken) {
-            config.headers.set('Authorization', `Bearer ${devAccessToken}`);
-
-            return config;
-          }
-        }
-      }
-
       // SSR: next/headers에서 쿠키 읽어서 헤더에 추가
       if (isServer) {
         try {
