@@ -16,13 +16,12 @@ export const DashboardSidebar = async ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
   try {
-    const [clubsResponse, userResponse] = await Promise.all([
+    const [clubsResponse, user] = await Promise.all([
       getJoinedClubs(),
       getMyProfile(),
     ]);
 
     const clubs = clubsResponse.data ?? [];
-    const user = userResponse;
 
     return (
       <Sidebar collapsible="icon" {...props}>
