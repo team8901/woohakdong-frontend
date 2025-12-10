@@ -1,12 +1,4 @@
-'use client';
-
-const getCookieValue = (name: string): string | undefined => {
-  if (typeof document === 'undefined') return undefined;
-
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-
-  return match?.[2] ? decodeURIComponent(match[2]) : undefined;
-};
+import { getCookieValue } from '@/_shared/helpers/utils/getCookieValue';
 
 export const useCurrentMembershipId = (): number | undefined => {
   const clubMembershipId = getCookieValue('clubMembershipId');
