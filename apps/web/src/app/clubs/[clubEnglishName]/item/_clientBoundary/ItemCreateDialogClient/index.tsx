@@ -110,151 +110,159 @@ export const ItemCreateDialogClient = ({ clubId }: Props) => {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="max-w-[95vw] md:max-w-md"
+        className="flex max-h-[85vh] max-w-[95vw] flex-col md:max-w-md"
         onInteractOutside={(e) => e.preventDefault()}>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <DialogHeader>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-1 flex-col overflow-hidden">
+            <DialogHeader className="flex-shrink-0">
               <DialogTitle>물품 등록</DialogTitle>
               <DialogDescription>새로운 물품을 등록합니다.</DialogDescription>
             </DialogHeader>
-            <div className="grid w-full items-center gap-4 py-4">
-              <FormItem>
-                <FormLabel>물품 사진</FormLabel>
-                <div className="flex flex-col gap-2">
-                  {photoPreview ? (
-                    <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
-                      <Image
-                        src={photoPreview}
-                        alt="물품 사진 미리보기"
-                        fill
-                        className="object-cover"
-                      />
+            <div className="scrollbar-hide flex-1 overflow-y-auto">
+              <div className="grid w-full items-center gap-4 py-4">
+                <FormItem>
+                  <FormLabel>물품 사진</FormLabel>
+                  <div className="flex flex-col gap-2">
+                    {photoPreview ? (
+                      <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                        <Image
+                          src={photoPreview}
+                          alt="물품 사진 미리보기"
+                          fill
+                          className="object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="bg-destructive text-destructive-foreground absolute right-2 top-2 rounded-full p-1">
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
                       <button
                         type="button"
-                        onClick={handleRemoveImage}
-                        className="bg-destructive text-destructive-foreground absolute right-2 top-2 rounded-full p-1">
-                        <X className="h-4 w-4" />
+                        onClick={() => fileInputRef.current?.click()}
+                        className="border-muted-foreground/25 hover:border-muted-foreground/50 flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed transition-colors">
+                        <Camera className="text-muted-foreground h-8 w-8" />
+                        <span className="text-muted-foreground text-sm">
+                          사진 첨부하기
+                        </span>
                       </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-muted-foreground/25 hover:border-muted-foreground/50 flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed transition-colors">
-                      <Camera className="text-muted-foreground h-8 w-8" />
-                      <span className="text-muted-foreground text-sm">
-                        사진 첨부하기
-                      </span>
-                    </button>
-                  )}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageSelect}
-                    className="hidden"
-                  />
-                </div>
-              </FormItem>
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>물품명 *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="물품명을 입력해주세요" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>카테고리 *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                    />
+                  </div>
+                </FormItem>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>물품명 *</FormLabel>
                       <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="카테고리를 선택해주세요" />
-                        </SelectTrigger>
+                        <Input placeholder="물품명을 입력해주세요" {...field} />
                       </FormControl>
-                      <SelectContent>
-                        {Object.entries(CLUB_ITEM_CATEGORY).map(
-                          ([label, value]) => (
-                            <SelectItem key={value} value={value}>
-                              {label}
-                            </SelectItem>
-                          ),
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>보관 위치</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="보관 위치를 입력해주세요"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>설명</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="물품에 대한 설명을 입력해주세요"
-                        className="resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="rentalMaxDay"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>최대 대여 일수 *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        inputMode="numeric"
-                        min={1}
-                        max={365}
-                        placeholder="최대 대여 일수를 입력해주세요"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      기본값: {DEFAULT_MAX_RENTAL_DAYS}일
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>카테고리 *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="카테고리를 선택해주세요" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.entries(CLUB_ITEM_CATEGORY).map(
+                            ([label, value]) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>보관 위치</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="보관 위치를 입력해주세요"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>설명</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="물품에 대한 설명을 입력해주세요"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="rentalMaxDay"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>최대 대여 일수 *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          min={1}
+                          max={365}
+                          placeholder="최대 대여 일수를 입력해주세요"
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        기본값: {DEFAULT_MAX_RENTAL_DAYS}일
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex-shrink-0">
               <DialogClose asChild>
                 <Button
                   type="button"
