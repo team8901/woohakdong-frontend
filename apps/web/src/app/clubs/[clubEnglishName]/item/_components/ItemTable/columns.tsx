@@ -1,6 +1,7 @@
 'use client';
 
 import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
+import { ItemRentalDialogClient } from '@/app/clubs/[clubEnglishName]/item/_clientBoundary/ItemRentalDialogClient';
 import { CLUB_ITEM_CATEGORY } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemCategory';
 import { CLUB_ITEM_RENTAL_STATUS } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemRentalStatus';
 import { CLUB_ITEM_RENTAL_STATUS_TAG_STYLE } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemRentalStatusTagStyle';
@@ -83,5 +84,15 @@ export const columns: ColumnDef<ClubItemResponse>[] = [
     cell: ({ row }) => (
       <span className="text-gray-600">{row.getValue('rentalMaxDay')}일</span>
     ),
+  },
+  {
+    id: 'actions',
+    header: '',
+    cell: ({ row, table }) => {
+      const clubId = (table.options.meta as { clubId: number })?.clubId;
+
+      return <ItemRentalDialogClient clubId={clubId} item={row.original} />;
+    },
+    size: 80,
   },
 ];

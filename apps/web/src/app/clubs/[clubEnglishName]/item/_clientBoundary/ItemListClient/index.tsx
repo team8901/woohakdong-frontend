@@ -132,7 +132,11 @@ export const ItemListClient = ({ initialData, clubId }: Props) => {
           />
         </div>
       </div>
-      <ItemTable items={filteredItems} onSelectionChange={setSelectedItems} />
+      <ItemTable
+        items={filteredItems}
+        clubId={clubId}
+        onSelectionChange={setSelectedItems}
+      />
     </div>
   );
 };

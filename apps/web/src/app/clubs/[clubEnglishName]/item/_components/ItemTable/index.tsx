@@ -21,10 +21,11 @@ import { columns } from './columns';
 
 type Props = {
   items: ClubItemResponse[];
+  clubId: number;
   onSelectionChange?: (selectedItems: ClubItemResponse[]) => void;
 };
 
-export const ItemTable = ({ items, onSelectionChange }: Props) => {
+export const ItemTable = ({ items, clubId, onSelectionChange }: Props) => {
   const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
@@ -36,6 +37,9 @@ export const ItemTable = ({ items, onSelectionChange }: Props) => {
     },
     onRowSelectionChange: setRowSelection,
     enableRowSelection: true,
+    meta: {
+      clubId,
+    },
   });
 
   useEffect(() => {
