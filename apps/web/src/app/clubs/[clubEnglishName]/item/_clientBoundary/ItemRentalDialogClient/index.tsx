@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { useIsEditable } from '@/_shared/helpers/hooks/useIsEditable';
+import { DEFAULT_MAX_RENTAL_DAYS } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/rentalConfig';
 import { useRentItemForm } from '@/app/clubs/[clubEnglishName]/item/_helpers/hooks/useRentItemForm';
 import { type ClubItemResponse } from '@workspace/api/generated';
 import { Button } from '@workspace/ui/components/button';
@@ -41,7 +42,7 @@ export const ItemRentalDialogClient = ({ clubId, item }: Props) => {
     {
       clubId,
       itemId: item.id!,
-      maxRentalDays: item.rentalMaxDay ?? 14,
+      maxRentalDays: item.rentalMaxDay ?? DEFAULT_MAX_RENTAL_DAYS,
       onSuccess: () => setIsOpen(false),
     },
   );
@@ -86,14 +87,14 @@ export const ItemRentalDialogClient = ({ clubId, item }: Props) => {
                         type="number"
                         inputMode="numeric"
                         min={1}
-                        max={item.rentalMaxDay ?? 14}
+                        max={item.rentalMaxDay ?? DEFAULT_MAX_RENTAL_DAYS}
                         placeholder="대여 일수를 입력해주세요"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>
                     <FormDescription>
-                      최대 {item.rentalMaxDay ?? 14}일까지 대여 가능합니다.
+                      최대 {item.rentalMaxDay ?? DEFAULT_MAX_RENTAL_DAYS}일까지 대여 가능합니다.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

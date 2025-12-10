@@ -1,0 +1,1 @@
+export const DEFAULT_MAX_RENTAL_DAYS = 14;
