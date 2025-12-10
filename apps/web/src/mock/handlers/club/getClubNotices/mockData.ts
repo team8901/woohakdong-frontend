@@ -1,11 +1,10 @@
-import { type ApiResponse } from '@/_shared/helpers/types/apiResponse';
-import { type NoticeResponse } from '@workspace/api/generated';
+import { type ListWrapperNoticeResponse } from '@workspace/api/generated';
 
-export const 동아리_공지사항_없음: ApiResponse<NoticeResponse[]> = {
+export const 동아리_공지사항_없음: ListWrapperNoticeResponse = {
   data: [],
 };
 
-export const 동아리_공지사항_있음: ApiResponse<NoticeResponse[]> = {
+export const 동아리_공지사항_있음: ListWrapperNoticeResponse = {
   data: [
     {
       id: 1,

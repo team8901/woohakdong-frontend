@@ -10,7 +10,6 @@ import {
 } from '@workspace/ui/components/select';
 import { CircleXIcon } from 'lucide-react';
 
-import { type DefaultOption } from '../../_helpers/constants/defaultOption';
 import {
   NOTICE_KEYWORD_OPTIONS_MENU,
   type NoticeKeywordOptions,
@@ -22,9 +21,7 @@ type Props = {
     searchQuery: string;
   };
   handlers: {
-    handleKeywordQueryChange: (
-      value: NoticeKeywordOptions | DefaultOption,
-    ) => void;
+    handleKeywordQueryChange: (value: NoticeKeywordOptions) => void;
     handleSearchQueryChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleSearchQueryClear: () => void;
   };
