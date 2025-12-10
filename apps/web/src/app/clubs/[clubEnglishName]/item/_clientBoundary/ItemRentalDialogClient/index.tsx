@@ -49,7 +49,7 @@ export const ItemRentalDialogClient = ({ clubId, item }: Props) => {
 
   if (!isEditable) return null;
 
-  if (!item.available) return null;
+  if (!item.available || item.using) return null;
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -94,7 +94,8 @@ export const ItemRentalDialogClient = ({ clubId, item }: Props) => {
                       />
                     </FormControl>
                     <FormDescription>
-                      최대 {item.rentalMaxDay ?? DEFAULT_MAX_RENTAL_DAYS}일까지 대여 가능합니다.
+                      최대 {item.rentalMaxDay ?? DEFAULT_MAX_RENTAL_DAYS}일까지
+                      대여 가능합니다.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
