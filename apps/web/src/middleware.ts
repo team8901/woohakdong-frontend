@@ -6,7 +6,9 @@ const USER_ROLE = {
   준회원: 'ASSOCIATE',
   정회원: 'REGULAR',
 } as const;
-const PUBLIC_PATHS = [APP_PATH.LOGIN, APP_PATH.CLUB_LIST];
+// TODO: 권한 없어도 동아리 목록 볼 수 있는 API 추가되면 CLUB_LIST 공개 처리
+// const PUBLIC_PATHS = [APP_PATH.LOGIN, APP_PATH.CLUB_LIST];
+const PUBLIC_PATHS = [APP_PATH.LOGIN];
 
 type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
 
@@ -22,9 +24,7 @@ const createRedirectResponse = (
 };
 
 const getDefaultPageByRole = (userRole: UserRole): string => {
-  return userRole === USER_ROLE.준회원
-    ? APP_PATH.SIGN_UP
-    : APP_PATH.CLUB_LIST;
+  return userRole === USER_ROLE.준회원 ? APP_PATH.SIGN_UP : APP_PATH.CLUB_LIST;
 };
 
 export const middleware = (request: NextRequest) => {
@@ -73,5 +73,7 @@ export const middleware = (request: NextRequest) => {
 };
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|mockServiceWorker.js).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|mockServiceWorker.js).*)',
+  ],
 };
