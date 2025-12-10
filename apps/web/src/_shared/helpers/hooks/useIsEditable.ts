@@ -1,5 +1,3 @@
-'use client';
-
 import { CLUB_MEMBER_ROLE } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/clubMemberRole';
 
 const getCookieValue = (name: string): string | undefined => {
