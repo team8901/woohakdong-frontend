@@ -13,7 +13,9 @@ export const API_URL = {
     UPDATE_CLUB_INFO: '/api/clubs/:clubId',
     CLUB_MEMBERS: '/api/clubs/:clubId/members',
     CLUB_ITEMS: '/api/clubs/:clubId/items',
+    CLUB_ITEM_DETAIL: '/api/clubs/:clubId/items/:itemId',
     CLUB_ITEM_RENT: '/api/clubs/:clubId/items/:itemId/rent',
+    CLUB_ITEM_RETURN: '/api/clubs/:clubId/items/:itemId/return',
     CLUB_ITEM_HISTORY: '/api/clubs/:clubId/items/history',
   },
   USER: {

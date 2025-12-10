@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { ItemDetailDialogClient } from '@/app/clubs/[clubEnglishName]/item/_clientBoundary/ItemDetailDialogClient';
 import {
   flexRender,
   getCoreRowModel,
@@ -27,6 +28,9 @@ type Props = {
 
 export const ItemTable = ({ items, clubId, onSelectionChange }: Props) => {
   const [rowSelection, setRowSelection] = useState({});
+  const [selectedItem, setSelectedItem] = useState<ClubItemResponse | null>(
+    null,
+  );
 
   const table = useReactTable({
     data: items,
@@ -37,9 +41,6 @@ export const ItemTable = ({ items, clubId, onSelectionChange }: Props) => {
     },
     onRowSelectionChange: setRowSelection,
     enableRowSelection: true,
-    meta: {
-      clubId,
-    },
   });
 
   useEffect(() => {
@@ -78,7 +79,8 @@ export const ItemTable = ({ items, clubId, onSelectionChange }: Props) => {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="group">
+                className="group cursor-pointer"
+                onClick={() => setSelectedItem(row.original)}>
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
                     key={cell.id}
@@ -99,6 +101,17 @@ export const ItemTable = ({ items, clubId, onSelectionChange }: Props) => {
           )}
         </TableBody>
       </Table>
+
+      {selectedItem && (
+        <ItemDetailDialogClient
+          clubId={clubId}
+          item={selectedItem}
+          open={selectedItem !== null}
+          onOpenChange={(open) => {
+            if (!open) setSelectedItem(null);
+          }}
+        />
+      )}
     </div>
   );
 };
