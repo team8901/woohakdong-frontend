@@ -6,19 +6,31 @@ const CLUB_MEMBER_ROLE_MAX_AGE = 30 * 24 * 60 * 60;
 
 export const POST = async (req: Request) => {
   try {
-    const { clubMemberRole } = await req.json();
+    const { clubMemberRole, clubMembershipId } = await req.json();
     const response = NextResponse.json(
       { message: '동아리 멤버 권한 등록 완료' },
       { status: 200 },
     );
 
-    (await cookies()).set('clubMemberRole', clubMemberRole, {
+    const cookieStore = await cookies();
+
+    cookieStore.set('clubMemberRole', clubMemberRole, {
       path: '/',
       maxAge: CLUB_MEMBER_ROLE_MAX_AGE,
       httpOnly: false,
       sameSite: 'strict',
       secure: process.env.NODE_ENV === 'production',
     });
+
+    if (clubMembershipId != null) {
+      cookieStore.set('clubMembershipId', String(clubMembershipId), {
+        path: '/',
+        maxAge: CLUB_MEMBER_ROLE_MAX_AGE,
+        httpOnly: false,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+      });
+    }
 
     return response;
   } catch {
@@ -36,8 +48,10 @@ export const DELETE = async () => {
       { status: 200 },
     );
 
-    // 동아리 멤버 권한 쿠키 삭제
-    (await cookies()).delete('clubMemberRole');
+    const cookieStore = await cookies();
+
+    cookieStore.delete('clubMemberRole');
+    cookieStore.delete('clubMembershipId');
 
     return response;
   } catch {

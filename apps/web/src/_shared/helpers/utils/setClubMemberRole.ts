@@ -22,10 +22,14 @@ export const setClubMemberRole = async (
     const clubMember = members?.find((member) => member.email === user.email);
 
     if (clubMember?.clubMemberRole) {
-      await postClubMemberRole(clubMember.clubMemberRole);
+      await postClubMemberRole({
+        clubMemberRole: clubMember.clubMemberRole,
+        clubMembershipId: clubMember.clubMembershipId,
+      });
       console.log(
         '✅ 동아리 멤버 권한 쿠키 설정 완료:',
         clubMember.clubMemberRole,
+        clubMember.clubMembershipId,
       );
     }
   } catch (error) {
