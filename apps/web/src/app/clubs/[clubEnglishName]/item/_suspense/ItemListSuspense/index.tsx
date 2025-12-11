@@ -3,6 +3,7 @@ import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { ItemListClient } from '@/app/clubs/[clubEnglishName]/item/_clientBoundary/ItemListClient';
 import { getClubItems } from '@workspace/api/generated';
+import { Spinner } from '@workspace/ui/components/spinner';
 import { notFound } from 'next/navigation';
 
 type Props = {
@@ -30,6 +31,11 @@ export const ItemListSuspense = withSuspense(
       );
     }
   },
-  // TODO: fallback 구현
-  { fallback: <div>로딩중...</div> },
+  {
+    fallback: (
+      <div className="flex h-48 items-center justify-center">
+        <Spinner />
+      </div>
+    ),
+  },
 );
