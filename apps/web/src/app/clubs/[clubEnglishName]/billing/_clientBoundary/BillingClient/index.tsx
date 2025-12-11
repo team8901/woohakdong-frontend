@@ -42,7 +42,6 @@ type BillingClientProps = {
 
 type ModalStep =
   | 'select-card'
-  | 'register-card'
   | 'confirm'
   | 'processing'
   | 'success'
