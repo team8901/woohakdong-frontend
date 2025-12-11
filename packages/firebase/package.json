@@ -10,7 +10,8 @@
   "exports": {
     "./auth": "./src/auth.ts",
     "./firestore": "./src/firestore.ts",
-    "./firebase-config": "./src/firebase-config.ts"
+    "./firebase-config": "./src/firebase-config.ts",
+    "./subscription": "./src/subscription.ts"
   },
   "dependencies": {
     "firebase": "^12.1.0"
