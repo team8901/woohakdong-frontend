@@ -97,7 +97,7 @@ export const ItemFilter = ({ filters, handlers }: Props) => {
       </div>
 
       <div className="flex flex-col gap-2 md:flex-row">
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Label htmlFor="categoryQuery">카테고리</Label>
           <Select
             value={filters.categoryQuery}
@@ -114,7 +114,7 @@ export const ItemFilter = ({ filters, handlers }: Props) => {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Label htmlFor="rentalStatusQuery">대여상태</Label>
           <Select
             value={filters.rentalStatusQuery}
@@ -131,7 +131,7 @@ export const ItemFilter = ({ filters, handlers }: Props) => {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Label htmlFor="sortOption">정렬</Label>
           <Select
             value={filters.sortOption}
