@@ -278,7 +278,11 @@ export const saveBillingKey = async (
 ): Promise<string> => {
   try {
     const billingKeyId = `billing_${Date.now()}_${input.clubId}`;
-    const billingKeyRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, billingKeyId);
+    const billingKeyRef = doc(
+      firebaseDb,
+      BILLING_KEYS_COLLECTION,
+      billingKeyId,
+    );
 
     // 기존 기본 카드가 있으면 해제
     const existingKeys = await getBillingKeys(input.clubId);
@@ -287,7 +291,10 @@ export const saveBillingKey = async (
       if (key.isDefault) {
         const existingRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, key.id);
 
-        await updateDoc(existingRef, { isDefault: false, updatedAt: serverTimestamp() });
+        await updateDoc(existingRef, {
+          isDefault: false,
+          updatedAt: serverTimestamp(),
+        });
       }
     }
 
@@ -375,7 +382,11 @@ export const getDefaultBillingKey = async (
  */
 export const deleteBillingKey = async (billingKeyId: string): Promise<void> => {
   try {
-    const billingKeyRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, billingKeyId);
+    const billingKeyRef = doc(
+      firebaseDb,
+      BILLING_KEYS_COLLECTION,
+      billingKeyId,
+    );
 
     // Firestore에서는 delete 대신 soft delete 처리 (보안상)
     await updateDoc(billingKeyRef, {
@@ -390,13 +401,96 @@ export const deleteBillingKey = async (billingKeyId: string): Promise<void> => {
   }
 };
 
+export type CreateSubscriptionWithPaymentInput = {
+  clubId: number;
+  userId: string;
+  userEmail: string;
+  planId: string;
+  planName: string;
+  price: number;
+  billingKeyId: string;
+  orderId: string;
+  paymentKey: string;
+};
+
 /**
- * 빌링키로 구독 생성 (정기결제)
+ * 빌링키로 구독 생성 및 결제 기록 저장 (정기결제)
+ * @param input - 구독 생성에 필요한 정보 (결제 정보 포함)
+ * @returns 생성된 구독 ID
+ *
+ * 정기결제 갱신은 Firebase Functions에서 처리됨
+ * @see packages/firebase/functions/src/index.ts
+ * - processSubscriptionRenewals: 매일 오전 9시(KST) 만료 구독 갱신
+ * - retryFailedPayments: 매일 오후 2시(KST) 결제 실패 재시도
+ * - cleanupExpiredSubscriptions: 매주 월요일 오전 3시(KST) 만료 구독 정리
+ */
+export const createSubscriptionWithBillingKey = async (
+  input: CreateSubscriptionWithPaymentInput,
+): Promise<string> => {
+  try {
+    const subscriptionId = `sub_${Date.now()}_${input.clubId}`;
+    const now = new Date();
+    const endDate = new Date(now);
+
+    endDate.setMonth(endDate.getMonth() + 1);
+
+    // 구독 문서 생성
+    const subscriptionRef = doc(
+      firebaseDb,
+      SUBSCRIPTIONS_COLLECTION,
+      subscriptionId,
+    );
+
+    await setDoc(subscriptionRef, {
+      id: subscriptionId,
+      clubId: input.clubId,
+      userId: input.userId,
+      userEmail: input.userEmail,
+      planId: input.planId,
+      planName: input.planName,
+      price: input.price,
+      billingKeyId: input.billingKeyId,
+      status: 'active' as SubscriptionStatus,
+      startDate: serverTimestamp(),
+      endDate: endDate,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    // 결제 기록 생성
+    const paymentId = `pay_${Date.now()}_${input.orderId.slice(-8)}`;
+    const paymentRef = doc(firebaseDb, PAYMENTS_COLLECTION, paymentId);
+
+    await setDoc(paymentRef, {
+      id: paymentId,
+      subscriptionId,
+      clubId: input.clubId,
+      userId: input.userId,
+      userEmail: input.userEmail,
+      orderId: input.orderId,
+      paymentKey: input.paymentKey,
+      amount: input.price,
+      planId: input.planId,
+      planName: input.planName,
+      status: 'success',
+      createdAt: serverTimestamp(),
+    });
+
+    return subscriptionId;
+  } catch (error) {
+    console.error('Failed to create subscription with billing key:', error);
+
+    throw new SubscriptionError('구독 생성 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 빌링키로 구독 생성 (Mock 환경용 - 결제 없이)
  * @param input - 구독 생성에 필요한 정보
  * @param billingKeyId - 사용할 빌링키 ID
  * @returns 생성된 구독 ID
  */
-export const createSubscriptionWithBillingKey = async (
+export const createMockSubscription = async (
   input: Omit<CreateSubscriptionInput, 'orderId' | 'paymentKey'>,
   billingKeyId: string,
 ): Promise<string> => {
@@ -407,7 +501,6 @@ export const createSubscriptionWithBillingKey = async (
 
     endDate.setMonth(endDate.getMonth() + 1);
 
-    // 구독 문서 생성
     const subscriptionRef = doc(
       firebaseDb,
       SUBSCRIPTIONS_COLLECTION,
@@ -432,7 +525,7 @@ export const createSubscriptionWithBillingKey = async (
 
     return subscriptionId;
   } catch (error) {
-    console.error('Failed to create subscription with billing key:', error);
+    console.error('Failed to create mock subscription:', error);
 
     throw new SubscriptionError('구독 생성 중 오류가 발생했습니다.');
   }

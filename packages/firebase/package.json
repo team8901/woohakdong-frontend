@@ -3,17 +3,24 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "main": "src/functions.ts",
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
+  },
+  "engines": {
+    "node": "20"
   },
   "exports": {
     "./auth": "./src/auth.ts",
     "./firestore": "./src/firestore.ts",
     "./firebase-config": "./src/firebase-config.ts",
-    "./subscription": "./src/subscription.ts"
+    "./subscription": "./src/subscription.ts",
+    "./functions": "./src/functions.ts"
   },
   "dependencies": {
-    "firebase": "^12.1.0"
+    "firebase": "^12.1.0",
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.3.0"
   }
 }

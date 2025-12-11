@@ -9,6 +9,7 @@ import {
 import { useSubscription } from '@/app/payment/_helpers/hooks/useSubscription';
 import { getCurrentUser } from '@workspace/firebase/auth';
 import {
+  createMockSubscription,
   createSubscriptionWithBillingKey,
   saveBillingKey,
 } from '@workspace/firebase/subscription';
@@ -39,11 +40,23 @@ type BillingClientProps = {
   clubEnglishName: string;
 };
 
-type ModalStep = 'select-card' | 'register-card' | 'confirm' | 'processing' | 'success' | 'error';
+type ModalStep =
+  | 'select-card'
+  | 'register-card'
+  | 'confirm'
+  | 'processing'
+  | 'success'
+  | 'error';
 
-export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) => {
-  const { subscription, defaultBillingKey, isLoading, error, refetch } = useSubscription({ clubId });
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanId | null>(null);
+export const BillingClient = ({
+  clubId,
+  clubEnglishName,
+}: BillingClientProps) => {
+  const { subscription, defaultBillingKey, isLoading, error, refetch } =
+    useSubscription({ clubId });
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanId | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStep, setModalStep] = useState<ModalStep>('select-card');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -60,7 +73,10 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
     : 'FREE';
   const currentPlan = SUBSCRIPTION_PLANS[currentPlanId];
 
-  const isPaidPlanDisabled = !isMockMode;
+  // 유료 플랜은 Mock 환경이거나 토스페이먼츠 설정이 완료된 경우에만 활성화
+  const isTossPaymentsEnabled =
+    !!process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY;
+  const isPaidPlanDisabled = !isMockMode && !isTossPaymentsEnabled;
 
   const handleOpenModal = (plan: SubscriptionPlanId) => {
     setSelectedPlan(plan);
@@ -164,18 +180,56 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
 
       const plan = SUBSCRIPTION_PLANS[selectedPlan];
 
-      // Mock 환경에서는 실제 결제 API 호출 없이 구독 생성
-      await createSubscriptionWithBillingKey(
-        {
+      if (isMockMode) {
+        // Mock 환경: 실제 결제 없이 구독 생성
+        await createMockSubscription(
+          {
+            clubId,
+            userId: user.uid,
+            userEmail: user.email ?? '',
+            planId: plan.id,
+            planName: plan.name,
+            price: plan.basePrice,
+          },
+          defaultBillingKey.id,
+        );
+      } else {
+        // 실제 환경: 토스페이먼츠 결제 API 호출
+        const orderId = `order_${clubId}_${Date.now()}`;
+
+        const paymentResponse = await fetch('/api/billing/payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            billingKey: defaultBillingKey.billingKey,
+            customerKey: defaultBillingKey.customerKey,
+            amount: plan.basePrice,
+            orderId,
+            orderName: `${plan.name} 플랜 구독`,
+          }),
+        });
+
+        if (!paymentResponse.ok) {
+          const errorData = await paymentResponse.json();
+
+          throw new Error(errorData.message ?? '결제에 실패했습니다.');
+        }
+
+        const { paymentKey } = await paymentResponse.json();
+
+        // Firebase에 구독 및 결제 기록 저장
+        await createSubscriptionWithBillingKey({
           clubId,
           userId: user.uid,
           userEmail: user.email ?? '',
           planId: plan.id,
           planName: plan.name,
           price: plan.basePrice,
-        },
-        defaultBillingKey.id,
-      );
+          billingKeyId: defaultBillingKey.id,
+          orderId,
+          paymentKey,
+        });
+      }
 
       await refetch();
       setModalStep('success');
@@ -211,8 +265,12 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
         <CardContent className="flex items-start gap-3 py-4">
           <AlertCircle className="mt-0.5 size-5 shrink-0 text-red-600 dark:text-red-400" />
           <div>
-            <p className="font-medium text-red-800 dark:text-red-200">오류 발생</p>
-            <p className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+            <p className="font-medium text-red-800 dark:text-red-200">
+              오류 발생
+            </p>
+            <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+              {error}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -258,7 +316,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">다음 결제일</span>
                   <span className="font-medium">
-                    {new Date(subscription.endDate.seconds * 1000).toLocaleDateString('ko-KR')}
+                    {new Date(
+                      subscription.endDate.seconds * 1000,
+                    ).toLocaleDateString('ko-KR')}
                   </span>
                 </div>
               </>
@@ -271,7 +331,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">결제 수단</CardTitle>
-          <CardDescription>정기 결제에 사용할 카드를 관리합니다.</CardDescription>
+          <CardDescription>
+            정기 결제에 사용할 카드를 관리합니다.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {defaultBillingKey ? (
@@ -280,7 +342,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                 <CreditCard className="text-muted-foreground size-8" />
                 <div>
                   <p className="font-medium">{defaultBillingKey.cardCompany}</p>
-                  <p className="text-muted-foreground text-sm">{defaultBillingKey.cardNumber}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {defaultBillingKey.cardNumber}
+                  </p>
                 </div>
               </div>
               <Badge variant="outline">기본 카드</Badge>
@@ -297,7 +361,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
 
       {/* 플랜 변경 */}
       <div>
-        <h2 className="text-foreground mb-4 text-lg font-semibold">플랜 변경</h2>
+        <h2 className="text-foreground mb-4 text-lg font-semibold">
+          플랜 변경
+        </h2>
         {isPaidPlanDisabled && (
           <Card className="mb-4 border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
             <CardContent className="flex items-start gap-3 py-4">
@@ -307,7 +373,8 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                   유료 플랜 결제 준비 중
                 </p>
                 <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                  현재 유료 플랜 결제 기능을 준비하고 있습니다. 빠른 시일 내에 제공될 예정입니다.
+                  현재 유료 플랜 결제 기능을 준비하고 있습니다. 빠른 시일 내에
+                  제공될 예정입니다.
                 </p>
               </div>
             </CardContent>
@@ -335,7 +402,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                       ? 'border-primary/50 border-2'
                       : 'hover:border-primary/50'
                 } ${isDisabled ? 'cursor-not-allowed opacity-60' : ''}`}
-                onClick={() => !isDisabled && !isCurrentPlan && setSelectedPlan(key)}>
+                onClick={() =>
+                  !isDisabled && !isCurrentPlan && setSelectedPlan(key)
+                }>
                 {plan.recommended && (
                   <Badge className="bg-primary absolute -top-3 left-1/2 -translate-x-1/2">
                     추천
@@ -357,12 +426,16 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                 )}
                 <CardHeader className="pb-2 text-center">
                   <CardTitle className="text-lg">{plan.name}</CardTitle>
-                  <CardDescription className="text-sm">{plan.description}</CardDescription>
+                  <CardDescription className="text-sm">
+                    {plan.description}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="mb-4 text-center">
                     <span className="text-foreground text-2xl font-bold">
-                      {plan.basePrice === 0 ? '무료' : `${plan.basePrice.toLocaleString()}원`}
+                      {plan.basePrice === 0
+                        ? '무료'
+                        : `${plan.basePrice.toLocaleString()}원`}
                     </span>
                     {plan.basePrice > 0 && (
                       <span className="text-muted-foreground text-sm">/월</span>
@@ -372,7 +445,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-center gap-2">
                         <Check className="text-primary size-3 shrink-0" />
-                        <span className="text-foreground text-xs">{feature}</span>
+                        <span className="text-foreground text-xs">
+                          {feature}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -385,7 +460,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
 
       {/* 플랜 변경 버튼 */}
       {selectedPlan && selectedPlan !== currentPlanId && (
-        <Button className="w-full" onClick={() => handleOpenModal(selectedPlan)}>
+        <Button
+          className="w-full"
+          onClick={() => handleOpenModal(selectedPlan)}>
           {SUBSCRIPTION_PLANS[selectedPlan].name} 플랜으로 변경하기
         </Button>
       )}
@@ -412,7 +489,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                   <Plus className="mr-3 size-5" />
                   <div className="text-left">
                     <p className="font-medium">새 카드 등록</p>
-                    <p className="text-muted-foreground text-sm">신용/체크카드를 등록합니다</p>
+                    <p className="text-muted-foreground text-sm">
+                      신용/체크카드를 등록합니다
+                    </p>
                   </div>
                 </Button>
                 {/* Mock 환경에서만 모의 카드 등록 버튼 표시 */}
@@ -425,7 +504,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                     <CreditCard className="mr-3 size-5" />
                     <div className="text-left">
                       <p className="font-medium">모의 카드 등록</p>
-                      <p className="text-muted-foreground text-sm">테스트용 가상 카드를 등록합니다</p>
+                      <p className="text-muted-foreground text-sm">
+                        테스트용 가상 카드를 등록합니다
+                      </p>
                     </div>
                   </Button>
                 )}
@@ -451,7 +532,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                 <div className="bg-muted/50 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">변경할 플랜</span>
-                    <span className="font-medium">{SUBSCRIPTION_PLANS[selectedPlan].name}</span>
+                    <span className="font-medium">
+                      {SUBSCRIPTION_PLANS[selectedPlan].name}
+                    </span>
                   </div>
                   <Separator className="my-3" />
                   <div className="flex items-center justify-between">
@@ -463,26 +546,31 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                     </span>
                   </div>
                 </div>
-                {defaultBillingKey && SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0 && (
-                  <div className="rounded-lg border p-3">
-                    <p className="text-muted-foreground mb-1 text-xs">결제 카드</p>
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="size-4" />
-                      <span className="text-sm">
-                        {defaultBillingKey.cardCompany} {defaultBillingKey.cardNumber}
-                      </span>
+                {defaultBillingKey &&
+                  SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0 && (
+                    <div className="rounded-lg border p-3">
+                      <p className="text-muted-foreground mb-1 text-xs">
+                        결제 카드
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="size-4" />
+                        <span className="text-sm">
+                          {defaultBillingKey.cardCompany}{' '}
+                          {defaultBillingKey.cardNumber}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {!defaultBillingKey && SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0 && (
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setModalStep('select-card')}>
-                    <Plus className="mr-2 size-4" />
-                    카드 등록하기
-                  </Button>
-                )}
+                  )}
+                {!defaultBillingKey &&
+                  SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0 && (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setModalStep('select-card')}>
+                      <Plus className="mr-2 size-4" />
+                      카드 등록하기
+                    </Button>
+                  )}
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={handleCloseModal}>
@@ -490,7 +578,10 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                 </Button>
                 <Button
                   onClick={handlePayment}
-                  disabled={!defaultBillingKey && SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0}>
+                  disabled={
+                    !defaultBillingKey &&
+                    SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0
+                  }>
                   {SUBSCRIPTION_PLANS[selectedPlan].basePrice === 0
                     ? '플랜 변경'
                     : `${SUBSCRIPTION_PLANS[selectedPlan].basePrice.toLocaleString()}원 결제하기`}
@@ -508,7 +599,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
               <div className="flex flex-col items-center justify-center py-8">
                 <Loader2 className="text-primary mb-4 size-12 animate-spin" />
                 <p className="font-medium">처리 중...</p>
-                <p className="text-muted-foreground text-sm">잠시만 기다려주세요.</p>
+                <p className="text-muted-foreground text-sm">
+                  잠시만 기다려주세요.
+                </p>
               </div>
             </>
           )}
@@ -525,7 +618,8 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                 </div>
                 <p className="font-medium">플랜이 변경되었습니다!</p>
                 <p className="text-muted-foreground text-sm">
-                  {SUBSCRIPTION_PLANS[selectedPlan].name} 플랜 구독이 시작되었습니다.
+                  {SUBSCRIPTION_PLANS[selectedPlan].name} 플랜 구독이
+                  시작되었습니다.
                 </p>
               </div>
               <DialogFooter>
@@ -546,7 +640,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                 <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
                   <AlertCircle className="size-6 text-red-600 dark:text-red-400" />
                 </div>
-                <p className="font-medium text-red-600 dark:text-red-400">오류 발생</p>
+                <p className="font-medium text-red-600 dark:text-red-400">
+                  오류 발생
+                </p>
                 <p className="text-muted-foreground text-center text-sm">
                   {errorMessage ?? '알 수 없는 오류가 발생했습니다.'}
                 </p>
@@ -555,7 +651,9 @@ export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) =
                 <Button variant="outline" onClick={handleCloseModal}>
                   닫기
                 </Button>
-                <Button onClick={() => setModalStep('select-card')}>다시 시도</Button>
+                <Button onClick={() => setModalStep('select-card')}>
+                  다시 시도
+                </Button>
               </DialogFooter>
             </>
           )}
