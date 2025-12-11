@@ -46,16 +46,16 @@ export const ItemHistoryTable = ({ items, onSelectionChange }: Props) => {
   }, [rowSelection, onSelectionChange, table]);
 
   return (
-    <div className="w-full overflow-auto rounded-lg border bg-white">
+    <div className="bg-background w-full overflow-auto rounded-lg border">
       <Table>
-        <TableHeader className="bg-gray-50">
+        <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="hover:bg-gray-50">
+            <TableRow key={headerGroup.id} className="hover:bg-transparent">
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
                     key={header.id}
-                    className="h-12 px-6 text-xs font-semibold uppercase tracking-wide text-gray-700">
+                    className="text-muted-foreground h-11 px-4 text-xs font-medium">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -74,11 +74,9 @@ export const ItemHistoryTable = ({ items, onSelectionChange }: Props) => {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="group">
+                className="hover:bg-muted/50 group transition-colors">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className="h-14 px-6 text-sm text-gray-900">
+                  <TableCell key={cell.id} className="px-4 py-3">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -88,7 +86,7 @@ export const ItemHistoryTable = ({ items, onSelectionChange }: Props) => {
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className="h-32 text-center text-sm text-gray-500">
+                className="text-muted-foreground h-32 text-center text-sm">
                 결과가 없습니다.
               </TableCell>
             </TableRow>

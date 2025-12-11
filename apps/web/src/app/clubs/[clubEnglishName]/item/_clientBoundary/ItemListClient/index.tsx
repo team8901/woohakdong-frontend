@@ -55,16 +55,19 @@ export const ItemListClient = ({ initialData, clubId }: Props) => {
     // Apply rental status filter
     if (rentalStatusQuery !== DEFAULT_OPTION) {
       filtered = filtered.filter((item) => {
-        if (rentalStatusQuery === CLUB_ITEM_RENTAL_STATUS['대여 가능']) {
-          return item.available;
-        }
-
+        // using이 true면 대여 중
         if (rentalStatusQuery === CLUB_ITEM_RENTAL_STATUS['대여 중']) {
           return item.using;
         }
 
+        // using이 false이고 available이 true면 대여 가능
+        if (rentalStatusQuery === CLUB_ITEM_RENTAL_STATUS['대여 가능']) {
+          return !item.using && item.available;
+        }
+
+        // using이 false이고 available이 false면 대여 불가
         if (rentalStatusQuery === CLUB_ITEM_RENTAL_STATUS['대여 불가']) {
-          return !item.available && !item.using;
+          return !item.using && !item.available;
         }
 
         return true;

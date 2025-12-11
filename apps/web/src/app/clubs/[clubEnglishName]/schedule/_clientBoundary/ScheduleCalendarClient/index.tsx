@@ -3,7 +3,7 @@
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../../_styles/calendar.css';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 
 import { format, getDay, parse, startOfWeek } from 'date-fns';
@@ -13,7 +13,7 @@ import { CalendarDateHeader } from '../../_components/CalendarDateHeader';
 import { CalendarEvent } from '../../_components/CalendarEvent';
 import { ScheduleSidebar } from '../../_components/UpcomingScheduleList';
 import { type ScheduleEvent } from '../../_helpers/types';
-import { sampleScheduleData } from '../../_helpers/types/sampleScheduleData';
+import { getSampleScheduleData } from '../../_helpers/types/sampleScheduleData';
 import { CalendarToolbar } from '../CalendarToobarClient';
 import { ScheduleDetailDialogClient } from '../ScheduleDetailDialogClient';
 
@@ -34,11 +34,17 @@ const eventStyleGetter = () => ({
 });
 
 export const ScheduleCalendarClient = () => {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState<Date | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(
     null,
   );
+  const [scheduleData, setScheduleData] = useState<ScheduleEvent[]>([]);
+
+  useEffect(() => {
+    setDate(new Date());
+    setScheduleData(getSampleScheduleData());
+  }, []);
 
   const handleSelectEvent = (event: ScheduleEvent) => {
     setSelectedEvent(event);
@@ -48,13 +54,21 @@ export const ScheduleCalendarClient = () => {
     setSelectedDate(slotInfo.start);
   };
 
+  if (!date) {
+    return (
+      <div className="bg-background flex min-h-[600px] w-full items-center justify-center">
+        <div className="text-muted-foreground">로딩 중...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background flex w-full flex-col lg:flex-row">
       {/* 캘린더 영역 */}
       <div className="flex-1 p-5 md:p-8">
         <Calendar<ScheduleEvent>
           localizer={localizer}
-          events={sampleScheduleData}
+          events={scheduleData}
           startAccessor="startTime"
           endAccessor="endTime"
           date={date}
@@ -90,7 +104,7 @@ export const ScheduleCalendarClient = () => {
       </div>
 
       <ScheduleSidebar
-        events={sampleScheduleData}
+        events={scheduleData}
         selectedDate={selectedDate}
         onSelectEvent={setSelectedEvent}
         onClearDate={() => setSelectedDate(null)}

@@ -18,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@workspace/ui/components/card';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { BookOpen, ChevronRight, Package, Pin, Users } from 'lucide-react';
 import Link from 'next/link';
 
@@ -26,7 +28,11 @@ import {
   CLUB_MEMBER_ROLE,
   type ClubMemberRole,
 } from '../../member/_helpers/constants/clubMemberRole';
-import { sampleScheduleData } from '../../schedule/_helpers/types/sampleScheduleData';
+import { type ScheduleEvent } from '../../schedule/_helpers/types';
+import { getSampleScheduleData } from '../../schedule/_helpers/types/sampleScheduleData';
+
+const formatScheduleDate = (date: Date) =>
+  format(date, 'M월 d일 (EEE) · HH:mm', { locale: ko });
 
 type Props = {
   clubEnglishName: string;
@@ -60,21 +66,25 @@ export const DashboardClient = ({
 }: Props) => {
   const isOfficer = OFFICER_ROLES.includes(clubMemberRole);
 
-  const [isMounted, setIsMounted] = useState(false);
+  const [upcomingSchedules, setUpcomingSchedules] = useState<ScheduleEvent[]>(
+    [],
+  );
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    setIsMounted(true);
+    const currentDate = new Date();
+
+    setNow(currentDate);
+    setUpcomingSchedules(
+      getSampleScheduleData()
+        .filter((schedule) => schedule.startTime > currentDate)
+        .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
+        .slice(0, 3),
+    );
   }, []);
 
-  const now = isMounted ? new Date() : null;
   const rentedItems = items.filter((item) => item.using);
   const recentNotices = notices.slice(0, 5);
-  const upcomingSchedules = isMounted
-    ? sampleScheduleData
-        .filter((schedule) => schedule.startTime > new Date())
-        .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
-        .slice(0, 3)
-    : [];
   const recentRentals = itemHistory
     .filter((item) => !item.returnDate)
     .slice(0, 5);
@@ -208,16 +218,7 @@ export const DashboardClient = ({
                           {schedule.title}
                         </p>
                         <p className="text-muted-foreground text-xs">
-                          {schedule.startTime.toLocaleDateString('ko-KR', {
-                            month: 'long',
-                            day: 'numeric',
-                            weekday: 'short',
-                          })}{' '}
-                          ·{' '}
-                          {schedule.startTime.toLocaleTimeString('ko-KR', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {formatScheduleDate(schedule.startTime)}
                         </p>
                       </div>
                       <Badge variant="secondary" className="shrink-0 text-xs">
