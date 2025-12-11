@@ -1,3 +1,4 @@
+import { getCardCompanyName } from '@/app/payment/_helpers/constants/cardCompany';
 import { NextResponse } from 'next/server';
 
 const TOSS_PAYMENTS_SECRET_KEY = process.env.TOSS_PAYMENTS_SECRET_KEY ?? '';
@@ -75,35 +76,10 @@ export async function POST(request: Request) {
 
     const data: TossBillingKeyResponse = await response.json();
 
-    // 카드사 코드를 카드사명으로 변환
-    const cardCompanyMap: Record<string, string> = {
-      '3K': '기업BC',
-      '46': '광주',
-      '71': '롯데',
-      '30': 'KDB산업',
-      '31': 'BC',
-      '51': '삼성',
-      '38': '새마을금고',
-      '41': '신한',
-      '62': '신협',
-      '36': '씨티',
-      '33': '우리',
-      '37': '우체국',
-      '39': '저축',
-      '35': '전북',
-      '42': '제주',
-      '15': '카카오뱅크',
-      '3A': '케이뱅크',
-      '24': '토스뱅크',
-      '21': '하나',
-      '61': '현대',
-      '11': 'KB국민',
-      '91': 'NH농협',
-      '34': 'Sh수협',
-    };
-
-    const cardCompany =
-      cardCompanyMap[data.card.issuerCode] ?? data.card.company ?? '카드';
+    const cardCompany = getCardCompanyName(
+      data.card.issuerCode,
+      data.card.company,
+    );
 
     return NextResponse.json({
       billingKey: data.billingKey,
