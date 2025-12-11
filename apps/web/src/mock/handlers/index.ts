@@ -1,5 +1,8 @@
 import { mockPostSocialLogin } from '@/mock/handlers/auth/postSocialLogin/mockPostSocialLogin';
 import { mockDeleteClubNotice } from '@/mock/handlers/club/deleteClubNotice/mockDeleteClubNotice';
+import { mockGetApplicationFormLatest } from '@/mock/handlers/club/getApplicationFormLatest/mockGetApplicationFormLatest';
+import { mockGetApplicationForms } from '@/mock/handlers/club/getApplicationForms/mockGetApplicationForms';
+import { mockGetApplicationSubmissions } from '@/mock/handlers/club/getApplicationSubmissions/mockGetApplicationSubmissions';
 import { mockGetClubInfoSearch } from '@/mock/handlers/club/getClubInfoSearch/mockGetClubInfoSearch';
 import { mockGetClubItem } from '@/mock/handlers/club/getClubItem/mockGetClubItem';
 import { mockGetClubItemHistory } from '@/mock/handlers/club/getClubItemHistory/mockGetClubItemHistory';
@@ -9,6 +12,8 @@ import { mockGetClubNotice } from '@/mock/handlers/club/getClubNotice/mockGetClu
 import { mockGetClubNotices } from '@/mock/handlers/club/getClubNotices/mockGetClubNotices';
 import { mockGetJoinedClubs } from '@/mock/handlers/club/getJoinedClubs/mockGetJoinedClubs';
 import { mockPostAddClubItem } from '@/mock/handlers/club/postAddClubItem/mockPostAddClubItem';
+import { mockPostApplicationForm } from '@/mock/handlers/club/postApplicationForm/mockPostApplicationForm';
+import { mockPostApplicationSubmission } from '@/mock/handlers/club/postApplicationSubmission/mockPostApplicationSubmission';
 import { mockPostClubNotice } from '@/mock/handlers/club/postClubNotice/mockPostClubNotice';
 import { mockPostRegisterClub } from '@/mock/handlers/club/postRegisterClub/mockPostRegisterClub';
 import { mockPostRentClubItem } from '@/mock/handlers/club/postRentClubItem/mockPostRentClubItem';
@@ -39,6 +44,11 @@ const handlers = [
   createMockHandler(mockPostClubNotice, '공지사항_등록_성공'),
   createMockHandler(mockPutClubNotice, '공지사항_수정_성공'),
   createMockHandler(mockDeleteClubNotice, '공지사항_삭제_성공'),
+  createMockHandler(mockGetApplicationForms, '신청폼_있음'),
+  createMockHandler(mockPostApplicationForm, '성공'),
+  createMockHandler(mockGetApplicationFormLatest, '성공'),
+  createMockHandler(mockGetApplicationSubmissions, '제출된_신청서_있음'),
+  createMockHandler(mockPostApplicationSubmission, '성공'),
 ];
 
 export default handlers;
