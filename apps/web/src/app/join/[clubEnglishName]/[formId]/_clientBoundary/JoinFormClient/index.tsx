@@ -74,11 +74,21 @@ export const JoinFormClient = ({
   };
 
   const handleSubmit = async () => {
-    const questions = applicationForm.formContent ?? [];
+    const formId = applicationForm.clubApplicationFormId;
+
+    if (formId == null) {
+      showToast({ message: '신청서 정보를 찾을 수 없습니다.', type: 'error' });
+
+      return;
+    }
+
+    const questions = (applicationForm.formContent ?? []).filter(
+      (q) => q.order != null,
+    );
 
     for (const question of questions) {
-      if (question.required && question.order != null) {
-        const answer = answers[question.order];
+      if (question.required) {
+        const answer = answers[question.order!];
 
         if (!answer || (Array.isArray(answer) && answer.length === 0)) {
           showToast({
@@ -94,11 +104,11 @@ export const JoinFormClient = ({
     try {
       await mutateAsync({
         clubId,
-        applicationFormId: applicationForm.clubApplicationFormId!,
+        applicationFormId: formId,
         data: {
           answers: questions.map((q) => ({
             order: q.order,
-            answer: answers[q.order ?? 0] ?? '',
+            answer: answers[q.order!] ?? '',
           })),
         },
       });
