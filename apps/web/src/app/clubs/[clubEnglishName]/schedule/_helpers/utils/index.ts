@@ -41,6 +41,13 @@ export const isSameDay = (date1: Date, date2: Date): boolean => {
 };
 
 /**
+ * 시간을 제외한 날짜만 추출 (자정 기준)
+ */
+export const getDateOnly = (date: Date): Date => {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};
+
+/**
  * 특정 날짜가 이벤트 기간(startTime ~ endTime) 내에 포함되는지 확인
  */
 export const isDateInEventRange = (
@@ -48,22 +55,22 @@ export const isDateInEventRange = (
   startTime: Date,
   endTime: Date,
 ): boolean => {
-  // 날짜만 비교하기 위해 시간 부분 제거
-  const targetDate = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-  );
-  const startDate = new Date(
-    startTime.getFullYear(),
-    startTime.getMonth(),
-    startTime.getDate(),
-  );
-  const endDate = new Date(
-    endTime.getFullYear(),
-    endTime.getMonth(),
-    endTime.getDate(),
-  );
+  const targetDate = getDateOnly(date);
+  const startDate = getDateOnly(startTime);
+  const endDate = getDateOnly(endTime);
 
   return targetDate >= startDate && targetDate <= endDate;
+};
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+/**
+ * 두 날짜 사이의 일수 계산 (시간 제외, 날짜 기준)
+ * 예: 1월 1일 20:00 ~ 1월 2일 10:00 → 2일
+ */
+export const getDaysBetween = (startTime: Date, endTime: Date): number => {
+  const startDate = getDateOnly(startTime);
+  const endDate = getDateOnly(endTime);
+
+  return Math.round((endDate.getTime() - startDate.getTime()) / MS_PER_DAY) + 1;
 };

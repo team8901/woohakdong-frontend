@@ -11,6 +11,7 @@ import {
 import { CalendarDays, Clock } from 'lucide-react';
 
 import { type ScheduleEvent } from '../../_helpers/types';
+import { getDaysBetween, isSameDay } from '../../_helpers/utils';
 
 type Props = {
   event: ScheduleEvent | null;
@@ -32,14 +33,6 @@ const formatTime = (date: Date) => {
     hour: '2-digit',
     minute: '2-digit',
   });
-};
-
-const isSameDay = (date1: Date, date2: Date) => {
-  return (
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getDate() === date2.getDate()
-  );
 };
 
 export const ScheduleDetailDialogClient = ({
@@ -100,11 +93,7 @@ export const ScheduleDetailDialogClient = ({
           {isMultiDay && (
             <div className="pt-2">
               <Badge variant="secondary">
-                {Math.ceil(
-                  (event.endTime.getTime() - event.startTime.getTime()) /
-                    (1000 * 60 * 60 * 24),
-                )}
-                일간 일정
+                {getDaysBetween(event.startTime, event.endTime)}일간 일정
               </Badge>
             </div>
           )}
