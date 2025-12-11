@@ -2,11 +2,11 @@ import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import {
   Calendar,
   ClipboardClock,
-  ClipboardList,
   FileText,
   Info,
   Megaphone,
   NotebookPen,
+  Package,
   UsersRound,
 } from 'lucide-react';
 
@@ -17,7 +17,7 @@ export const NAV_MENU_ICONS = {
   NotebookPen,
   Calendar,
   UsersRound,
-  ClipboardList,
+  Package,
   ClipboardClock,
   Info,
   FileText,
@@ -89,7 +89,7 @@ export const NAV_MENU = [
       },
       {
         title: '물품',
-        icon: 'ClipboardList',
+        icon: 'Package',
         url: APP_PATH.CLUBS.ITEM,
       },
       {
