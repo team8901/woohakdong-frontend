@@ -16,6 +16,7 @@ export const ScheduleSidebar = ({
   onClearDate,
 }: Props) => {
   const isDateSelected = selectedDate !== null;
+  const now = new Date();
 
   const displayEvents = isDateSelected
     ? events
@@ -24,7 +25,7 @@ export const ScheduleSidebar = ({
         )
         .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
     : events
-        .filter((event) => event.startTime >= new Date())
+        .filter((event) => event.startTime >= now)
         .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
 
   const title = isDateSelected
