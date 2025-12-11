@@ -20,5 +20,8 @@ export const APP_PATH = {
     ITEM: '/clubs/:clubEnglishName/item',
     ITEM_HISTORY: '/clubs/:clubEnglishName/item-history',
     CLUB_INFO: '/clubs/:clubEnglishName/club-info',
+    APPLICATION_FORM: '/clubs/:clubEnglishName/application-form',
   },
+  /** 동아리 가입 신청 (비회원 접근 가능) */
+  JOIN: '/join/:clubEnglishName/:formId',
 };
