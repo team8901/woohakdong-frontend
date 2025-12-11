@@ -7,6 +7,11 @@ export const APP_PATH = {
     HOME: '/register-club',
     SUCCESS: '/register-club/success',
   },
+  PAYMENT: {
+    HOME: '/payment',
+    SUCCESS: '/payment/success',
+    FAIL: '/payment/fail',
+  },
   /** 동아리 전용 페이지 */
   CLUBS: {
     HOME: '/clubs/:clubEnglishName',
@@ -21,6 +26,7 @@ export const APP_PATH = {
     ITEM_HISTORY: '/clubs/:clubEnglishName/item-history',
     CLUB_INFO: '/clubs/:clubEnglishName/club-info',
     APPLICATION_FORM: '/clubs/:clubEnglishName/application-form',
+    BILLING: '/clubs/:clubEnglishName/billing',
   },
   /** 동아리 가입 신청 (비회원 접근 가능) */
   JOIN: '/join/:clubEnglishName/:formId',

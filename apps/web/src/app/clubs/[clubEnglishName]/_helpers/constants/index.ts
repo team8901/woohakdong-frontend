@@ -2,6 +2,7 @@ import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import {
   Calendar,
   ClipboardClock,
+  CreditCard,
   FileText,
   Info,
   Megaphone,
@@ -21,6 +22,7 @@ export const NAV_MENU_ICONS = {
   ClipboardClock,
   Info,
   FileText,
+  CreditCard,
 } as const;
 
 export const DASHBOARD_BREADCRUMB_MAP: Record<string, PathData> = {
@@ -55,6 +57,10 @@ export const DASHBOARD_BREADCRUMB_MAP: Record<string, PathData> = {
   '/club-info': {
     category: '정보',
     title: '동아리 정보',
+  },
+  '/billing': {
+    category: '정보',
+    title: '결제',
   },
 };
 
@@ -112,6 +118,12 @@ export const NAV_MENU = [
         title: '동아리 정보',
         icon: 'Info',
         url: APP_PATH.CLUBS.CLUB_INFO,
+      },
+      {
+        title: '결제',
+        icon: 'CreditCard',
+        url: APP_PATH.CLUBS.BILLING,
+        presidentOnly: true,
       },
     ],
   },
