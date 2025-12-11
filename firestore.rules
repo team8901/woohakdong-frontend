@@ -26,8 +26,8 @@ service cloud.firestore {
 
     // ===== 구독 컬렉션 (동아리 단위) =====
     match /subscriptions/{subscriptionId} {
-      // 읽기: 인증된 사용자만 조회 가능 (동아리 멤버 여부는 앱에서 확인)
-      allow read: if isAuthenticated();
+      // 읽기: 본인이 생성한 구독만 조회 가능
+      allow read: if isOwner(resource.data.userId);
 
       // 생성: 인증된 사용자가 본인 명의로 생성 가능
       allow create: if isAuthenticated()
@@ -47,8 +47,8 @@ service cloud.firestore {
 
     // ===== 결제 기록 컬렉션 (동아리 단위) =====
     match /payments/{paymentId} {
-      // 읽기: 인증된 사용자만 조회 가능 (동아리 멤버 여부는 앱에서 확인)
-      allow read: if isAuthenticated();
+      // 읽기: 본인이 생성한 결제 기록만 조회 가능
+      allow read: if isOwner(resource.data.userId);
 
       // 생성: 인증된 사용자가 본인 명의로 생성 가능
       allow create: if isAuthenticated()
@@ -61,8 +61,8 @@ service cloud.firestore {
 
     // ===== 빌링키 컬렉션 (카드 등록 정보) =====
     match /billingKeys/{billingKeyId} {
-      // 읽기: 인증된 사용자만 조회 가능
-      allow read: if isAuthenticated();
+      // 읽기: 본인이 생성한 빌링키만 조회 가능
+      allow read: if isOwner(resource.data.userId);
 
       // 생성: 인증된 사용자가 본인 명의로 생성 가능
       allow create: if isAuthenticated()
