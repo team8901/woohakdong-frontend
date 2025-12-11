@@ -455,16 +455,24 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
 
           {/* Step: 처리 중 */}
           {modalStep === 'processing' && (
-            <div className="flex flex-col items-center justify-center py-8">
-              <Loader2 className="text-primary mb-4 size-12 animate-spin" />
-              <p className="font-medium">처리 중...</p>
-              <p className="text-muted-foreground text-sm">잠시만 기다려주세요.</p>
-            </div>
+            <>
+              <DialogHeader className="sr-only">
+                <DialogTitle>처리 중</DialogTitle>
+              </DialogHeader>
+              <div className="flex flex-col items-center justify-center py-8">
+                <Loader2 className="text-primary mb-4 size-12 animate-spin" />
+                <p className="font-medium">처리 중...</p>
+                <p className="text-muted-foreground text-sm">잠시만 기다려주세요.</p>
+              </div>
+            </>
           )}
 
           {/* Step: 성공 */}
           {modalStep === 'success' && selectedPlan && (
             <>
+              <DialogHeader className="sr-only">
+                <DialogTitle>플랜 변경 완료</DialogTitle>
+              </DialogHeader>
               <div className="flex flex-col items-center justify-center py-8">
                 <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
                   <Check className="size-6 text-green-600 dark:text-green-400" />
@@ -485,6 +493,9 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           {/* Step: 에러 */}
           {modalStep === 'error' && (
             <>
+              <DialogHeader className="sr-only">
+                <DialogTitle>오류 발생</DialogTitle>
+              </DialogHeader>
               <div className="flex flex-col items-center justify-center py-8">
                 <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
                   <AlertCircle className="size-6 text-red-600 dark:text-red-400" />
