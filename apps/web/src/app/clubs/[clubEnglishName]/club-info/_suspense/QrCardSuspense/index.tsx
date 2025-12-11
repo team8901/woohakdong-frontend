@@ -21,19 +21,12 @@ export const QrCardSuspense = withSuspense(
       const { data } = await getAllClubApplicationForms(clubId);
       const forms = data ?? [];
 
-      // 가장 최근에 생성된 신청폼을 찾음
-      const latestForm = forms.reduce((latest, form) => {
-        if (!latest) return form;
+      const latestForm = [...forms].sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
 
-        const latestDate = latest.createdAt
-          ? new Date(latest.createdAt)
-          : new Date(0);
-        const formDate = form.createdAt
-          ? new Date(form.createdAt)
-          : new Date(0);
-
-        return formDate > latestDate ? form : latest;
-      }, forms[0] ?? null);
+        return dateB - dateA;
+      })[0];
 
       return (
         <QrCardClient
