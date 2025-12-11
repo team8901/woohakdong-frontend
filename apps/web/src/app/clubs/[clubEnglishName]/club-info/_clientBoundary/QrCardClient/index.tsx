@@ -13,11 +13,14 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { toPng } from 'html-to-image';
 import { Check, Copy, DownloadIcon } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { QRCodeCanvas } from 'qrcode.react';
 
-export const QrCardClient = () => {
-  const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
+type Props = {
+  clubEnglishName: string;
+  formId: number | null;
+};
+
+export const QrCardClient = ({ clubEnglishName, formId }: Props) => {
   const [origin, setOrigin] = useState('');
 
   const [isCopied, setIsCopied] = useState(false);
@@ -49,26 +52,40 @@ export const QrCardClient = () => {
       });
   };
 
-  const clubUrl = buildUrlWithParams({
-    url: APP_PATH.CLUBS.HOME,
-    pathParams: { clubEnglishName },
-  });
+  const joinUrl = formId
+    ? buildUrlWithParams({
+        url: APP_PATH.JOIN,
+        pathParams: { clubEnglishName, formId: String(formId) },
+      })
+    : null;
 
-  const clubFullUrl = origin + clubUrl;
+  const joinFullUrl = joinUrl ? origin + joinUrl : '';
 
   const onCopy = () => {
-    navigator.clipboard.writeText(clubFullUrl).then(() => {
+    if (!joinFullUrl) return;
+
+    navigator.clipboard.writeText(joinFullUrl).then(() => {
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), COPY_SUCCESS_TIMEOUT);
     });
   };
 
+  if (!formId) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 py-12">
+        <p className="text-muted-foreground text-sm">
+          가입 신청서가 없습니다. 먼저 신청서를 만들어주세요.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <span className="text-sm text-gray-900">동아리 웹 페이지 주소</span>
+        <span className="text-sm text-gray-900">동아리 가입 신청 주소</span>
         <div className="relative w-full">
-          <Input value={clubFullUrl} readOnly />
+          <Input value={joinFullUrl} readOnly />
           <button
             type="button"
             onClick={onCopy}
@@ -92,14 +109,14 @@ export const QrCardClient = () => {
               {clubEnglishName}
             </span>
             <QRCodeCanvas
-              value={clubFullUrl}
+              value={joinFullUrl}
               size={QR_CODE_SIZE}
               className="border-primary rounded-2xl border-4 p-4"
             />
             <p className="text-center text-sm font-bold">
               QR 코드를 스캔하면
               <br />
-              동아리 전용 페이지로 이동해요!
+              동아리 가입 신청 페이지로 이동해요!
             </p>
             <span className="text-xs text-gray-600">우학동 제공</span>
           </div>
