@@ -1,4 +1,4 @@
-import type { SubscriptionPlanId } from '../constants/plans';
+import type { SubscriptionPlanId } from '@workspace/ui/constants/plans';
 
 export type PaymentFormData = {
   planId: SubscriptionPlanId;

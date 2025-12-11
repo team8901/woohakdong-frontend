@@ -13,7 +13,8 @@
     "./postcss.config": "./postcss.config.mjs",
     "./lib/*": "./src/lib/*.ts",
     "./components/*": "./src/components/*.tsx",
-    "./hooks/*": "./src/hooks/*.ts"
+    "./hooks/*": "./src/hooks/*.ts",
+    "./constants/*": "./src/constants/*.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

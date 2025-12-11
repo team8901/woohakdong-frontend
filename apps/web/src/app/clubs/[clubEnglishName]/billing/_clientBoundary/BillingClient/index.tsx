@@ -2,10 +2,6 @@
 
 import { useEffect, useState } from 'react';
 
-import {
-  SUBSCRIPTION_PLANS,
-  type SubscriptionPlanId,
-} from '@/app/payment/_helpers/constants/plans';
 import { useSubscription } from '@/app/payment/_helpers/hooks/useSubscription';
 import { getCurrentUser } from '@workspace/firebase/auth';
 import {
@@ -32,6 +28,10 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Separator } from '@workspace/ui/components/separator';
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import {
+  SUBSCRIPTION_PLANS,
+  type SubscriptionPlanId,
+} from '@workspace/ui/constants/plans';
 import { AlertCircle, Check, CreditCard, Loader2, Plus } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
