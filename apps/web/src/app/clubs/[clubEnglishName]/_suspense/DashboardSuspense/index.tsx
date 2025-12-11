@@ -1,4 +1,5 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
+import { DashboardSkeleton } from '@/_shared/components/skeletons';
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import {
@@ -7,7 +8,6 @@ import {
   getClubMembers,
   getNotices,
 } from '@workspace/api/generated';
-import { Spinner } from '@workspace/ui/components/spinner';
 import { cookies } from 'next/headers';
 
 import { DashboardClient } from '../../_clientBoundary/DashboardClient';
@@ -57,10 +57,6 @@ export const DashboardSuspense = withSuspense(
     }
   },
   {
-    fallback: (
-      <div className="flex h-48 items-center justify-center">
-        <Spinner />
-      </div>
-    ),
+    fallback: <DashboardSkeleton />,
   },
 );

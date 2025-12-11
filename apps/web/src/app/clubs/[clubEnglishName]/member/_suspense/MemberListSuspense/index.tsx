@@ -1,9 +1,9 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
+import { TableSkeleton } from '@/_shared/components/skeletons';
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { MemberListClient } from '@/app/clubs/[clubEnglishName]/member/_clientBoundary/MemberListClient';
 import { getClubMembers } from '@workspace/api/generated';
-import { Spinner } from '@workspace/ui/components/spinner';
 import { notFound } from 'next/navigation';
 
 type Props = {
@@ -32,10 +32,6 @@ export const MemberListSuspense = withSuspense(
     }
   },
   {
-    fallback: (
-      <div className="flex h-48 items-center justify-center">
-        <Spinner />
-      </div>
-    ),
+    fallback: <TableSkeleton columns={6} rows={5} />,
   },
 );

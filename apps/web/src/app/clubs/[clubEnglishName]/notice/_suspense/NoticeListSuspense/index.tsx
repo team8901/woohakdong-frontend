@@ -1,8 +1,8 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
+import { NoticeListSkeleton } from '@/_shared/components/skeletons';
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { getNotices } from '@workspace/api/generated';
-import { Spinner } from '@workspace/ui/components/spinner';
 import { cookies } from 'next/headers';
 
 import { type ClubMemberRole } from '../../../member/_helpers/constants/clubMemberRole';
@@ -50,10 +50,6 @@ export const NoticeListSuspense = withSuspense(
     }
   },
   {
-    fallback: (
-      <div className="flex w-full items-center justify-center">
-        <Spinner className="text-muted-foreground size-6" />
-      </div>
-    ),
+    fallback: <NoticeListSkeleton />,
   },
 );
