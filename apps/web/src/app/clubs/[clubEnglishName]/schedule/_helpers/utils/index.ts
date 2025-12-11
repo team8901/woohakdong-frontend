@@ -1,9 +1,11 @@
+import { CONTRAST_DARK_TEXT, CONTRAST_LIGHT_TEXT } from '../constants';
+
 /**
  * 배경색에 따라 대비되는 텍스트 색상 반환
  * YIQ formula를 사용하여 밝기 계산
  */
 export const getContrastColor = (hexColor: string): string => {
-  if (!hexColor) return '#ffffff';
+  if (!hexColor) return CONTRAST_LIGHT_TEXT;
 
   const hex = hexColor.replace('#', '');
 
@@ -13,7 +15,7 @@ export const getContrastColor = (hexColor: string): string => {
 
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
 
-  return brightness > 128 ? '#1f2937' : '#ffffff';
+  return brightness > 128 ? CONTRAST_DARK_TEXT : CONTRAST_LIGHT_TEXT;
 };
 
 /**
