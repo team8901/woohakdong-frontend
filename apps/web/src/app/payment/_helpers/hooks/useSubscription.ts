@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { onAuthStateChange } from '@workspace/firebase/auth';
 import {
+  type BillingKey,
   getActiveSubscription,
+  getDefaultBillingKey,
   getPaymentHistory,
   type PaymentRecord,
   type Subscription,
@@ -17,6 +19,7 @@ type UseSubscriptionProps = {
 type UseSubscriptionReturn = {
   subscription: Subscription | null;
   paymentHistory: PaymentRecord[];
+  defaultBillingKey: BillingKey | null;
   isLoading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
@@ -32,6 +35,9 @@ export const useSubscription = ({
 }: UseSubscriptionProps): UseSubscriptionReturn => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
+  const [defaultBillingKey, setDefaultBillingKey] = useState<BillingKey | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isFetchedRef = useRef(false);
@@ -41,13 +47,15 @@ export const useSubscription = ({
       setIsLoading(true);
       setError(null);
 
-      const [subscriptionData, payments] = await Promise.all([
+      const [subscriptionData, payments, billingKey] = await Promise.all([
         getActiveSubscription(id),
         getPaymentHistory(id),
+        getDefaultBillingKey(id),
       ]);
 
       setSubscription(subscriptionData);
       setPaymentHistory(payments);
+      setDefaultBillingKey(billingKey);
     } catch (err) {
       console.error('Failed to fetch subscription data:', err);
       setError('구독 정보를 불러오는데 실패했습니다.');
@@ -57,6 +65,7 @@ export const useSubscription = ({
   }, []);
 
   const refetch = useCallback(async () => {
+    isFetchedRef.current = false;
     await fetchSubscriptionData(clubId);
   }, [fetchSubscriptionData, clubId]);
 
@@ -75,6 +84,7 @@ export const useSubscription = ({
         // 로그인되지 않은 경우 구독 없음으로 처리
         setSubscription(null);
         setPaymentHistory([]);
+        setDefaultBillingKey(null);
         setIsLoading(false);
       }
     });
@@ -88,6 +98,7 @@ export const useSubscription = ({
   return {
     subscription,
     paymentHistory,
+    defaultBillingKey,
     isLoading,
     error,
     refetch,

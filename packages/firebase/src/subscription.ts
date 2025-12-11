@@ -16,8 +16,33 @@ import {
 
 const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 const PAYMENTS_COLLECTION = 'payments';
+const BILLING_KEYS_COLLECTION = 'billingKeys';
 
 export type SubscriptionStatus = 'active' | 'canceled' | 'expired' | 'pending';
+
+export type BillingKey = {
+  id: string;
+  clubId: number;
+  userId: string;
+  userEmail: string;
+  billingKey: string;
+  customerKey: string;
+  cardCompany: string;
+  cardNumber: string; // 마스킹된 카드번호 (예: **** **** **** 1234)
+  isDefault: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+};
+
+export type CreateBillingKeyInput = {
+  clubId: number;
+  userId: string;
+  userEmail: string;
+  billingKey: string;
+  customerKey: string;
+  cardCompany: string;
+  cardNumber: string;
+};
 
 export type Subscription = {
   id: string;
@@ -240,5 +265,175 @@ export const getPaymentHistory = async (
     console.error('Failed to get payment history:', error);
 
     throw new SubscriptionError('결제 내역 조회 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 빌링키 저장 (카드 등록)
+ * @param input - 빌링키 생성에 필요한 정보
+ * @returns 생성된 빌링키 문서 ID
+ */
+export const saveBillingKey = async (
+  input: CreateBillingKeyInput,
+): Promise<string> => {
+  try {
+    const billingKeyId = `billing_${Date.now()}_${input.clubId}`;
+    const billingKeyRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, billingKeyId);
+
+    // 기존 기본 카드가 있으면 해제
+    const existingKeys = await getBillingKeys(input.clubId);
+
+    for (const key of existingKeys) {
+      if (key.isDefault) {
+        const existingRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, key.id);
+
+        await updateDoc(existingRef, { isDefault: false, updatedAt: serverTimestamp() });
+      }
+    }
+
+    await setDoc(billingKeyRef, {
+      id: billingKeyId,
+      clubId: input.clubId,
+      userId: input.userId,
+      userEmail: input.userEmail,
+      billingKey: input.billingKey,
+      customerKey: input.customerKey,
+      cardCompany: input.cardCompany,
+      cardNumber: input.cardNumber,
+      isDefault: true,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    return billingKeyId;
+  } catch (error) {
+    console.error('Failed to save billing key:', error);
+
+    throw new SubscriptionError('카드 등록 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 동아리의 등록된 빌링키(카드) 목록 조회
+ * @param clubId - 동아리 ID
+ * @returns 빌링키 배열
+ */
+export const getBillingKeys = async (clubId: number): Promise<BillingKey[]> => {
+  try {
+    const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
+    const q = query(
+      billingKeysRef,
+      where('clubId', '==', clubId),
+      orderBy('createdAt', 'desc'),
+    );
+
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => doc.data() as BillingKey);
+  } catch (error) {
+    console.error('Failed to get billing keys:', error);
+
+    throw new SubscriptionError('카드 목록 조회 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 동아리의 기본 빌링키 조회
+ * @param clubId - 동아리 ID
+ * @returns 기본 빌링키 또는 null
+ */
+export const getDefaultBillingKey = async (
+  clubId: number,
+): Promise<BillingKey | null> => {
+  try {
+    const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
+    const q = query(
+      billingKeysRef,
+      where('clubId', '==', clubId),
+      where('isDefault', '==', true),
+      limit(1),
+    );
+
+    const snapshot = await getDocs(q);
+    const firstDoc = snapshot.docs[0];
+
+    if (snapshot.empty || !firstDoc) {
+      return null;
+    }
+
+    return firstDoc.data() as BillingKey;
+  } catch (error) {
+    console.error('Failed to get default billing key:', error);
+
+    throw new SubscriptionError('기본 카드 조회 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 빌링키 삭제 (카드 삭제)
+ * @param billingKeyId - 빌링키 문서 ID
+ */
+export const deleteBillingKey = async (billingKeyId: string): Promise<void> => {
+  try {
+    const billingKeyRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, billingKeyId);
+
+    // Firestore에서는 delete 대신 soft delete 처리 (보안상)
+    await updateDoc(billingKeyRef, {
+      billingKey: '',
+      isDefault: false,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Failed to delete billing key:', error);
+
+    throw new SubscriptionError('카드 삭제 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 빌링키로 구독 생성 (정기결제)
+ * @param input - 구독 생성에 필요한 정보
+ * @param billingKeyId - 사용할 빌링키 ID
+ * @returns 생성된 구독 ID
+ */
+export const createSubscriptionWithBillingKey = async (
+  input: Omit<CreateSubscriptionInput, 'orderId' | 'paymentKey'>,
+  billingKeyId: string,
+): Promise<string> => {
+  try {
+    const subscriptionId = `sub_${Date.now()}_${input.clubId}`;
+    const now = new Date();
+    const endDate = new Date(now);
+
+    endDate.setMonth(endDate.getMonth() + 1);
+
+    // 구독 문서 생성
+    const subscriptionRef = doc(
+      firebaseDb,
+      SUBSCRIPTIONS_COLLECTION,
+      subscriptionId,
+    );
+
+    await setDoc(subscriptionRef, {
+      id: subscriptionId,
+      clubId: input.clubId,
+      userId: input.userId,
+      userEmail: input.userEmail,
+      planId: input.planId,
+      planName: input.planName,
+      price: input.price,
+      billingKeyId,
+      status: 'active' as SubscriptionStatus,
+      startDate: serverTimestamp(),
+      endDate: endDate,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    return subscriptionId;
+  } catch (error) {
+    console.error('Failed to create subscription with billing key:', error);
+
+    throw new SubscriptionError('구독 생성 중 오류가 발생했습니다.');
   }
 };

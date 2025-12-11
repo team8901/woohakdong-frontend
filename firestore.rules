@@ -58,5 +58,24 @@ service cloud.firestore {
       // 수정/삭제: 불허 (결제 기록은 변경 불가)
       allow update, delete: if false;
     }
+
+    // ===== 빌링키 컬렉션 (카드 등록 정보) =====
+    match /billingKeys/{billingKeyId} {
+      // 읽기: 인증된 사용자만 조회 가능
+      allow read: if isAuthenticated();
+
+      // 생성: 인증된 사용자가 본인 명의로 생성 가능
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['clubId', 'userId', 'userEmail', 'billingKey', 'customerKey', 'cardCompany', 'cardNumber', 'isDefault']);
+
+      // 수정: 본인이 생성한 빌링키만 수정 가능 (isDefault, billingKey 변경 허용)
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.clubId == resource.data.clubId;
+
+      // 삭제: 불허
+      allow delete: if false;
+    }
   }
 }

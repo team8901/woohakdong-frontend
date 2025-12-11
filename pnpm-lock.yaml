@@ -141,6 +141,9 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@tosspayments/payment-sdk':
+        specifier: ^1.9.2
+        version: 1.9.2
       '@tosspayments/payment-widget-sdk':
         specifier: ^0.12.1
         version: 0.12.1(typescript@5.9.2)
@@ -3085,6 +3088,9 @@ packages:
       typescript:
         optional: true
 
+  '@tosspayments/payment-sdk@1.9.2':
+    resolution: {integrity: sha512-le0NatZUSH40ZS70l6UFAdapBAoCaibfK+gPI//sfIbGYBh6KWQ58HHif0M1kSkDEbiL6B0yrhkGG3HWd2jkig==}
+
   '@tosspayments/payment-widget-sdk@0.12.1':
     resolution: {integrity: sha512-h80Qa4IO4YxqC0ma6aM/MX1mWFOwQ6OaWXcqJzNFkne8reaOI90iF3gDvPH0pAM6H+GTx+S83JO7N5ltq2Qs/w==}
 
@@ -3099,8 +3105,14 @@ packages:
   '@tosspayments/payment-widget__types@1.1.0':
     resolution: {integrity: sha512-1yVQIDNwgjzpm/n8ppsAk3Q0IKha+vOTuRIP6INzL9AkzCsrVjhHr5/eT0fe+tjyekSRL902Uq0TuRyG2sjsWw==}
 
+  '@tosspayments/payment__types@1.69.0':
+    resolution: {integrity: sha512-EbU36vLEWfhRpX/g4V0DyRiUmTkNeeVDYjJamD9aJiLmRbLl9PVdXi5QOQTMYma2RGRgA8drHY4yDMsjvKFwCg==}
+
   '@tosspayments/payment__types@1.69.1':
     resolution: {integrity: sha512-QX9WSPiIke9VPch1zA80VFBSu7yKNuv/UnKy1V9B+YkC6sPN+sBcq/sl2fhj5tadTvkuYXDv139iR5TFwU2ayw==}
+
+  '@tosspayments/sdk-constants@0.2.2':
+    resolution: {integrity: sha512-qTIcD9JnVtN65/yiW5sPAlvK5fpQtDluv4IEyslubncbQLQKE+ePSnGZU1fLNPxcchv6QTnwmgj9Ndm6EN/Ymg==}
 
   '@tosspayments/sdk-constants@1.2.2':
     resolution: {integrity: sha512-6WxRHaiycSfz8gY9R/+StdkX5bprHyJ/rf2ak+b8YgBorxUwns8Ev+oyViNBmsPoE77RusaVFNv1kuiJpSNoDA==}
@@ -6944,6 +6956,10 @@ packages:
     resolution: {integrity: sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg==}
     engines: {node: '>=8'}
 
+  type-fest@2.19.0:
+    resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
+    engines: {node: '>=12.20'}
+
   type-fest@4.41.0:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
@@ -10266,6 +10282,10 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.2
 
+  '@tosspayments/payment-sdk@1.9.2':
+    dependencies:
+      '@tosspayments/payment__types': 1.69.0
+
   '@tosspayments/payment-widget-sdk@0.12.1(typescript@5.9.2)':
     dependencies:
       '@tosspayments/payment-widget__types': 1.1.0(typescript@5.9.2)
@@ -10284,9 +10304,17 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@tosspayments/payment__types@1.69.0':
+    dependencies:
+      '@tosspayments/sdk-constants': 0.2.2
+
   '@tosspayments/payment__types@1.69.1':
     dependencies:
       '@tosspayments/sdk-constants': 1.2.2
+
+  '@tosspayments/sdk-constants@0.2.2':
+    dependencies:
+      type-fest: 2.19.0
 
   '@tosspayments/sdk-constants@1.2.2': {}
 
@@ -14714,6 +14742,8 @@ snapshots:
   type-fest@0.21.3: {}
 
   type-fest@0.7.1: {}
+
+  type-fest@2.19.0: {}
 
   type-fest@4.41.0: {}
 
