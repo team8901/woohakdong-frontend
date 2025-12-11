@@ -36,11 +36,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 type BillingClientProps = {
   clubId: number;
+  clubEnglishName: string;
 };
 
 type ModalStep = 'select-card' | 'register-card' | 'confirm' | 'processing' | 'success' | 'error';
 
-export const BillingClient = ({ clubId }: BillingClientProps) => {
+export const BillingClient = ({ clubId, clubEnglishName }: BillingClientProps) => {
   const { subscription, defaultBillingKey, isLoading, error, refetch } = useSubscription({ clubId });
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanId | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,14 +76,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     setErrorMessage(null);
   };
 
-  const handleRegisterCard = async () => {
-    if (!isMockMode) {
-      setErrorMessage('카드 등록은 현재 준비 중입니다.');
-      setModalStep('error');
-
-      return;
-    }
-
+  const handleRegisterMockCard = async () => {
     // Mock 환경에서는 가상 카드 등록
     setIsProcessing(true);
     setModalStep('processing');
@@ -110,11 +104,48 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       await refetch();
       setModalStep('confirm');
     } catch (err) {
-      console.error('Failed to register card:', err);
+      console.error('Failed to register mock card:', err);
       setErrorMessage('카드 등록 중 오류가 발생했습니다.');
       setModalStep('error');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleRegisterRealCard = async () => {
+    // 실제 카드 등록: 토스페이먼츠 빌링 인증창으로 리다이렉트
+    try {
+      const { loadTossPayments } = await import('@tosspayments/payment-sdk');
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ?? '';
+
+      if (!clientKey) {
+        setErrorMessage('결제 시스템 설정이 완료되지 않았습니다.');
+        setModalStep('error');
+
+        return;
+      }
+
+      const tossPayments = await loadTossPayments(clientKey);
+      const customerKey = `customer_${clubId}_${uuidv4().slice(0, 8)}`;
+
+      const successUrl = `${window.location.origin}/billing/card-register/success?clubId=${clubId}&clubEnglishName=${clubEnglishName}`;
+      const failUrl = `${window.location.origin}/billing/card-register/fail?clubEnglishName=${clubEnglishName}`;
+
+      await tossPayments.requestBillingAuth('카드', {
+        customerKey,
+        successUrl,
+        failUrl,
+      });
+    } catch (err) {
+      console.error('Failed to open card registration:', err);
+
+      // 사용자가 취소한 경우
+      if (err instanceof Error && err.message.includes('USER_CANCEL')) {
+        return;
+      }
+
+      setErrorMessage('카드 등록창을 열 수 없습니다.');
+      setModalStep('error');
     }
   };
 
@@ -372,10 +403,11 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
+                {/* 실제 카드 등록 버튼 */}
                 <Button
                   variant="outline"
                   className="h-auto w-full justify-start p-4"
-                  onClick={handleRegisterCard}
+                  onClick={handleRegisterRealCard}
                   disabled={isProcessing}>
                   <Plus className="mr-3 size-5" />
                   <div className="text-left">
@@ -383,6 +415,20 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
                     <p className="text-muted-foreground text-sm">신용/체크카드를 등록합니다</p>
                   </div>
                 </Button>
+                {/* Mock 환경에서만 모의 카드 등록 버튼 표시 */}
+                {isMockMode && (
+                  <Button
+                    variant="outline"
+                    className="h-auto w-full justify-start p-4"
+                    onClick={handleRegisterMockCard}
+                    disabled={isProcessing}>
+                    <CreditCard className="mr-3 size-5" />
+                    <div className="text-left">
+                      <p className="font-medium">모의 카드 등록</p>
+                      <p className="text-muted-foreground text-sm">테스트용 가상 카드를 등록합니다</p>
+                    </div>
+                  </Button>
+                )}
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={handleCloseModal}>
