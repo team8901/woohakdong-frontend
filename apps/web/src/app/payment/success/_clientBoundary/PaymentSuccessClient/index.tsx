@@ -65,8 +65,8 @@ export const PaymentSuccessClient = ({
           clubId,
           userId: user.uid,
           userEmail: user.email ?? '',
-          planId: plan ?? 'starter',
-          planName: planName ?? 'Starter',
+          planId: plan ?? 'standard',
+          planName: planName ?? 'Standard',
           price: Number(amount),
           orderId,
           paymentKey,
@@ -146,7 +146,10 @@ export const PaymentSuccessClient = ({
             </p>
           )}
           <Button asChild className="w-full">
-            <Link href={clubEnglishName ? `/clubs/${clubEnglishName}` : '/club-list'}>
+            <Link
+              href={
+                clubEnglishName ? `/clubs/${clubEnglishName}` : '/club-list'
+              }>
               동아리 관리 시작하기
             </Link>
           </Button>

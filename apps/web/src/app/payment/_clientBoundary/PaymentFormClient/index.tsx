@@ -32,7 +32,7 @@ type PaymentFormClientProps = {
 const isMockMode = process.env.NEXT_PUBLIC_IS_MOCK === 'true';
 
 export const PaymentFormClient = ({
-  initialPlan = 'STARTER',
+  initialPlan = 'STANDARD',
   clubId,
   clubEnglishName,
 }: PaymentFormClientProps) => {
