@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-const TOSS_PAYMENTS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ?? '';
+import type { TossPaymentsInstance } from '@tosspayments/payment-sdk';
+
+const TOSS_PAYMENTS_CLIENT_KEY =
+  process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ?? '';
 
 type BillingAuthOptions = {
   customerKey: string;
@@ -12,9 +15,14 @@ type BillingAuthOptions = {
   customerName?: string;
 };
 
-export const useBillingWidget = () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [tossPayments, setTossPayments] = useState<any>(null);
+type UseBillingWidgetReturn = {
+  requestBillingAuth: (options: BillingAuthOptions) => Promise<unknown>;
+  isReady: boolean;
+};
+
+export const useBillingWidget = (): UseBillingWidgetReturn => {
+  const [tossPayments, setTossPayments] =
+    useState<TossPaymentsInstance | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -50,7 +58,6 @@ export const useBillingWidget = () => {
   );
 
   return {
-    tossPayments,
     requestBillingAuth,
     isReady,
   };
