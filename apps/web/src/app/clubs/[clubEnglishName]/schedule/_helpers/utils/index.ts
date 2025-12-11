@@ -39,3 +39,31 @@ export const isSameDay = (date1: Date, date2: Date): boolean => {
     date1.getFullYear() === date2.getFullYear()
   );
 };
+
+/**
+ * 특정 날짜가 이벤트 기간(startTime ~ endTime) 내에 포함되는지 확인
+ */
+export const isDateInEventRange = (
+  date: Date,
+  startTime: Date,
+  endTime: Date,
+): boolean => {
+  // 날짜만 비교하기 위해 시간 부분 제거
+  const targetDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+  const startDate = new Date(
+    startTime.getFullYear(),
+    startTime.getMonth(),
+    startTime.getDate(),
+  );
+  const endDate = new Date(
+    endTime.getFullYear(),
+    endTime.getMonth(),
+    endTime.getDate(),
+  );
+
+  return targetDate >= startDate && targetDate <= endDate;
+};

@@ -1,5 +1,5 @@
 import { type ScheduleEvent } from '../../_helpers/types';
-import { isSameDay } from '../../_helpers/utils';
+import { isDateInEventRange } from '../../_helpers/utils';
 
 type Props = {
   events: ScheduleEvent[];
@@ -18,7 +18,9 @@ export const ScheduleSidebar = ({
 
   const displayEvents = isDateSelected
     ? events
-        .filter((event) => isSameDay(event.startTime, selectedDate))
+        .filter((event) =>
+          isDateInEventRange(selectedDate, event.startTime, event.endTime),
+        )
         .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
     : events
         .filter((event) => event.startTime >= new Date())
