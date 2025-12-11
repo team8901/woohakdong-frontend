@@ -2,20 +2,63 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const TOSS_PAYMENTS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ?? '';
+import type { PaymentWidgetInstance } from '@tosspayments/payment-widget-sdk';
 
-export const usePaymentWidget = (customerKey: string) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [paymentWidget, setPaymentWidget] = useState<any>(null);
+const TOSS_PAYMENTS_CLIENT_KEY =
+  process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ?? '';
+
+type Currency = 'KRW' | 'USD';
+
+type Amount = {
+  value: number;
+  currency?: Currency;
+};
+
+type PaymentOptions = {
+  orderId: string;
+  orderName: string;
+  successUrl: string;
+  failUrl: string;
+  customerEmail?: string;
+  customerName?: string;
+};
+
+type PaymentResult = {
+  paymentKey: string;
+  amount: number;
+  orderId: string;
+};
+
+type UsePaymentWidgetReturn = {
+  renderPaymentMethods: (
+    selector: string,
+    amount: Amount,
+  ) => Promise<unknown | null>;
+  updateAmount: (amount: number) => void;
+  requestPayment: (options: PaymentOptions) => Promise<PaymentResult | void>;
+  isReady: boolean;
+};
+
+export const usePaymentWidget = (
+  customerKey: string,
+): UsePaymentWidgetReturn => {
+  const [paymentWidget, setPaymentWidget] =
+    useState<PaymentWidgetInstance | null>(null);
   const [isReady, setIsReady] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const paymentMethodsWidgetRef = useRef<any>(null);
+  const paymentMethodsWidgetRef = useRef<ReturnType<
+    PaymentWidgetInstance['renderPaymentMethods']
+  > | null>(null);
 
   useEffect(() => {
     const loadWidget = async () => {
       try {
-        const { loadPaymentWidget } = await import('@tosspayments/payment-widget-sdk');
-        const widget = await loadPaymentWidget(TOSS_PAYMENTS_CLIENT_KEY, customerKey);
+        const { loadPaymentWidget } = await import(
+          '@tosspayments/payment-widget-sdk'
+        );
+        const widget = await loadPaymentWidget(
+          TOSS_PAYMENTS_CLIENT_KEY,
+          customerKey,
+        );
 
         setPaymentWidget(widget);
         setIsReady(true);
@@ -30,12 +73,16 @@ export const usePaymentWidget = (customerKey: string) => {
   }, [customerKey]);
 
   const renderPaymentMethods = useCallback(
-    async (selector: string, amount: { value: number; currency: string }) => {
+    async (selector: string, amount: Amount) => {
       if (!paymentWidget) return null;
 
-      const paymentMethodsWidget = paymentWidget.renderPaymentMethods(selector, amount, {
-        variantKey: 'DEFAULT',
-      });
+      const paymentMethodsWidget = paymentWidget.renderPaymentMethods(
+        selector,
+        amount,
+        {
+          variantKey: 'DEFAULT',
+        },
+      );
 
       paymentMethodsWidgetRef.current = paymentMethodsWidget;
 
@@ -44,21 +91,14 @@ export const usePaymentWidget = (customerKey: string) => {
     [paymentWidget],
   );
 
-  const updateAmount = useCallback((amount: { value: number; currency: string }) => {
+  const updateAmount = useCallback((amount: number) => {
     if (paymentMethodsWidgetRef.current) {
       paymentMethodsWidgetRef.current.updateAmount(amount);
     }
   }, []);
 
   const requestPayment = useCallback(
-    async (options: {
-      orderId: string;
-      orderName: string;
-      successUrl: string;
-      failUrl: string;
-      customerEmail?: string;
-      customerName?: string;
-    }) => {
+    async (options: PaymentOptions) => {
       if (!paymentWidget) {
         throw new Error('Payment widget not initialized');
       }
@@ -69,7 +109,6 @@ export const usePaymentWidget = (customerKey: string) => {
   );
 
   return {
-    paymentWidget,
     renderPaymentMethods,
     updateAmount,
     requestPayment,
