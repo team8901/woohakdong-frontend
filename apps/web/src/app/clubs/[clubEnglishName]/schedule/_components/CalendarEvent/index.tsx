@@ -1,10 +1,11 @@
 import { type EventProps } from 'react-big-calendar';
 
+import { DEFAULT_EVENT_COLOR } from '../../_helpers/constants';
 import { type ScheduleEvent } from '../../_helpers/types';
 import { getContrastColor } from '../../_helpers/utils';
 
 export const CalendarEvent = ({ event }: EventProps<ScheduleEvent>) => {
-  const bgColor = event.color ?? '#6366f1';
+  const bgColor = event.color ?? DEFAULT_EVENT_COLOR;
   const textColor = getContrastColor(bgColor);
 
   return (

@@ -1,3 +1,4 @@
+import { DEFAULT_EVENT_COLOR } from '../constants';
 import { type ScheduleEvent } from '.';
 
 // 오늘 기준으로 일정 생성
@@ -112,7 +113,7 @@ export const sampleScheduleData: ScheduleEvent[] = [
     id: 12,
     title: '장기 프로젝트 마감',
     content: '이번 학기 장기 프로젝트 최종 제출',
-    color: '#6366f1',
+    color: DEFAULT_EVENT_COLOR,
     startTime: getDate(21, 9, 0),
     endTime: getDate(21, 18, 0),
   },

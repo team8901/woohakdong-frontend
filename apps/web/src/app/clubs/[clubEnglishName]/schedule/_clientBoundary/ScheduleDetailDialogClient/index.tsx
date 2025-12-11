@@ -10,6 +10,7 @@ import {
 } from '@workspace/ui/components/dialog';
 import { CalendarDays, Clock } from 'lucide-react';
 
+import { DEFAULT_EVENT_COLOR } from '../../_helpers/constants';
 import { type ScheduleEvent } from '../../_helpers/types';
 import { getDaysBetween, isSameDay } from '../../_helpers/utils';
 
@@ -51,7 +52,7 @@ export const ScheduleDetailDialogClient = ({
           <div className="flex items-start gap-3">
             <div
               className="mt-1 size-3 shrink-0 rounded-full"
-              style={{ backgroundColor: event.color ?? '#6366f1' }}
+              style={{ backgroundColor: event.color ?? DEFAULT_EVENT_COLOR }}
             />
             <div className="flex-1">
               <DialogTitle className="text-lg">{event.title}</DialogTitle>

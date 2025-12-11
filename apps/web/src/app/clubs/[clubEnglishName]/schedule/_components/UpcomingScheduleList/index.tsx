@@ -1,3 +1,4 @@
+import { DEFAULT_EVENT_COLOR } from '../../_helpers/constants';
 import { type ScheduleEvent } from '../../_helpers/types';
 import { isDateInEventRange } from '../../_helpers/utils';
 
@@ -57,7 +58,7 @@ export const ScheduleSidebar = ({
             <div className="flex items-start gap-3">
               <div
                 className="mt-1 size-2 shrink-0 rounded-full"
-                style={{ backgroundColor: event.color ?? '#6366f1' }}
+                style={{ backgroundColor: event.color ?? DEFAULT_EVENT_COLOR }}
               />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{event.title}</p>
