@@ -9,7 +9,7 @@ import { type ScheduleEvent } from '../../_helpers/types';
 import { SchedulePostingButtonClient } from '../SchedulePostingButtonClient';
 
 export const CalendarToolbar = (toolbar: ToolbarProps<ScheduleEvent>) => (
-  <div className="flex flex-col-reverse gap-2 p-5 md:flex-row md:items-center md:justify-between md:px-8 md:py-4">
+  <div className="flex flex-col-reverse gap-2 pb-5 md:flex-row md:items-center md:justify-between md:pb-4">
     <div className="flex items-center justify-between md:justify-start">
       <p className="text-xl font-bold">
         {toolbar.date.toLocaleDateString('ko-KR', {

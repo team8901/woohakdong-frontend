@@ -1,0 +1,186 @@
+/* react-big-calendar 커스텀 스타일 */
+
+/* 전체 캘린더 스타일 */
+.rbc-calendar {
+  font-family: inherit;
+  height: auto !important;
+}
+
+/* 헤더 (요일) 스타일 */
+.rbc-header {
+  padding: 4px 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  background: hsl(var(--muted) / 0.3);
+}
+
+.rbc-header + .rbc-header {
+  border-left: 1px solid hsl(var(--border)) !important;
+}
+
+/* 월 뷰 */
+.rbc-month-view {
+  height: auto !important;
+  flex: none !important;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: hsl(var(--card));
+}
+
+/* 날짜 셀 */
+.rbc-date-cell {
+  padding: 4px 8px;
+  text-align: right;
+  font-size: 0.875rem;
+}
+
+.rbc-date-cell > a,
+.rbc-date-cell > button {
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+
+/* 오늘 날짜 셀 배경 강조 */
+.rbc-today {
+  background-color: hsl(var(--primary) / 0.08) !important;
+}
+
+/* 이번 달이 아닌 날짜 - 연한 배경과 텍스트 */
+.rbc-off-range {
+  color: hsl(var(--muted-foreground) / 0.4);
+}
+
+.rbc-off-range-bg {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+/* 날짜 행 - 높이 자동 조절 */
+.rbc-month-row {
+  min-height: 100px;
+  height: auto !important;
+  overflow: visible !important;
+  flex: none !important;
+}
+
+/* 행 내부 스크롤 제거 */
+.rbc-row-content {
+  overflow: visible !important;
+}
+
+.rbc-row-content-scrollable {
+  overflow: visible !important;
+}
+
+.rbc-row-content-scroll-container {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* 날짜 셀 배경 */
+.rbc-day-bg {
+  border-right: 1px solid hsl(var(--border)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease;
+}
+
+/* 날짜 셀 전체 클릭 가능 표시 */
+.rbc-date-cell {
+  cursor: pointer !important;
+}
+
+.rbc-row-content {
+  cursor: pointer !important;
+}
+
+.rbc-day-bg:last-child {
+  border-right: none !important;
+}
+
+/* 마지막 행의 하단 테두리 제거 */
+.rbc-month-row:last-child .rbc-day-bg {
+  border-bottom: none !important;
+}
+
+/* 날짜 셀 호버 효과 */
+.rbc-day-bg:hover {
+  background-color: hsl(var(--primary) / 0.08);
+}
+
+/* 선택된 날짜 셀 */
+.rbc-day-bg.rbc-selected-cell {
+  background-color: hsl(var(--primary) / 0.15) !important;
+}
+
+/* 날짜 텍스트 호버 효과 */
+.rbc-date-cell > button {
+  transition: all 0.15s ease;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.rbc-date-cell > button:hover {
+  background-color: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+}
+
+/* 이벤트 행 */
+.rbc-row-segment {
+  padding: 0 4px 2px 4px;
+}
+
+/* 이벤트 스타일 */
+.rbc-event {
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.rbc-event:hover {
+  opacity: 0.85;
+}
+
+.rbc-event:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+
+/* 선택된 날짜 범위 */
+.rbc-day-slot .rbc-selected-cell {
+  background-color: hsl(var(--primary) / 0.1);
+}
+
+/* 팝업 오버레이 */
+.rbc-overlay {
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  padding: 8px;
+  z-index: 50;
+}
+
+.rbc-overlay-header {
+  font-weight: 600;
+  padding: 8px;
+  border-bottom: 1px solid hsl(var(--border));
+  margin-bottom: 4px;
+}
+
+/* 주말 스타일 */
+.rbc-header:first-child,
+.rbc-header:last-child {
+  color: hsl(var(--muted-foreground));
+}
+
+/* 버튼 링크 스타일 */
+.rbc-button-link {
+  color: inherit;
+  font-size: 0.875rem;
+}
