@@ -212,7 +212,7 @@ export const ApplicationFormCreateDialogClient = ({ clubId }: Props) => {
 
             {questions.map((question, qIndex) => (
               <QuestionItem
-                key={qIndex}
+                key={question.id}
                 question={question}
                 index={qIndex}
                 canRemove={questions.length > 1}
