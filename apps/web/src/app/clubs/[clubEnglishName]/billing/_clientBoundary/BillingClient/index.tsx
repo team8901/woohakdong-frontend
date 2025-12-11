@@ -18,35 +18,30 @@ import {
   CardHeader,
   CardTitle,
 } from '@workspace/ui/components/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@workspace/ui/components/dialog';
+import { Dialog, DialogContent } from '@workspace/ui/components/dialog';
 import { Separator } from '@workspace/ui/components/separator';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import {
   SUBSCRIPTION_PLANS,
   type SubscriptionPlanId,
 } from '@workspace/ui/constants/plans';
-import { AlertCircle, Check, CreditCard, Loader2, Plus } from 'lucide-react';
+import { AlertCircle, Check, CreditCard } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+
+import {
+  ConfirmStep,
+  ErrorStep,
+  ProcessingStep,
+  SelectCardStep,
+  SuccessStep,
+} from '../../_components/BillingModal';
 
 type BillingClientProps = {
   clubId: number;
   clubEnglishName: string;
 };
 
-type ModalStep =
-  | 'select-card'
-  | 'register-card'
-  | 'confirm'
-  | 'processing'
-  | 'success'
-  | 'error';
+type ModalStep = 'select-card' | 'confirm' | 'processing' | 'success' | 'error';
 
 export const BillingClient = ({
   clubId,
@@ -67,13 +62,11 @@ export const BillingClient = ({
     setIsMockMode(process.env.NEXT_PUBLIC_IS_MOCK === 'true');
   }, []);
 
-  // 구독이 없으면 Free 플랜으로 간주
   const currentPlanId: SubscriptionPlanId = subscription?.planId
     ? (subscription.planId.toUpperCase() as SubscriptionPlanId)
     : 'FREE';
   const currentPlan = SUBSCRIPTION_PLANS[currentPlanId];
 
-  // 유료 플랜은 Mock 환경이거나 토스페이먼츠 설정이 완료된 경우에만 활성화
   const isTossPaymentsEnabled =
     !!process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY;
   const isPaidPlanDisabled = !isMockMode && !isTossPaymentsEnabled;
@@ -93,7 +86,6 @@ export const BillingClient = ({
   };
 
   const handleRegisterMockCard = async () => {
-    // Mock 환경에서는 가상 카드 등록
     setIsProcessing(true);
     setModalStep('processing');
 
@@ -129,7 +121,6 @@ export const BillingClient = ({
   };
 
   const handleRegisterRealCard = async () => {
-    // 실제 카드 등록: 토스페이먼츠 빌링 인증창으로 리다이렉트
     try {
       const { loadTossPayments } = await import('@tosspayments/payment-sdk');
       const clientKey = process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ?? '';
@@ -155,7 +146,6 @@ export const BillingClient = ({
     } catch (err) {
       console.error('Failed to open card registration:', err);
 
-      // 사용자가 취소한 경우
       if (err instanceof Error && err.message.includes('USER_CANCEL')) {
         return;
       }
@@ -181,7 +171,6 @@ export const BillingClient = ({
       const plan = SUBSCRIPTION_PLANS[selectedPlan];
 
       if (isMockMode) {
-        // Mock 환경: 실제 결제 없이 구독 생성
         await createMockSubscription(
           {
             clubId,
@@ -194,7 +183,6 @@ export const BillingClient = ({
           defaultBillingKey.id,
         );
       } else {
-        // 실제 환경: 토스페이먼츠 결제 API 호출
         const orderId = `order_${clubId}_${Date.now()}`;
 
         const paymentResponse = await fetch('/api/billing/payment', {
@@ -217,7 +205,6 @@ export const BillingClient = ({
 
         const { paymentKey } = await paymentResponse.json();
 
-        // Firebase에 구독 및 결제 기록 저장
         await createSubscriptionWithBillingKey({
           clubId,
           userId: user.uid,
@@ -470,192 +457,41 @@ export const BillingClient = ({
       {/* 플랜 변경 모달 */}
       <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
         <DialogContent>
-          {/* Step: 카드 선택/등록 */}
           {modalStep === 'select-card' && (
-            <>
-              <DialogHeader>
-                <DialogTitle>결제 수단 등록</DialogTitle>
-                <DialogDescription>
-                  정기 결제를 위한 카드를 등록해주세요.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                {/* 실제 카드 등록 버튼 */}
-                <Button
-                  variant="outline"
-                  className="h-auto w-full justify-start p-4"
-                  onClick={handleRegisterRealCard}
-                  disabled={isProcessing}>
-                  <Plus className="mr-3 size-5" />
-                  <div className="text-left">
-                    <p className="font-medium">새 카드 등록</p>
-                    <p className="text-muted-foreground text-sm">
-                      신용/체크카드를 등록합니다
-                    </p>
-                  </div>
-                </Button>
-                {/* Mock 환경에서만 모의 카드 등록 버튼 표시 */}
-                {isMockMode && (
-                  <Button
-                    variant="outline"
-                    className="h-auto w-full justify-start p-4"
-                    onClick={handleRegisterMockCard}
-                    disabled={isProcessing}>
-                    <CreditCard className="mr-3 size-5" />
-                    <div className="text-left">
-                      <p className="font-medium">모의 카드 등록</p>
-                      <p className="text-muted-foreground text-sm">
-                        테스트용 가상 카드를 등록합니다
-                      </p>
-                    </div>
-                  </Button>
-                )}
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={handleCloseModal}>
-                  취소
-                </Button>
-              </DialogFooter>
-            </>
+            <SelectCardStep
+              isMockMode={isMockMode}
+              isProcessing={isProcessing}
+              onRegisterRealCard={handleRegisterRealCard}
+              onRegisterMockCard={handleRegisterMockCard}
+              onClose={handleCloseModal}
+            />
           )}
 
-          {/* Step: 결제 확인 */}
           {modalStep === 'confirm' && selectedPlan && (
-            <>
-              <DialogHeader>
-                <DialogTitle>플랜 변경 확인</DialogTitle>
-                <DialogDescription>
-                  {SUBSCRIPTION_PLANS[selectedPlan].name} 플랜으로 변경합니다.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">변경할 플랜</span>
-                    <span className="font-medium">
-                      {SUBSCRIPTION_PLANS[selectedPlan].name}
-                    </span>
-                  </div>
-                  <Separator className="my-3" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">결제 금액</span>
-                    <span className="text-primary font-bold">
-                      {SUBSCRIPTION_PLANS[selectedPlan].basePrice === 0
-                        ? '무료'
-                        : `${SUBSCRIPTION_PLANS[selectedPlan].basePrice.toLocaleString()}원/월`}
-                    </span>
-                  </div>
-                </div>
-                {defaultBillingKey &&
-                  SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0 && (
-                    <div className="rounded-lg border p-3">
-                      <p className="text-muted-foreground mb-1 text-xs">
-                        결제 카드
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="size-4" />
-                        <span className="text-sm">
-                          {defaultBillingKey.cardCompany}{' '}
-                          {defaultBillingKey.cardNumber}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                {!defaultBillingKey &&
-                  SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0 && (
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => setModalStep('select-card')}>
-                      <Plus className="mr-2 size-4" />
-                      카드 등록하기
-                    </Button>
-                  )}
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={handleCloseModal}>
-                  취소
-                </Button>
-                <Button
-                  onClick={handlePayment}
-                  disabled={
-                    !defaultBillingKey &&
-                    SUBSCRIPTION_PLANS[selectedPlan].basePrice > 0
-                  }>
-                  {SUBSCRIPTION_PLANS[selectedPlan].basePrice === 0
-                    ? '플랜 변경'
-                    : `${SUBSCRIPTION_PLANS[selectedPlan].basePrice.toLocaleString()}원 결제하기`}
-                </Button>
-              </DialogFooter>
-            </>
+            <ConfirmStep
+              selectedPlan={selectedPlan}
+              defaultBillingKey={defaultBillingKey}
+              onPayment={handlePayment}
+              onSelectCard={() => setModalStep('select-card')}
+              onClose={handleCloseModal}
+            />
           )}
 
-          {/* Step: 처리 중 */}
-          {modalStep === 'processing' && (
-            <>
-              <DialogHeader className="sr-only">
-                <DialogTitle>처리 중</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col items-center justify-center py-8">
-                <Loader2 className="text-primary mb-4 size-12 animate-spin" />
-                <p className="font-medium">처리 중...</p>
-                <p className="text-muted-foreground text-sm">
-                  잠시만 기다려주세요.
-                </p>
-              </div>
-            </>
-          )}
+          {modalStep === 'processing' && <ProcessingStep />}
 
-          {/* Step: 성공 */}
           {modalStep === 'success' && selectedPlan && (
-            <>
-              <DialogHeader className="sr-only">
-                <DialogTitle>플랜 변경 완료</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col items-center justify-center py-8">
-                <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                  <Check className="size-6 text-green-600 dark:text-green-400" />
-                </div>
-                <p className="font-medium">플랜이 변경되었습니다!</p>
-                <p className="text-muted-foreground text-sm">
-                  {SUBSCRIPTION_PLANS[selectedPlan].name} 플랜 구독이
-                  시작되었습니다.
-                </p>
-              </div>
-              <DialogFooter>
-                <Button onClick={handleCloseModal} className="w-full">
-                  확인
-                </Button>
-              </DialogFooter>
-            </>
+            <SuccessStep
+              selectedPlan={selectedPlan}
+              onClose={handleCloseModal}
+            />
           )}
 
-          {/* Step: 에러 */}
           {modalStep === 'error' && (
-            <>
-              <DialogHeader className="sr-only">
-                <DialogTitle>오류 발생</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col items-center justify-center py-8">
-                <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
-                  <AlertCircle className="size-6 text-red-600 dark:text-red-400" />
-                </div>
-                <p className="font-medium text-red-600 dark:text-red-400">
-                  오류 발생
-                </p>
-                <p className="text-muted-foreground text-center text-sm">
-                  {errorMessage ?? '알 수 없는 오류가 발생했습니다.'}
-                </p>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={handleCloseModal}>
-                  닫기
-                </Button>
-                <Button onClick={() => setModalStep('select-card')}>
-                  다시 시도
-                </Button>
-              </DialogFooter>
-            </>
+            <ErrorStep
+              errorMessage={errorMessage}
+              onRetry={() => setModalStep('select-card')}
+              onClose={handleCloseModal}
+            />
           )}
         </DialogContent>
       </Dialog>
