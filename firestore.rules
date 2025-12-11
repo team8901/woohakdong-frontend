@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 인증된 사용자인지 확인
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // 본인 데이터인지 확인
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ===== 사전 등록 (preRegistrations) =====
+    match /preRegistrations/{emailDocId} {
+      // 생성만 허용 (인증 없이)
+      allow create: if request.auth == null;
+      // 자신의 이메일 문서만 읽기 허용 (중복 체크용)
+      allow get: if request.auth == null;
+      // 목록 조회는 불가
+      allow list: if false;
+      // 수정/삭제 불가
+      allow update, delete: if false;
+    }
+
+    // ===== 구독 컬렉션 (동아리 단위) =====
+    match /subscriptions/{subscriptionId} {
+      // 읽기: 인증된 사용자만 조회 가능 (동아리 멤버 여부는 앱에서 확인)
+      allow read: if isAuthenticated();
+
+      // 생성: 인증된 사용자가 본인 명의로 생성 가능
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['clubId', 'userId', 'userEmail', 'planId', 'planName', 'price', 'status'])
+        && request.resource.data.status == 'active';
+
+      // 수정: 본인이 생성한 구독만 수정 가능, status 필드만 변경 허용
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.clubId == resource.data.clubId
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']);
+
+      // 삭제: 불허
+      allow delete: if false;
+    }
+
+    // ===== 결제 기록 컬렉션 (동아리 단위) =====
+    match /payments/{paymentId} {
+      // 읽기: 인증된 사용자만 조회 가능 (동아리 멤버 여부는 앱에서 확인)
+      allow read: if isAuthenticated();
+
+      // 생성: 인증된 사용자가 본인 명의로 생성 가능
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['clubId', 'userId', 'userEmail', 'orderId', 'paymentKey', 'amount', 'planId', 'planName', 'status']);
+
+      // 수정/삭제: 불허 (결제 기록은 변경 불가)
+      allow update, delete: if false;
+    }
+  }
+}
