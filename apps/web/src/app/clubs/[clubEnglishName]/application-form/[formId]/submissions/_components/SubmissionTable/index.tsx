@@ -13,7 +13,7 @@ import {
 import {
   SUBMISSION_STATUS_LABELS,
   SUBMISSION_STATUS_VARIANTS,
-} from '../_helpers/constants/submissionStatus';
+} from '../../_helpers/constants/submissionStatus';
 
 type Props = {
   submissions: ClubApplicationSubmissionResponse[];

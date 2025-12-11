@@ -15,9 +15,9 @@ import { Trash2 } from 'lucide-react';
 import {
   needsOptions,
   QUESTION_TYPE_LABELS,
-} from '../_helpers/constants/questionType';
-import { type FormQuestion } from '../_helpers/types/formQuestion';
-import { OptionList } from './OptionList';
+} from '../../_helpers/constants/questionType';
+import { type FormQuestion } from '../../_helpers/types/formQuestion';
+import { OptionList } from '../OptionList';
 
 type Props = {
   question: FormQuestion;
