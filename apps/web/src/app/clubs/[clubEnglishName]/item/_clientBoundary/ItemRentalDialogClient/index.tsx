@@ -37,6 +37,8 @@ type Props = {
 export const ItemRentalDialogClient = ({ clubId, item }: Props) => {
   const isEditable = useIsEditable();
   const [isOpen, setIsOpen] = useState(false);
+  // Input은 문자열로 표시하고(빈 값 허용), react-hook-form에는 숫자로 전달해야 해서 별도 상태로 관리
+  const [inputValue, setInputValue] = useState('1');
 
   const { form, onSubmit, onQuit, isFormValid, isSubmitting } = useRentItemForm(
     {
@@ -55,6 +57,7 @@ export const ItemRentalDialogClient = ({ clubId, item }: Props) => {
     setIsOpen(open);
 
     if (!open) {
+      setInputValue('1');
       onQuit();
     }
   };
@@ -84,17 +87,26 @@ export const ItemRentalDialogClient = ({ clubId, item }: Props) => {
                     <FormLabel>대여 일수</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
+                        type="text"
                         inputMode="numeric"
-                        min={1}
-                        max={item.rentalMaxDay ?? DEFAULT_MAX_RENTAL_DAYS}
                         placeholder="대여 일수를 입력해주세요"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                        value={inputValue}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+
+                          setInputValue(value);
+                          field.onChange(
+                            value === '' ? undefined : Number(value),
+                          );
+                        }}
                       />
                     </FormControl>
                     <FormDescription>
-                      최대 {item.rentalMaxDay ?? DEFAULT_MAX_RENTAL_DAYS}일까지 대여 가능합니다.
+                      최대 {item.rentalMaxDay ?? DEFAULT_MAX_RENTAL_DAYS}일까지
+                      대여 가능합니다.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
