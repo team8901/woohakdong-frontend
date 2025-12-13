@@ -1,5 +1,6 @@
 'use client';
 
+import { useIsEditable } from '@/_shared/helpers/hooks/useIsEditable';
 import { exportToExcel } from '@/_shared/helpers/utils/exportToExcel';
 import { getKeyByValue } from '@/_shared/helpers/utils/getKeyByValue';
 import { CLUB_ITEM_CATEGORY } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemCategory';
@@ -15,6 +16,10 @@ type Props = {
 };
 
 export const ExportButtonClient = ({ items, selectedItems }: Props) => {
+  const isEditable = useIsEditable();
+
+  if (!isEditable) return null;
+
   const handleExport = () => {
     exportToExcel({
       allData: items,

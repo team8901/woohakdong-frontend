@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { useIsEditable } from '@/_shared/helpers/hooks/useIsEditable';
 import { usePostingActivityForm } from '@/app/clubs/[clubEnglishName]/activity/_helpers/hooks/usePostingActivityForm';
 import { trackEvent } from '@/eventTracker/trackEvent';
 import { Button } from '@workspace/ui/components/button';
@@ -61,6 +62,7 @@ type Props = {
 export const ActivityPostingDialogClient = ({
   trackingEventName = 'activity_posting_dialog_open',
 }: Props) => {
+  const isEditable = useIsEditable();
   const [open, setOpen] = useState(false);
   const {
     form,
@@ -71,6 +73,8 @@ export const ActivityPostingDialogClient = ({
     imagePreviewUrl,
     onChangeImage,
   } = usePostingActivityForm();
+
+  if (!isEditable) return null;
 
   return (
     <Dialog onOpenChange={onQuit}>

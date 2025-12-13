@@ -15,9 +15,9 @@ export const POST = async (req: Request) => {
     (await cookies()).set('clubMemberRole', clubMemberRole, {
       path: '/',
       maxAge: CLUB_MEMBER_ROLE_MAX_AGE,
-      httpOnly: true,
+      httpOnly: false,
       sameSite: 'strict',
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
     });
 
     return response;
