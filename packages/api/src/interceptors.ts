@@ -1,5 +1,3 @@
-import { REFRESH_URL } from '@workspace/api/_helpers';
-import { refreshAccessToken } from '@workspace/api/manageToken';
 import { captureAxiosError } from '@workspace/sentry/captureAxiosError';
 import {
   type AxiosError,
@@ -8,14 +6,55 @@ import {
   type InternalAxiosRequestConfig,
 } from 'axios';
 
+import { REFRESH_URL } from './_helpers/constants';
+import { refreshAccessToken } from './manageToken';
+
+const isServer = typeof window === 'undefined';
+
 /**
  * Axios 인터셉터 설정
+ *
+ * ## 쿠키 전달 방식
+ * - CSR: withCredentials: true로 브라우저가 자동으로 쿠키 포함
+ * - SSR: next/headers의 cookies()를 통해 쿠키를 읽어 헤더에 주입
+ *
  * @param api Axios 인스턴스
  */
 export const setupInterceptors = (api: AxiosInstance): void => {
-  // Request 인터셉터
+  /**
+   * Request 인터셉터 - 쿠키 주입
+   */
   api.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
+      // SSR: next/headers에서 쿠키 읽어서 헤더에 추가
+      if (isServer) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const { cookies } = require('next/headers') as {
+            cookies: () => Promise<{
+              get: (name: string) => { value: string } | undefined;
+            }>;
+          };
+          const cookieStore = await cookies();
+          const accessToken = cookieStore.get('accessToken')?.value;
+          const refreshToken = cookieStore.get('refreshToken')?.value;
+
+          console.log('SSR 쿠키 주입:', { accessToken, refreshToken });
+
+          const cookieParts: string[] = [];
+
+          if (accessToken) cookieParts.push(`accessToken=${accessToken}`);
+
+          if (refreshToken) cookieParts.push(`refreshToken=${refreshToken}`);
+
+          if (cookieParts.length > 0) {
+            config.headers.set('Cookie', cookieParts.join('; '));
+          }
+        } catch {
+          // cookies()가 서버 컴포넌트 컨텍스트 밖에서 호출되면 에러 발생
+        }
+      }
+
       return config;
     },
     (error: AxiosError) => Promise.reject(error),

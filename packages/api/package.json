@@ -9,6 +9,7 @@
     "test": "jest"
   },
   "exports": {
+    ".": "./src/index.ts",
     "./axios": "./src/axios.ts",
     "./interceptors": "./src/interceptors.ts",
     "./refreshToken": "./src/refreshToken.ts",
