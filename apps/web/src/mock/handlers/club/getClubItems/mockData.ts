@@ -9,7 +9,7 @@ export const 동아리_물품_있음: ListWrapperClubItemResponse = {
     {
       id: 0,
       name: '노트북',
-      photo: '',
+      photo: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
       description: '고성능 게이밍 노트북',
       location: '동아리실',
       category: 'DIGITAL',
@@ -22,7 +22,7 @@ export const 동아리_물품_있음: ListWrapperClubItemResponse = {
     {
       id: 1,
       name: '프로젝터',
-      photo: '',
+      photo: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400',
       description: '고화질 프로젝터',
       location: '동아리실',
       category: 'DIGITAL',
@@ -35,7 +35,7 @@ export const 동아리_물품_있음: ListWrapperClubItemResponse = {
     {
       id: 2,
       name: '스피커',
-      photo: '',
+      photo: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=400',
       description: '고음질 스피커',
       location: '동아리실',
       category: 'DIGITAL',
@@ -48,7 +48,7 @@ export const 동아리_물품_있음: ListWrapperClubItemResponse = {
     {
       id: 3,
       name: '카메라',
-      photo: '',
+      photo: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400',
       description: '고해상도 카메라',
       location: '동아리실',
       category: 'DIGITAL',
@@ -61,7 +61,7 @@ export const 동아리_물품_있음: ListWrapperClubItemResponse = {
     {
       id: 4,
       name: '마이크',
-      photo: '',
+      photo: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400',
       description: '고감도 마이크',
       location: '동아리실',
       category: 'DIGITAL',
@@ -74,7 +74,7 @@ export const 동아리_물품_있음: ListWrapperClubItemResponse = {
     {
       id: 5,
       name: '소설책',
-      photo: '',
+      photo: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400',
       description: '재미있는 소설책',
       location: '동아리실',
       category: 'BOOK',

@@ -1,10 +1,18 @@
 import { type ClubMemberRole } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/clubMemberRole';
 import { API_URL } from '@/data/apiUrl';
 
-export const postClubMemberRole = async (clubMemberRole: ClubMemberRole) => {
+type PostClubMemberRoleParams = {
+  clubMemberRole: ClubMemberRole;
+  clubMembershipId?: number;
+};
+
+export const postClubMemberRole = async ({
+  clubMemberRole,
+  clubMembershipId,
+}: PostClubMemberRoleParams) => {
   const response = await fetch(API_URL.COOKIE.CLUB_MEMBER_ROLE, {
     method: 'POST',
-    body: JSON.stringify({ clubMemberRole }),
+    body: JSON.stringify({ clubMemberRole, clubMembershipId }),
     headers: {
       'Content-Type': 'application/json',
     },

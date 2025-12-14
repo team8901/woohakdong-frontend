@@ -1,6 +1,7 @@
 import { mockPostSocialLogin } from '@/mock/handlers/auth/postSocialLogin/mockPostSocialLogin';
 import { mockDeleteClubNotice } from '@/mock/handlers/club/deleteClubNotice/mockDeleteClubNotice';
 import { mockGetClubInfoSearch } from '@/mock/handlers/club/getClubInfoSearch/mockGetClubInfoSearch';
+import { mockGetClubItem } from '@/mock/handlers/club/getClubItem/mockGetClubItem';
 import { mockGetClubItemHistory } from '@/mock/handlers/club/getClubItemHistory/mockGetClubItemHistory';
 import { mockGetClubItems } from '@/mock/handlers/club/getClubItems/mockGetClubItems';
 import { mockGetClubMembers } from '@/mock/handlers/club/getClubMembers/mockGetClubMembers';
@@ -11,6 +12,7 @@ import { mockPostAddClubItem } from '@/mock/handlers/club/postAddClubItem/mockPo
 import { mockPostClubNotice } from '@/mock/handlers/club/postClubNotice/mockPostClubNotice';
 import { mockPostRegisterClub } from '@/mock/handlers/club/postRegisterClub/mockPostRegisterClub';
 import { mockPostRentClubItem } from '@/mock/handlers/club/postRentClubItem/mockPostRentClubItem';
+import { mockPostReturnClubItem } from '@/mock/handlers/club/postReturnClubItem/mockPostReturnClubItem';
 import { mockPutClubInfo } from '@/mock/handlers/club/putClubInfo/mockPutClubInfo';
 import { mockPutClubNotice } from '@/mock/handlers/club/putClubNotice/mockPutClubNotice';
 import { mockGetMyProfile } from '@/mock/handlers/user-profile/getMyProfile/mockGetMyProfile';
@@ -25,8 +27,10 @@ const handlers = [
   createMockHandler(mockGetS3ImageUrl, 'URL_얻어오기_성공'),
   createMockHandler(mockGetClubMembers, '동아리_회원_목록'),
   createMockHandler(mockGetClubItems, '동아리_물품_있음'),
+  createMockHandler(mockGetClubItem, '동아리_물품_상세_대여중'),
   createMockHandler(mockPostAddClubItem, '물품_등록_성공'),
   createMockHandler(mockPostRentClubItem, '물품_대여_성공'),
+  createMockHandler(mockPostReturnClubItem, '물품_반납_성공'),
   createMockHandler(mockGetClubItemHistory, '동아리_물품_대여_내역_있음'),
   createMockHandler(mockGetJoinedClubs, '내가_가입한_동아리_목록'),
   createMockHandler(mockPutClubInfo, '동아리_정보_수정_성공'),
