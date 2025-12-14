@@ -13,8 +13,16 @@ const createRentItemSchema = (maxRentalDays: number) =>
   z.object({
     rentalDays: z
       .number()
-      .min(1, '최소 1일 이상이어야 합니다.')
-      .max(maxRentalDays, `최대 ${maxRentalDays}일까지 대여 가능합니다.`),
+      .optional()
+      .refine(
+        (val): val is number => val !== undefined,
+        '대여 일수를 입력해주세요.',
+      )
+      .refine((val) => val! >= 1, '최소 1일 이상이어야 합니다.')
+      .refine(
+        (val) => val! <= maxRentalDays,
+        `최대 ${maxRentalDays}일까지 대여 가능합니다.`,
+      ),
   });
 
 type RentItemFormData = z.infer<ReturnType<typeof createRentItemSchema>>;
