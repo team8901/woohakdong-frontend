@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 
 import { ExportButtonClient } from '@/app/clubs/[clubEnglishName]/item/_clientBoundary/ExportButtonClient';
+import { ItemCreateDialogClient } from '@/app/clubs/[clubEnglishName]/item/_clientBoundary/ItemCreateDialogClient';
 import { ItemFilter } from '@/app/clubs/[clubEnglishName]/item/_components/ItemFilter';
 import { ItemTable } from '@/app/clubs/[clubEnglishName]/item/_components/ItemTable';
 import { CLUB_ITEM_RENTAL_STATUS } from '@/app/clubs/[clubEnglishName]/item/_helpers/constants/clubItemRentalStatus';
@@ -126,10 +127,13 @@ export const ItemListClient = ({ initialData, clubId }: Props) => {
             </span>{' '}
             개 물품 조회됨
           </p>
-          <ExportButtonClient
-            items={filteredItems}
-            selectedItems={selectedItems}
-          />
+          <div className="flex items-center gap-2">
+            <ItemCreateDialogClient clubId={clubId} />
+            <ExportButtonClient
+              items={filteredItems}
+              selectedItems={selectedItems}
+            />
+          </div>
         </div>
       </div>
       <ItemTable

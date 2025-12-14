@@ -51,7 +51,7 @@ export const ItemRentalDialogClient = ({ clubId, item }: Props) => {
 
   if (!isEditable) return null;
 
-  if (!item.available) return null;
+  if (!item.available || item.using) return null;
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
