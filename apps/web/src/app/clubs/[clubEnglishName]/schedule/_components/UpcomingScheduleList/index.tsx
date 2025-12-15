@@ -49,7 +49,7 @@ export const ScheduleSidebar = ({
           </button>
         )}
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-2">
         {displayEvents.map((event) => (
           <button
             key={event.id}
