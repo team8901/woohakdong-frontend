@@ -1,10 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
+import { useIsEditable } from '@/_shared/helpers/hooks/useIsEditable';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
-import { getCookieValue } from '@/_shared/helpers/utils/getCookieValue';
-import { CLUB_MEMBER_ROLE } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/clubMemberRole';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -23,19 +20,13 @@ export const NavClient = ({ navMenus }: { navMenus: NavMenu[] }) => {
   const { handleMenuClick } = useMobileSidebarClose();
   const { clubEnglishName } = useParams<{ clubEnglishName: string }>();
   const pathname = usePathname();
-  const [isPresident, setIsPresident] = useState(false);
-
-  useEffect(() => {
-    const clubMemberRole = getCookieValue('clubMemberRole');
-
-    setIsPresident(clubMemberRole === CLUB_MEMBER_ROLE.회장);
-  }, []);
+  const isEditable = useIsEditable();
 
   return (
     <div>
       {navMenus.map((navMenu) => {
         const visibleSubCategories = navMenu.subCategories.filter(
-          (subCategory) => !subCategory.presidentOnly || isPresident,
+          (subCategory) => !subCategory.presidentOnly || isEditable,
         );
 
         if (visibleSubCategories.length === 0) return null;

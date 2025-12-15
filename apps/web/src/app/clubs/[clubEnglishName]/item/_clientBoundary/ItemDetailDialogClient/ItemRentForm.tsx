@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { type UseFormReturn } from 'react-hook-form';
 
-import { type ClubItemResponse } from '@workspace/api/generated';
+import {
+  type ClubItemRentRequest,
+  type ClubItemResponse,
+} from '@workspace/api/generated';
 import { Button } from '@workspace/ui/components/button';
 import {
   DialogDescription,
@@ -20,17 +24,13 @@ import {
 import { Input } from '@workspace/ui/components/input';
 import { Spinner } from '@workspace/ui/components/spinner';
 
-type RentFormData = {
-  rentalDays: number;
-};
-
 type Props = {
   item: ClubItemResponse;
-  form: UseFormReturn<RentFormData>;
+  form: UseFormReturn<ClubItemRentRequest>;
   maxRentalDays: number;
   isFormValid: boolean;
   isSubmitting: boolean;
-  onSubmit: (data: RentFormData) => Promise<void>;
+  onSubmit: (data: ClubItemRentRequest) => Promise<void>;
   onCancel: () => void;
 };
 
@@ -43,6 +43,9 @@ export const ItemRentForm = ({
   onSubmit,
   onCancel,
 }: Props) => {
+  // Input은 문자열로 표시하고(빈 값 허용), react-hook-form에는 숫자로 전달해야 해서 별도 상태로 관리
+  const [inputValue, setInputValue] = useState('1');
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -59,13 +62,19 @@ export const ItemRentForm = ({
                 <FormLabel>대여 일수</FormLabel>
                 <FormControl>
                   <Input
-                    type="number"
+                    type="text"
                     inputMode="numeric"
-                    min={1}
-                    max={maxRentalDays}
                     placeholder="대여 일수를 입력해주세요"
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    name={field.name}
+                    ref={field.ref}
+                    onBlur={field.onBlur}
+                    value={inputValue}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+
+                      setInputValue(value);
+                      field.onChange(value === '' ? undefined : Number(value));
+                    }}
                   />
                 </FormControl>
                 <FormDescription>
