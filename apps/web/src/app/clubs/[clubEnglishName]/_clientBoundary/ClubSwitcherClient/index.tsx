@@ -44,8 +44,20 @@ export const ClubSwitcherClient = ({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                {/** TODO: 동아리 이미지로 추가해야 함 */}
+              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                {activeClub.bannerImageUrl ? (
+                  <Image
+                    src={activeClub.bannerImageUrl}
+                    alt={activeClub.name ?? ''}
+                    width={32}
+                    height={32}
+                    className="size-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm font-semibold">
+                    {activeClub.name?.charAt(0)}
+                  </span>
+                )}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{activeClub.name}</span>
@@ -74,15 +86,21 @@ export const ClubSwitcherClient = ({
                   );
                 }}
                 className="gap-2 p-2">
-                {club.bannerImageUrl && (
-                  <Image
-                    className="size-6 rounded-md border"
-                    alt=""
-                    src={club.bannerImageUrl}
-                    width={24}
-                    height={24}
-                  />
-                )}
+                <div className="bg-muted flex size-6 items-center justify-center overflow-hidden rounded-md border">
+                  {club.bannerImageUrl ? (
+                    <Image
+                      src={club.bannerImageUrl}
+                      alt={club.name ?? ''}
+                      width={24}
+                      height={24}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs font-medium">
+                      {club.name?.charAt(0)}
+                    </span>
+                  )}
+                </div>
                 {club.name}
               </DropdownMenuItem>
             ))}

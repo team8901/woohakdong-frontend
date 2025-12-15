@@ -1,4 +1,5 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
+import { TableSkeleton } from '@/_shared/components/skeletons';
 import { withSuspense } from '@/_shared/helpers/hoc/withSuspense';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { MemberListClient } from '@/app/clubs/[clubEnglishName]/member/_clientBoundary/MemberListClient';
@@ -30,6 +31,7 @@ export const MemberListSuspense = withSuspense(
       );
     }
   },
-  // TODO: fallback 구현
-  { fallback: <div>로딩중...</div> },
+  {
+    fallback: <TableSkeleton columns={6} rows={5} />,
+  },
 );

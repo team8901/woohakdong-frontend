@@ -17,13 +17,15 @@ const DashboardLayout = async ({ children }: PropsWithChildren) => {
   const isDefaultOpen = sidebarCookie === undefined || sidebarCookie === 'true';
 
   return (
-    <div className="flex min-h-screen w-screen">
+    <div className="flex min-h-screen w-screen overflow-x-hidden">
       <ClubRoleInitializer />
       <SidebarProvider defaultOpen={isDefaultOpen}>
         <DashboardSidebar />
-        <SidebarInset>
+        <SidebarInset className="min-w-0 overflow-hidden">
           <DashboardHeader />
-          <div className="flex flex-1 flex-col p-5 md:p-8">{children}</div>
+          <div className="flex min-w-0 flex-1 flex-col overflow-x-auto p-5 md:p-8">
+            {children}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </div>

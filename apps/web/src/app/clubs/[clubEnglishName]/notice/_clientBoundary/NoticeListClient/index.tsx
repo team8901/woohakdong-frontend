@@ -8,6 +8,7 @@ import {
   type NoticeResponse,
   useGetNotices,
 } from '@workspace/api/generated';
+import { Megaphone } from 'lucide-react';
 
 import {
   CLUB_MEMBER_ROLE,
@@ -77,16 +78,27 @@ export const NoticeListClient = ({
           {isEditable && <NoticePostingDialogClient clubId={clubId} />}
         </div>
       </div>
-      <div className="grid gap-6">
-        {filteredNotices.map((notice) => (
-          <NoticeCardClient
-            key={notice.id}
-            clubId={clubId}
-            notice={notice}
-            clubMemberRole={clubMemberRole}
-          />
-        ))}
-      </div>
+      {filteredNotices.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Megaphone className="text-muted-foreground mb-4 size-12" />
+          <p className="text-muted-foreground">
+            {searchQuery
+              ? '검색 결과가 없습니다'
+              : '등록된 공지사항이 없습니다'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-6">
+          {filteredNotices.map((notice) => (
+            <NoticeCardClient
+              key={notice.id}
+              clubId={clubId}
+              notice={notice}
+              clubMemberRole={clubMemberRole}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -8,6 +8,11 @@ import { ITEM_EXPORT_CONFIG } from '@/app/clubs/[clubEnglishName]/item/_helpers/
 import { getRentalStatusLabel } from '@/app/clubs/[clubEnglishName]/item/_helpers/utils/getRentalStatusLabel';
 import { type ClubItemResponse } from '@workspace/api/generated';
 import { Button } from '@workspace/ui/components/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@workspace/ui/components/tooltip';
 import { DownloadIcon } from 'lucide-react';
 
 type Props = {
@@ -40,10 +45,26 @@ export const ExportButtonClient = ({ items, selectedItems }: Props) => {
     });
   };
 
+  const isEmpty = items.length === 0;
+
   return (
-    <Button type="button" variant="secondary" onClick={handleExport}>
-      <DownloadIcon />
-      내보내기
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className={isEmpty ? 'cursor-not-allowed' : ''}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleExport}
+            disabled={isEmpty}
+            className={isEmpty ? 'pointer-events-none' : ''}>
+            <DownloadIcon />
+            내보내기
+          </Button>
+        </span>
+      </TooltipTrigger>
+      {isEmpty && (
+        <TooltipContent>내보낼 데이터가 없습니다</TooltipContent>
+      )}
+    </Tooltip>
   );
 };
