@@ -3,6 +3,7 @@ import {
   Calendar,
   ClipboardClock,
   ClipboardList,
+  FileText,
   Info,
   Megaphone,
   NotebookPen,
@@ -19,6 +20,7 @@ export const NAV_MENU_ICONS = {
   ClipboardList,
   ClipboardClock,
   Info,
+  FileText,
 } as const;
 
 export const DASHBOARD_BREADCRUMB_MAP: Record<string, PathData> = {
@@ -45,6 +47,10 @@ export const DASHBOARD_BREADCRUMB_MAP: Record<string, PathData> = {
   '/item-history': {
     category: '관리',
     title: '물품 대여 내역',
+  },
+  '/application-form': {
+    category: '관리',
+    title: '가입 신청서',
   },
   '/club-info': {
     category: '정보',
@@ -90,6 +96,12 @@ export const NAV_MENU = [
         title: '물품 대여 내역',
         icon: 'ClipboardClock',
         url: APP_PATH.CLUBS.ITEM_HISTORY,
+      },
+      {
+        title: '가입 신청서',
+        icon: 'FileText',
+        url: APP_PATH.CLUBS.APPLICATION_FORM,
+        presidentOnly: true,
       },
     ],
   },

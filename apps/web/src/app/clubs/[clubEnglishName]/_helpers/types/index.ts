@@ -13,6 +13,7 @@ export type SubCategory = {
   title: string;
   icon: string;
   url: string;
+  presidentOnly?: boolean;
 };
 
 export type NavMenu = {

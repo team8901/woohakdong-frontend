@@ -1,7 +1,7 @@
 import { ClubInfoHeader } from '@/app/clubs/[clubEnglishName]/club-info/_components/ClubInfoHeader';
 
-import { QrCardClient } from './_clientBoundary/QrCardClient';
 import { ClubInfoFormSuspense } from './_suspense/ClubInfoFormSuspense';
+import { QrCardSuspense } from './_suspense/QrCardSuspense';
 
 /**
  * 동적 렌더링 강제 설정
@@ -20,7 +20,7 @@ const ClubInfoPage = async ({ params }: Props) => {
     <div className="space-y-6">
       <ClubInfoHeader />
       <ClubInfoFormSuspense params={params} />
-      <QrCardClient />
+      <QrCardSuspense params={params} />
     </div>
   );
 };

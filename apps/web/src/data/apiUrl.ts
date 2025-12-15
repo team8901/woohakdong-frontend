@@ -17,6 +17,10 @@ export const API_URL = {
     CLUB_ITEM_RENT: '/api/clubs/:clubId/items/:itemId/rent',
     CLUB_ITEM_RETURN: '/api/clubs/:clubId/items/:itemId/return',
     CLUB_ITEM_HISTORY: '/api/clubs/:clubId/items/history',
+    APPLICATION_FORMS: '/api/clubs/:clubId/application-forms',
+    APPLICATION_FORM_LATEST: '/api/clubs/:clubId/application-forms/latest',
+    APPLICATION_SUBMISSIONS:
+      '/api/clubs/:clubId/application-forms/:applicationFormId/submissions',
   },
   USER: {
     MY_PROFILE: '/api/users/profiles/me',
