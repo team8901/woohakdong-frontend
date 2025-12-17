@@ -16,6 +16,7 @@ const nextConfig = {
       },
     ],
   },
+  allowedDevOrigins: ['local.woohakdong.com'],
   async rewrites() {
     const isDev = process.env.NODE_ENV === 'development'; // eslint-disable-line no-undef
 

@@ -86,11 +86,14 @@ woohakdong-frontend/
 
 ## ⚙️ 개발 환경 설정
 
-### 쿠키 도메인 이슈 해결
+### 쿠키 도메인 및 Secure 이슈 해결
 
-서버에서 쿠키 도메인을 `.woohakdong.com`으로 설정하기 때문에, `localhost`에서는 쿠키가 브라우저에 저장되지 않습니다.
+서버에서 쿠키 설정이 `Domain=.woohakdong.com`, `Secure=true`이기 때문에, 개발 환경에서 쿠키가 브라우저에 저장되려면 다음 두 가지가 필요합니다.
 
-이를 해결하기 위해 hosts 파일을 수정해야 합니다.
+1. 도메인이 `.woohakdong.com`과 일치해야 함
+2. HTTPS 연결이어야 함
+
+#### 1. hosts 파일 수정
 
 **Mac / Linux**
 
@@ -110,7 +113,31 @@ C:\Windows\System32\drivers\etc\hosts
 127.0.0.1 local.woohakdong.com
 ```
 
-설정 후 `http://local.woohakdong.com:3000`으로 접속하면 쿠키가 정상적으로 저장됩니다.
+#### 2. 로컬 SSL 인증서 생성
+
+```bash
+# mkcert 설치 (Mac)
+brew install mkcert
+mkcert -install
+
+# 인증서 생성 (apps/web/certs 폴더에 저장)
+cd apps/web
+mkdir -p certs
+cd certs
+mkcert local.woohakdong.com
+```
+
+#### 3. HTTPS 개발 서버 실행
+
+```bash
+pnpm --filter web dev:https
+```
+
+#### 4. 접속
+
+```
+https://local.woohakdong.com:3000
+```
 
 <br>
 
