@@ -26,7 +26,6 @@ import { CircleXIcon } from 'lucide-react';
 type Props = {
   filters: {
     nameQuery: string;
-    renterQuery: string;
     categoryQuery: ClubItemCategory | DefaultOption;
     rentalStatusQuery: ClubItemRentalStatus | DefaultOption;
     sortOption: ClubItemSortOption;
@@ -34,8 +33,6 @@ type Props = {
   handlers: {
     handleNameQueryChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleNameQueryClear: () => void;
-    handleRenterQueryChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleRenterQueryClear: () => void;
     handleCategoryChange: (value: ClubItemCategory | DefaultOption) => void;
     handleRentalStatusChange: (
       value: ClubItemRentalStatus | DefaultOption,
@@ -50,49 +47,26 @@ export const ItemFilter = ({ filters, handlers }: Props) => {
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
         <Label>검색</Label>
-        <div className="flex flex-col gap-2 md:flex-row">
-          <div className="relative w-full">
-            <Input
-              id="nameQuery"
-              type="text"
-              inputMode="search"
-              placeholder="물품 이름 검색"
-              value={filters.nameQuery}
-              className="pr-9"
-              onChange={handlers.handleNameQueryChange}
-            />
-            {filters.nameQuery && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handlers.handleNameQueryClear}
-                className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent">
-                <CircleXIcon />
-                <span className="sr-only">물품명 검색 초기화</span>
-              </Button>
-            )}
-          </div>
-          <div className="relative w-full">
-            <Input
-              id="renterQuery"
-              type="text"
-              inputMode="search"
-              placeholder="대여자 검색"
-              value={filters.renterQuery}
-              className="pr-9"
-              onChange={handlers.handleRenterQueryChange}
-            />
-            {filters.renterQuery && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handlers.handleRenterQueryClear}
-                className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent">
-                <CircleXIcon />
-                <span className="sr-only">대여자 검색 초기화</span>
-              </Button>
-            )}
-          </div>
+        <div className="relative w-full">
+          <Input
+            id="nameQuery"
+            type="text"
+            inputMode="search"
+            placeholder="물품 이름 검색"
+            value={filters.nameQuery}
+            className="pr-9"
+            onChange={handlers.handleNameQueryChange}
+          />
+          {filters.nameQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handlers.handleNameQueryClear}
+              className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent">
+              <CircleXIcon />
+              <span className="sr-only">물품명 검색 초기화</span>
+            </Button>
+          )}
         </div>
       </div>
 

@@ -14,7 +14,6 @@ import {
 
 export const useItemFilter = () => {
   const [nameQuery, setNameQuery] = useState(DEFAULT_QUERY);
-  const [renterQuery, setRenterQuery] = useState(DEFAULT_QUERY);
   const [categoryQuery, setCategoryQuery] = useState<
     ClubItemCategory | DefaultOption
   >(DEFAULT_OPTION);
@@ -35,14 +34,6 @@ export const useItemFilter = () => {
     setNameQuery(DEFAULT_QUERY);
   };
 
-  const handleRenterQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRenterQuery(e.target.value);
-  };
-
-  const handleRenterQueryClear = () => {
-    setRenterQuery(DEFAULT_QUERY);
-  };
-
   const handleCategoryChange = (value: ClubItemCategory | DefaultOption) => {
     setCategoryQuery(value);
   };
@@ -60,7 +51,6 @@ export const useItemFilter = () => {
   return {
     filters: {
       nameQuery,
-      renterQuery,
       categoryQuery,
       rentalStatusQuery,
       sortOption,
@@ -68,8 +58,6 @@ export const useItemFilter = () => {
     handlers: {
       handleNameQueryChange,
       handleNameQueryClear,
-      handleRenterQueryChange,
-      handleRenterQueryClear,
       handleCategoryChange,
       handleRentalStatusChange,
       handleSortOptionChange,

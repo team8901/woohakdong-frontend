@@ -1,6 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Badge } from '@workspace/ui/components/badge';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 import { DEFAULT_EVENT_COLOR } from '../../_helpers/constants';
 import { type ScheduleEvent } from '../../_helpers/types';
@@ -19,6 +21,14 @@ const getDaysUntil = (targetDate: Date, now: Date) => {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 };
 
+const formatDateTitle = (date: Date) =>
+  format(date, 'M월 d일 EEEE', { locale: ko });
+
+const formatTime = (date: Date) => format(date, 'HH:mm', { locale: ko });
+
+const formatDateWithTime = (date: Date) =>
+  format(date, 'M월 d일 (EEE) · HH:mm', { locale: ko });
+
 export const ScheduleSidebar = ({
   events,
   selectedDate,
@@ -26,29 +36,46 @@ export const ScheduleSidebar = ({
   onClearDate,
 }: Props) => {
   const isDateSelected = selectedDate !== null;
-  const now = useMemo(() => new Date(), []);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const displayEvents = useMemo(
-    () =>
-      isDateSelected
-        ? events
-            .filter((event) =>
-              isDateInEventRange(selectedDate, event.startTime, event.endTime),
-            )
-            .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
-        : events
-            .filter((event) => event.startTime >= now)
-            .sort((a, b) => a.startTime.getTime() - b.startTime.getTime()),
-    [events, isDateSelected, selectedDate, now],
-  );
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const now = useMemo(() => (isMounted ? new Date() : null), [isMounted]);
+
+  const displayEvents = useMemo(() => {
+    if (isDateSelected) {
+      return events
+        .filter((event) =>
+          isDateInEventRange(selectedDate, event.startTime, event.endTime),
+        )
+        .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+    }
+
+    if (!now) return [];
+
+    return events
+      .filter((event) => event.startTime >= now)
+      .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+  }, [events, isDateSelected, selectedDate, now]);
 
   const title = isDateSelected
-    ? selectedDate.toLocaleDateString('ko-KR', {
-        month: 'long',
-        day: 'numeric',
-        weekday: 'long',
-      })
+    ? formatDateTitle(selectedDate)
     : '다가오는 일정';
+
+  if (!isMounted) {
+    return (
+      <aside className="bg-background w-full shrink-0 border-t p-6 lg:w-72 lg:border-l lg:border-t-0">
+        <div className="mb-4">
+          <h3 className="font-semibold">다가오는 일정</h3>
+        </div>
+        <div className="text-muted-foreground py-4 text-center text-sm">
+          로딩 중...
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className="bg-background w-full shrink-0 border-t p-6 lg:w-72 lg:border-l lg:border-t-0">
@@ -65,7 +92,7 @@ export const ScheduleSidebar = ({
       </div>
       <div className="space-y-3 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-2">
         {displayEvents.map((event) => {
-          const daysUntil = getDaysUntil(event.startTime, now);
+          const daysUntil = now ? getDaysUntil(event.startTime, now) : 0;
 
           return (
             <button
@@ -84,18 +111,8 @@ export const ScheduleSidebar = ({
                   <p className="truncate text-sm font-medium">{event.title}</p>
                   <p className="text-muted-foreground text-xs">
                     {isDateSelected
-                      ? event.startTime.toLocaleTimeString('ko-KR', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })
-                      : `${event.startTime.toLocaleDateString('ko-KR', {
-                          month: 'short',
-                          day: 'numeric',
-                          weekday: 'short',
-                        })} · ${event.startTime.toLocaleTimeString('ko-KR', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}`}
+                      ? formatTime(event.startTime)
+                      : formatDateWithTime(event.startTime)}
                   </p>
                 </div>
                 {!isDateSelected && daysUntil >= 0 && (

@@ -6,9 +6,10 @@ import {
   CLUB_MEMBER_ROLE,
   type ClubMemberRole,
 } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/clubMemberRole';
-import { CLUB_MEMBER_ROLE_TAG_STYLE } from '@/app/clubs/[clubEnglishName]/member/_helpers/constants/clubMemberRoleTagStyle';
 import { type ColumnDef } from '@tanstack/react-table';
 import { type ClubMembershipResponse } from '@workspace/api/generated';
+import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar';
+import { Badge } from '@workspace/ui/components/badge';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 
 export const columns: ColumnDef<ClubMembershipResponse>[] = [
@@ -32,6 +33,7 @@ export const columns: ColumnDef<ClubMembershipResponse>[] = [
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          onClick={(e) => e.stopPropagation()}
         />
       </div>
     ),
@@ -40,37 +42,67 @@ export const columns: ColumnDef<ClubMembershipResponse>[] = [
     size: 48,
   },
   {
-    accessorKey: 'name',
-    header: '이름',
-    cell: ({ row }) => (
-      <span className="font-medium">{row.getValue('name')}</span>
-    ),
-  },
-  {
-    accessorKey: 'clubMemberRole',
-    header: '역할',
+    id: 'member',
+    header: '회원',
     cell: ({ row }) => {
-      const role = row.getValue('clubMemberRole') as ClubMemberRole;
+      const name = row.original.name ?? '';
+      const role = row.original.clubMemberRole as ClubMemberRole;
 
       return (
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${CLUB_MEMBER_ROLE_TAG_STYLE[role]}`}>
-          {getKeyByValue(CLUB_MEMBER_ROLE, role)}
-        </span>
+        <div className="flex items-center gap-3">
+          <Avatar className="size-9">
+            <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+              {name.slice(0, 1)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex items-center gap-2">
+            <span className="text-foreground font-medium">{name}</span>
+            <Badge
+              variant={role === CLUB_MEMBER_ROLE.멤버 ? 'secondary' : 'default'}
+              className="text-xs">
+              {getKeyByValue(CLUB_MEMBER_ROLE, role)}
+            </Badge>
+          </div>
+        </div>
       );
     },
+  },
+  // TODO: 회원 가입 시 학과 정보도 받게 되면 주석 해제
+  // {
+  //   accessorKey: 'major',
+  //   header: '학과',
+  //   cell: ({ row }) => (
+  //     <span className="text-muted-foreground text-sm">
+  //       {row.getValue('major')}
+  //     </span>
+  //   ),
+  // },
+  {
+    accessorKey: 'studentId',
+    header: '학번',
+    cell: ({ row }) => (
+      <span className="text-muted-foreground text-sm">
+        {row.getValue('studentId')}
+      </span>
+    ),
   },
   {
     accessorKey: 'gender',
     header: '성별',
     cell: ({ row }) => (
-      <span>{getKeyByValue(CLUB_MEMBER_GENDER, row.getValue('gender'))}</span>
+      <span className="text-muted-foreground text-sm">
+        {getKeyByValue(CLUB_MEMBER_GENDER, row.getValue('gender'))}
+      </span>
     ),
   },
   {
     accessorKey: 'phoneNumber',
-    header: '전화번호',
-    cell: ({ row }) => <span>{row.getValue('phoneNumber')}</span>,
+    header: '연락처',
+    cell: ({ row }) => (
+      <span className="text-muted-foreground text-sm">
+        {row.getValue('phoneNumber')}
+      </span>
+    ),
   },
   {
     accessorKey: 'email',
@@ -81,27 +113,20 @@ export const columns: ColumnDef<ClubMembershipResponse>[] = [
       return (
         <a
           href={`mailto:${email}`}
-          className="text-gray-900 underline-offset-4 hover:underline">
+          onClick={(e) => e.stopPropagation()}
+          className="text-muted-foreground hover:text-foreground text-sm underline-offset-4 hover:underline">
           {email}
         </a>
       );
     },
   },
   {
-    accessorKey: 'major',
-    header: '학과',
-    cell: ({ row }) => <span>{row.getValue('major')}</span>,
-  },
-  {
-    accessorKey: 'studentId',
-    header: '학번',
-    cell: ({ row }) => <span>{row.getValue('studentId')}</span>,
-  },
-  {
     accessorKey: 'clubJoinDate',
     header: '가입일',
     cell: ({ row }) => (
-      <span className="text-gray-600">{row.getValue('clubJoinDate')}</span>
+      <span className="text-muted-foreground text-sm">
+        {row.getValue('clubJoinDate')}
+      </span>
     ),
   },
 ];
