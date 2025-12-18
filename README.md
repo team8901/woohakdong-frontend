@@ -84,6 +84,53 @@ woohakdong-frontend/
 
 <br>
 
+## ⚙️ 개발 환경 설정
+
+### 쿠키 도메인 및 Secure 이슈 해결
+
+서버에서 쿠키 설정이 `Domain=.woohakdong.com`, `Secure=true`이기 때문에, 개발 환경에서 쿠키가 브라우저에 저장되려면 다음 두 가지가 필요합니다.
+
+1. 도메인이 `.woohakdong.com`과 일치해야 함
+2. HTTPS 연결이어야 함
+
+#### 1. hosts 파일 수정
+
+**Mac / Linux**
+
+```bash
+sudo vi /etc/hosts
+```
+
+**Windows**
+
+```
+C:\Windows\System32\drivers\etc\hosts
+```
+
+**추가할 내용**
+
+```
+127.0.0.1 local.woohakdong.com
+```
+
+#### 2. HTTPS 개발 서버 실행
+
+```bash
+pnpm --filter web dev:https
+```
+
+Next.js가 자동으로 로컬 SSL 인증서를 생성합니다.
+
+> 참고: https://vercel.com/kb/guide/access-nextjs-localhost-https-certificate-self-signed
+
+#### 3. 접속
+
+```
+https://local.woohakdong.com:3000
+```
+
+<br>
+
 ## 🛠️ 설치
 
 ```bash

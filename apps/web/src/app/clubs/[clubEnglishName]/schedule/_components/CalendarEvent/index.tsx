@@ -1,12 +1,20 @@
 import { type EventProps } from 'react-big-calendar';
 
+import { DEFAULT_EVENT_COLOR } from '../../_helpers/constants';
 import { type ScheduleEvent } from '../../_helpers/types';
+import { getContrastColor } from '../../_helpers/utils';
 
 export const CalendarEvent = ({ event }: EventProps<ScheduleEvent>) => {
+  const bgColor = event.color ?? DEFAULT_EVENT_COLOR;
+  const textColor = getContrastColor(bgColor);
+
   return (
     <div
-      className={`text-accent-foreground rounded-xs h-full truncate p-1 text-xs font-medium ${event.color ? '' : 'bg-accent'} `}
-      style={{ backgroundColor: event.color }}>
+      className="h-full cursor-pointer truncate rounded px-1.5 py-0.5 text-xs font-medium transition-opacity hover:opacity-90"
+      style={{
+        backgroundColor: bgColor,
+        color: textColor,
+      }}>
       {event.title}
     </div>
   );
