@@ -113,27 +113,17 @@ C:\Windows\System32\drivers\etc\hosts
 127.0.0.1 local.woohakdong.com
 ```
 
-#### 2. 로컬 SSL 인증서 생성
-
-```bash
-# mkcert 설치 (Mac)
-brew install mkcert
-mkcert -install
-
-# 인증서 생성 (apps/web/certs 폴더에 저장)
-cd apps/web
-mkdir -p certs
-cd certs
-mkcert local.woohakdong.com
-```
-
-#### 3. HTTPS 개발 서버 실행
+#### 2. HTTPS 개발 서버 실행
 
 ```bash
 pnpm --filter web dev:https
 ```
 
-#### 4. 접속
+Next.js가 자동으로 로컬 SSL 인증서를 생성합니다.
+
+> 참고: https://vercel.com/kb/guide/access-nextjs-localhost-https-certificate-self-signed
+
+#### 3. 접속
 
 ```
 https://local.woohakdong.com:3000

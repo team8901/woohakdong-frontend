@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:https": "next dev --turbopack --experimental-https --experimental-https-key ./certs/local.woohakdong.com-key.pem --experimental-https-cert ./certs/local.woohakdong.com.pem -H local.woohakdong.com",
+    "dev:https": "next dev --turbopack --experimental-https -H local.woohakdong.com",
     "dev:mock": "NEXT_PUBLIC_IS_MOCK=true next dev --turbopack",
     "build": "next build",
     "start": "next start",
