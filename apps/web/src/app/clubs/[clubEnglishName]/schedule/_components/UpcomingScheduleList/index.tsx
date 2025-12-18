@@ -63,7 +63,7 @@ export const ScheduleSidebar = ({
           </button>
         )}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3 lg:max-h-[calc(100vh-220px)] lg:overflow-y-auto lg:pr-2">
         {displayEvents.map((event) => {
           const daysUntil = getDaysUntil(event.startTime, now);
 
