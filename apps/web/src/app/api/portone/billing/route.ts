@@ -1,5 +1,5 @@
 /**
- * 빌링키 결제 승인 API (포트원)
+ * 포트원 빌링키 결제 API
  * 빌링키를 사용하여 정기결제를 승인합니다.
  * @see https://developers.portone.io/
  */
@@ -7,11 +7,12 @@ import { NextResponse } from 'next/server';
 
 const PORTONE_API_SECRET = process.env.PORTONE_API_SECRET ?? '';
 
-type PaymentRequest = {
+type BillingPaymentRequest = {
   billingKey: string;
-  paymentId: string;
-  amount: number;
+  paymentId: string; // 고유한 결제 ID
   orderName: string;
+  amount: number;
+  currency?: string;
   customer?: {
     id?: string;
     name?: string;
@@ -19,7 +20,7 @@ type PaymentRequest = {
   };
 };
 
-type PortonePaymentResponse = {
+type PortoneBillingResponse = {
   paymentId: string;
   transactionId: string;
   status: string;
@@ -28,16 +29,16 @@ type PortonePaymentResponse = {
     total: number;
     paid: number;
   };
-  message?: string;
 };
 
 /**
- * 빌링키 결제 승인
+ * 빌링키로 결제 요청
  */
 export async function POST(request: Request) {
   try {
-    const body: PaymentRequest = await request.json();
-    const { billingKey, paymentId, amount, orderName, customer } = body;
+    const body: BillingPaymentRequest = await request.json();
+    const { billingKey, paymentId, orderName, amount, currency, customer } =
+      body;
 
     console.log('[PortOne Billing] Request received:', {
       billingKey: billingKey ? `${billingKey.slice(0, 15)}...` : 'missing',
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
       amount,
     });
 
-    if (!billingKey || !paymentId || !amount || !orderName) {
+    if (!billingKey || !paymentId || !orderName || !amount) {
       console.error('[PortOne Billing] Missing required parameters');
 
       return NextResponse.json(
@@ -96,7 +97,7 @@ export async function POST(request: Request) {
           amount: {
             total: amount,
           },
-          currency: 'KRW',
+          currency: currency ?? 'KRW',
           customer: customer
             ? {
                 id: customer.id,
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const data: PortonePaymentResponse = JSON.parse(responseText);
+    const data: PortoneBillingResponse = JSON.parse(responseText);
 
     console.log('[PortOne Billing] Response:', {
       paymentId: data.paymentId,
@@ -138,7 +139,9 @@ export async function POST(request: Request) {
 
       return NextResponse.json(
         {
-          message: data.message ?? '결제 승인에 실패했습니다.',
+          message:
+            (data as unknown as { message?: string }).message ??
+            '결제 승인에 실패했습니다.',
         },
         { status: response.status },
       );

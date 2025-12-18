@@ -1,4 +1,5 @@
 import type { BillingKey } from '@workspace/firebase/subscription';
+import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
   DialogDescription,
@@ -11,7 +12,13 @@ import {
   SUBSCRIPTION_PLANS,
   type SubscriptionPlanId,
 } from '@workspace/ui/constants/plans';
-import { CreditCard, Plus } from 'lucide-react';
+import {
+  Check,
+  CreditCard,
+  MessageCircle,
+  Plus,
+  ShoppingBag,
+} from 'lucide-react';
 
 type ConfirmStepProps = {
   selectedPlan: SubscriptionPlanId;
@@ -19,6 +26,20 @@ type ConfirmStepProps = {
   onPayment: () => void;
   onSelectCard: () => void;
   onClose: () => void;
+};
+
+const getPaymentMethodIcon = (cardCompany: string) => {
+  const lowerName = cardCompany.toLowerCase();
+
+  if (lowerName.includes('카카오')) {
+    return <MessageCircle className="size-4 text-yellow-500" />;
+  }
+
+  if (lowerName.includes('네이버')) {
+    return <ShoppingBag className="size-4 text-green-500" />;
+  }
+
+  return <CreditCard className="size-4 text-blue-500" />;
 };
 
 export const ConfirmStep = ({
@@ -33,53 +54,90 @@ export const ConfirmStep = ({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>플랜 변경 확인</DialogTitle>
-        <DialogDescription>{plan.name} 플랜으로 변경합니다.</DialogDescription>
+        <DialogTitle>결제 확인</DialogTitle>
+        <DialogDescription>
+          아래 내용을 확인하고 결제를 진행해주세요.
+        </DialogDescription>
       </DialogHeader>
       <div className="space-y-4">
+        {/* 플랜 정보 */}
         <div className="bg-muted/50 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">변경할 플랜</span>
-            <span className="font-medium">{plan.name}</span>
+          <div className="mb-3 flex items-center justify-between">
+            <span className="font-medium">{plan.name} 플랜</span>
+            {plan.recommended && <Badge variant="secondary">추천</Badge>}
           </div>
+          <ul className="mb-3 space-y-1">
+            {plan.features.slice(0, 3).map((feature, idx) => (
+              <li
+                key={idx}
+                className="text-muted-foreground flex items-center gap-2 text-sm">
+                <Check className="size-3 shrink-0" />
+                {feature}
+              </li>
+            ))}
+          </ul>
           <Separator className="my-3" />
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">결제 금액</span>
-            <span className="text-primary font-bold">
+            <span className="text-muted-foreground">월 결제 금액</span>
+            <span className="text-primary text-lg font-bold">
               {plan.basePrice === 0
                 ? '무료'
-                : `${plan.basePrice.toLocaleString()}원/월`}
+                : `${plan.basePrice.toLocaleString()}원`}
             </span>
           </div>
         </div>
-        {defaultBillingKey && plan.basePrice > 0 && (
-          <div className="rounded-lg border p-3">
-            <p className="text-muted-foreground mb-1 text-xs">결제 카드</p>
-            <div className="flex items-center gap-2">
-              <CreditCard className="size-4" />
-              <span className="text-sm">
-                {defaultBillingKey.cardCompany} {defaultBillingKey.cardNumber}
-              </span>
+
+        {/* 결제 수단 */}
+        {plan.basePrice > 0 && (
+          <div className="rounded-lg border p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-muted-foreground text-sm">결제수단</span>
+              {defaultBillingKey && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground h-auto p-0 text-xs"
+                  onClick={onSelectCard}>
+                  변경
+                </Button>
+              )}
             </div>
+            {defaultBillingKey ? (
+              <div className="flex items-center gap-3">
+                {getPaymentMethodIcon(defaultBillingKey.cardCompany)}
+                <div>
+                  <p className="font-medium">{defaultBillingKey.cardCompany}</p>
+                  {defaultBillingKey.cardNumber && (
+                    <p className="text-muted-foreground text-sm">
+                      {defaultBillingKey.cardNumber}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={onSelectCard}>
+                <Plus className="mr-2 size-4" />
+                결제수단 등록하기
+              </Button>
+            )}
           </div>
         )}
-        {!defaultBillingKey && plan.basePrice > 0 && (
-          <Button variant="outline" className="w-full" onClick={onSelectCard}>
-            <Plus className="mr-2 size-4" />
-            카드 등록하기
-          </Button>
-        )}
       </div>
-      <DialogFooter>
-        <Button variant="outline" onClick={onClose}>
-          취소
-        </Button>
+      <DialogFooter className="flex-col gap-2 sm:flex-col">
         <Button
+          className="w-full"
+          size="lg"
           onClick={onPayment}
           disabled={!defaultBillingKey && plan.basePrice > 0}>
           {plan.basePrice === 0
-            ? '플랜 변경'
+            ? '무료 플랜으로 변경'
             : `${plan.basePrice.toLocaleString()}원 결제하기`}
+        </Button>
+        <Button variant="ghost" className="w-full" onClick={onClose}>
+          취소
         </Button>
       </DialogFooter>
     </>

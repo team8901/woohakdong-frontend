@@ -66,7 +66,7 @@ export type PaymentRecord = {
   userId: string;
   userEmail: string;
   orderId: string;
-  paymentKey: string;
+  transactionId: string; // 포트원 트랜잭션 ID
   amount: number;
   planId: string;
   planName: string;
@@ -82,7 +82,7 @@ export type CreateSubscriptionInput = {
   planName: string;
   price: number;
   orderId: string;
-  paymentKey: string;
+  transactionId: string; // 포트원 트랜잭션 ID
 };
 
 class SubscriptionError extends Error {
@@ -140,7 +140,7 @@ export const createSubscription = async (
       userId: input.userId,
       userEmail: input.userEmail,
       orderId: input.orderId,
-      paymentKey: input.paymentKey,
+      transactionId: input.transactionId,
       amount: input.price,
       planId: input.planId,
       planName: input.planName,
@@ -410,7 +410,7 @@ export type CreateSubscriptionWithPaymentInput = {
   price: number;
   billingKeyId: string;
   orderId: string;
-  paymentKey: string;
+  transactionId: string; // 포트원 트랜잭션 ID
 };
 
 /**
@@ -468,7 +468,7 @@ export const createSubscriptionWithBillingKey = async (
       userId: input.userId,
       userEmail: input.userEmail,
       orderId: input.orderId,
-      paymentKey: input.paymentKey,
+      transactionId: input.transactionId,
       amount: input.price,
       planId: input.planId,
       planName: input.planName,
@@ -484,6 +484,63 @@ export const createSubscriptionWithBillingKey = async (
   }
 };
 
+export type CreateFreeSubscriptionInput = {
+  clubId: number;
+  userId: string;
+  userEmail: string;
+  planId: string;
+  planName: string;
+};
+
+/**
+ * 무료 플랜 구독 생성 (결제 없이)
+ * - 기존 활성 구독이 있으면 취소 처리
+ * - 새로운 무료 구독 생성
+ * @param input - 구독 생성에 필요한 정보
+ * @returns 생성된 구독 ID
+ */
+export const createFreeSubscription = async (
+  input: CreateFreeSubscriptionInput,
+): Promise<string> => {
+  try {
+    // 기존 활성 구독이 있으면 취소
+    const existingSubscription = await getActiveSubscription(input.clubId);
+
+    if (existingSubscription) {
+      await cancelSubscription(existingSubscription.id);
+    }
+
+    const subscriptionId = `sub_${Date.now()}_${input.clubId}`;
+
+    const subscriptionRef = doc(
+      firebaseDb,
+      SUBSCRIPTIONS_COLLECTION,
+      subscriptionId,
+    );
+
+    await setDoc(subscriptionRef, {
+      id: subscriptionId,
+      clubId: input.clubId,
+      userId: input.userId,
+      userEmail: input.userEmail,
+      planId: input.planId,
+      planName: input.planName,
+      price: 0,
+      status: 'active' as SubscriptionStatus,
+      startDate: serverTimestamp(),
+      endDate: null, // 무료 플랜은 만료일 없음
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    return subscriptionId;
+  } catch (error) {
+    console.error('Failed to create free subscription:', error);
+
+    throw new SubscriptionError('무료 구독 생성 중 오류가 발생했습니다.');
+  }
+};
+
 /**
  * 빌링키로 구독 생성 (Mock 환경용 - 결제 없이)
  * @param input - 구독 생성에 필요한 정보
@@ -491,7 +548,7 @@ export const createSubscriptionWithBillingKey = async (
  * @returns 생성된 구독 ID
  */
 export const createMockSubscription = async (
-  input: Omit<CreateSubscriptionInput, 'orderId' | 'paymentKey'>,
+  input: Omit<CreateSubscriptionInput, 'orderId' | 'transactionId'>,
   billingKeyId: string,
 ): Promise<string> => {
   try {
