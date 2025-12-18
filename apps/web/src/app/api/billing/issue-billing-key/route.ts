@@ -1,4 +1,4 @@
-import { getCardCompanyName } from '@/app/payment/_helpers/constants/cardCompany';
+import { getCardCompanyName } from '@workspace/ui/constants/cardCompany';
 import { NextResponse } from 'next/server';
 
 const TOSS_PAYMENTS_SECRET_KEY = process.env.TOSS_PAYMENTS_SECRET_KEY ?? '';

@@ -1,11 +1,11 @@
+import {
+  SUBSCRIPTION_PLANS,
+  type SubscriptionPlanId,
+} from '@workspace/ui/constants/plans';
 import { type Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { PaymentFormClient } from './_clientBoundary/PaymentFormClient';
-import {
-  SUBSCRIPTION_PLANS,
-  type SubscriptionPlanId,
-} from './_helpers/constants/plans';
 
 export const metadata: Metadata = {
   title: '구독 결제 | 우학동',

@@ -1,3 +1,6 @@
+import { SUPPORT_MAIL } from '@/app/_helpers/constants/service';
+import { FAQ_ITEMS } from '@workspace/ui/constants/faq';
+
 export const FaqSection = () => {
   return (
     <section id="faq" className="bg-muted/50 py-20 md:py-24">
@@ -5,24 +8,28 @@ export const FaqSection = () => {
         <h2 className="text-foreground mb-6 text-lg font-semibold md:mb-12 md:text-2xl">
           자주 묻는 질문
         </h2>
-        <div className="flex flex-col gap-8 md:justify-between">
-          <div className="bg-muted rounded-2xl p-5">
-            <h3 className="text-foreground mb-1 text-base font-semibold md:mb-2 md:text-lg">
-              어떻게 도입할 수 있나요?
-            </h3>
-            <p className="text-foreground text-sm md:text-base">
-              사전 등록을 통해 이메일을 등록하면, 서비스가 출시되었을 때, 바로
-              이용할 수 있어요.
-            </p>
-          </div>
-          <div className="bg-muted rounded-2xl p-5">
-            <h3 className="text-foreground mb-1 text-base font-semibold md:mb-2 md:text-lg">
-              비용이 어떻게 되나요?
-            </h3>
-            <p className="text-foreground text-sm md:text-base">
-              사전등록 기간에 등록된 동아리에 한해 100% 무료로 이용가능해요.
-            </p>
-          </div>
+        <div className="grid gap-4 md:grid-cols-2 md:gap-6">
+          {FAQ_ITEMS.map((item, idx) => (
+            <div key={idx} className="bg-background rounded-2xl p-5 shadow-sm">
+              <h3 className="text-foreground mb-2 text-base font-semibold md:text-lg">
+                {item.question}
+              </h3>
+              <p className="text-muted-foreground text-sm md:text-base">
+                {item.answer}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <p className="text-muted-foreground text-sm">
+            더 궁금한 점이 있으신가요?{' '}
+            <a
+              href={`mailto:${SUPPORT_MAIL}`}
+              className="text-primary hover:underline">
+              {SUPPORT_MAIL}
+            </a>
+            으로 문의해 주세요.
+          </p>
         </div>
       </div>
     </section>

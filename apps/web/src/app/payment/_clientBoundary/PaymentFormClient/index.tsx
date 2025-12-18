@@ -12,13 +12,13 @@ import {
   CardTitle,
 } from '@workspace/ui/components/card';
 import { Separator } from '@workspace/ui/components/separator';
-import { AlertCircle } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
-
 import {
   SUBSCRIPTION_PLANS,
   type SubscriptionPlanId,
-} from '../../_helpers/constants/plans';
+} from '@workspace/ui/constants/plans';
+import { AlertCircle } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+
 import { usePaymentWidget } from '../../_helpers/hooks/usePaymentWidget';
 import { PlanCardClient } from '../PlanCardClient';
 

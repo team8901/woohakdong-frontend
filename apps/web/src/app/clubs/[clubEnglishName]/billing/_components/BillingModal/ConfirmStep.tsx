@@ -1,7 +1,3 @@
-import {
-  SUBSCRIPTION_PLANS,
-  type SubscriptionPlanId,
-} from '@/app/payment/_helpers/constants/plans';
 import type { BillingKey } from '@workspace/firebase/subscription';
 import { Button } from '@workspace/ui/components/button';
 import {
@@ -11,6 +7,10 @@ import {
   DialogTitle,
 } from '@workspace/ui/components/dialog';
 import { Separator } from '@workspace/ui/components/separator';
+import {
+  SUBSCRIPTION_PLANS,
+  type SubscriptionPlanId,
+} from '@workspace/ui/constants/plans';
 import { CreditCard, Plus } from 'lucide-react';
 
 type ConfirmStepProps = {
@@ -34,9 +34,7 @@ export const ConfirmStep = ({
     <>
       <DialogHeader>
         <DialogTitle>플랜 변경 확인</DialogTitle>
-        <DialogDescription>
-          {plan.name} 플랜으로 변경합니다.
-        </DialogDescription>
+        <DialogDescription>{plan.name} 플랜으로 변경합니다.</DialogDescription>
       </DialogHeader>
       <div className="space-y-4">
         <div className="bg-muted/50 rounded-lg p-4">

@@ -1,13 +1,13 @@
-import {
-  SUBSCRIPTION_PLANS,
-  type SubscriptionPlanId,
-} from '@/app/payment/_helpers/constants/plans';
 import { Button } from '@workspace/ui/components/button';
 import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@workspace/ui/components/dialog';
+import {
+  SUBSCRIPTION_PLANS,
+  type SubscriptionPlanId,
+} from '@workspace/ui/constants/plans';
 import { Check } from 'lucide-react';
 
 type SuccessStepProps = {

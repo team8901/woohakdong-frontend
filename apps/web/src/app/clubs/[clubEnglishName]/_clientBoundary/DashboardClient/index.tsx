@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import { APP_PATH } from '@/_shared/helpers/constants/appPath';
 import { buildUrlWithParams } from '@/_shared/helpers/utils/buildUrlWithParams';
 import {
@@ -42,6 +44,12 @@ const OFFICER_ROLES: ClubMemberRole[] = [
   CLUB_MEMBER_ROLE.임원,
 ];
 
+const getDaysUntil = (targetDate: Date, now: Date) => {
+  const diffTime = targetDate.getTime() - now.getTime();
+
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+};
+
 export const DashboardClient = ({
   clubEnglishName,
   clubMemberRole,
@@ -52,12 +60,21 @@ export const DashboardClient = ({
 }: Props) => {
   const isOfficer = OFFICER_ROLES.includes(clubMemberRole);
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const now = isMounted ? new Date() : null;
   const rentedItems = items.filter((item) => item.using);
   const recentNotices = notices.slice(0, 5);
-  const upcomingSchedules = sampleScheduleData
-    .filter((schedule) => schedule.startTime > new Date())
-    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
-    .slice(0, 3);
+  const upcomingSchedules = isMounted
+    ? sampleScheduleData
+        .filter((schedule) => schedule.startTime > new Date())
+        .sort((a, b) => a.startTime.getTime() - b.startTime.getTime())
+        .slice(0, 3)
+    : [];
   const recentRentals = itemHistory
     .filter((item) => !item.returnDate)
     .slice(0, 5);
@@ -172,29 +189,43 @@ export const DashboardClient = ({
                 예정된 일정이 없습니다
               </p>
             ) : (
-              <div className="space-y-3">
-                {upcomingSchedules.map((schedule) => (
-                  <div
-                    key={schedule.id}
-                    className="flex items-center gap-3 rounded-md p-2">
+              <div className="space-y-2">
+                {upcomingSchedules.map((schedule) => {
+                  const daysUntil = now
+                    ? getDaysUntil(schedule.startTime, now)
+                    : 0;
+
+                  return (
                     <div
-                      className="size-3 shrink-0 rounded-full"
-                      style={{ backgroundColor: schedule.color ?? '#6366f1' }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {schedule.title}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {schedule.startTime.toLocaleDateString('ko-KR', {
-                          month: 'long',
-                          day: 'numeric',
-                          weekday: 'short',
-                        })}
-                      </p>
+                      key={schedule.id}
+                      className="bg-muted/50 flex items-center gap-3 rounded-lg p-3">
+                      <div
+                        className="size-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: schedule.color ?? '#6366f1' }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">
+                          {schedule.title}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {schedule.startTime.toLocaleDateString('ko-KR', {
+                            month: 'long',
+                            day: 'numeric',
+                            weekday: 'short',
+                          })}{' '}
+                          ·{' '}
+                          {schedule.startTime.toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="shrink-0 text-xs">
+                        D-{daysUntil}
+                      </Badge>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
