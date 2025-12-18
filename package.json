@@ -13,7 +13,11 @@
     "test": "turbo run test",
     "test:ci": "turbo run test -- --coverage",
     "generate:api": "orval --config orval.config.ts && node scripts/add-eslint-disable.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "firestore:deploy": "echo '📌 firebase login 필요' && firebase deploy --only firestore",
+    "firestore:deploy:rules": "echo '📌 firebase login 필요' && firebase deploy --only firestore:rules",
+    "firestore:deploy:indexes": "echo '📌 firebase login 필요' && firebase deploy --only firestore:indexes",
+    "functions:deploy": "echo '📌 firebase login 필요' && firebase deploy --only functions"
   },
   "devDependencies": {
     "@swc/jest": "^0.2.39",

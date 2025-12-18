@@ -1,0 +1,51 @@
+export const SUBSCRIPTION_PLANS = {
+  FREE: {
+    id: 'free',
+    name: 'Free',
+    basePrice: 0,
+    description: '동아리를 시작하는 분들을 위한 플랜',
+    features: [
+      '최대 30명 회원 관리',
+      '공지사항 게시 (월 10개)',
+      '일정 관리 (캘린더)',
+      '동아리 전용 페이지',
+      '가입 신청서 1개',
+    ],
+    recommended: false,
+  },
+  STANDARD: {
+    id: 'standard',
+    name: 'Standard',
+    basePrice: 29000,
+    description: '활발하게 운영되는 동아리를 위한 플랜',
+    features: [
+      '무제한 회원 관리',
+      '무제한 공지사항',
+      '물품 등록 및 대여 관리',
+      '대여 내역 추적',
+      '활동 기록 아카이브',
+      '가입 신청서 무제한',
+      '회원 검색 및 필터링',
+    ],
+    recommended: true,
+  },
+  PRO: {
+    id: 'pro',
+    name: 'Pro',
+    basePrice: 49000,
+    description: '체계적인 관리가 필요한 동아리를 위한 플랜',
+    features: [
+      'Standard의 모든 기능',
+      '회비 관리 및 정산',
+      '수입/지출 내역 관리',
+      '회계 보고서 자동 생성',
+      '다중 관리자 권한 설정',
+      '우선 고객 지원',
+      '데이터 백업 및 내보내기',
+    ],
+    recommended: false,
+  },
+} as const;
+
+export type SubscriptionPlanId = keyof typeof SUBSCRIPTION_PLANS;
+export type SubscriptionPlan = (typeof SUBSCRIPTION_PLANS)[SubscriptionPlanId];

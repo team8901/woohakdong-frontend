@@ -18,7 +18,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@workspace/ui/components/sidebar';
-import { BadgeCheck, CreditCard, LogOut } from 'lucide-react';
+import { BadgeCheck, LogOut } from 'lucide-react';
 
 export const UserAccountClient = ({ user }: { user: UserProfileResponse }) => {
   const { isMobile } = useSidebar();
@@ -65,10 +65,6 @@ export const UserAccountClient = ({ user }: { user: UserProfileResponse }) => {
               <DropdownMenuItem>
                 <BadgeCheck />
                 계정
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                결제
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

@@ -30,6 +30,13 @@ export const LandingHeaderClient = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 className={`${navigationMenuTriggerStyle()} cursor-pointer`}
+                onClick={() => handleScrollToSection('pricing')}>
+                요금제
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                className={`${navigationMenuTriggerStyle()} cursor-pointer`}
                 onClick={() => handleScrollToSection('faq')}>
                 자주 묻는 질문
               </NavigationMenuLink>
