@@ -2,7 +2,6 @@ import {
   BUSINESS_INFO,
   GITHUB_URL,
   SERVICE_NAME,
-  SUPPORT_MAIL,
 } from '@/app/_helpers/constants/service';
 import { Button } from '@workspace/ui/components/button';
 import { Separator } from '@workspace/ui/components/separator';
@@ -34,7 +33,9 @@ export const ContactSection = () => {
               <div className="text-foreground flex items-center justify-center md:justify-start">
                 <MailIcon className="size-5" />
                 <Button variant="link" className="text-foreground" asChild>
-                  <a href={`mailto:${SUPPORT_MAIL}`}>{SUPPORT_MAIL}</a>
+                  <a href={`mailto:${EXTERNAL_LINKS.SUPPORT_EMAIL}`}>
+                    {EXTERNAL_LINKS.SUPPORT_EMAIL}
+                  </a>
                 </Button>
               </div>
               <div className="text-foreground flex items-center justify-center md:justify-start">
@@ -86,7 +87,7 @@ export const ContactSection = () => {
             {BUSINESS_INFO.registrationNumber}
           </p>
           <p className="mt-1">주소: {BUSINESS_INFO.address}</p>
-          <p className="mt-1">고객문의: {SUPPORT_MAIL}</p>
+          <p className="mt-1">고객문의: {EXTERNAL_LINKS.SUPPORT_EMAIL}</p>
         </div>
       </div>
     </section>
