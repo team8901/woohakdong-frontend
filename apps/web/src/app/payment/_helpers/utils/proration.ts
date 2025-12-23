@@ -3,58 +3,94 @@
  *
  * 업그레이드: 즉시 적용 + 차액 결제
  * 다운그레이드: 다음 결제일부터 적용 (비례 정산 없음)
+ *
+ * 빌링 주기 변경 시:
+ * - 현재 구독의 남은 크레딧 계산
+ * - 새 구독 첫 결제에서 크레딧 차감
+ * - 새로운 빌링 주기로 시작
  */
 
+export type BillingCycle = 'monthly' | 'yearly';
+
 export type ProrationResult = {
-  /** 업그레이드 여부 */
+  /** 업그레이드 여부 (가격 기준) */
   isUpgrade: boolean;
+  /** 빌링 주기 변경 여부 */
+  isBillingCycleChange: boolean;
   /** 현재 플랜 남은 일수 */
   remainingDays: number;
   /** 총 결제 주기 일수 */
   totalDays: number;
-  /** 현재 플랜 미사용 크레딧 (환불될 금액) */
+  /** 현재 플랜 미사용 크레딧 (남은 기간에 대한 환불) */
   currentPlanCredit: number;
-  /** 새 플랜 남은 기간 비용 */
+  /** 기존에 보유한 크레딧 (이전 플랜 변경에서 남은 금액) */
+  existingCredit: number;
+  /** 총 크레딧 (currentPlanCredit + existingCredit) */
+  totalCredit: number;
+  /** 새 플랜 첫 결제 비용 */
   newPlanCost: number;
-  /** 실제 청구 금액 (newPlanCost - currentPlanCredit) */
+  /** 실제 청구 금액 (newPlanCost - totalCredit, 최소 0) */
   amountDue: number;
+  /** 남은 크레딧 (새 플랜 비용보다 크레딧이 많을 경우) */
+  remainingCredit: number;
   /** 다음 결제일 */
   nextBillingDate: Date;
 };
 
 type CalculateProrationParams = {
-  /** 현재 플랜 월 가격 */
+  /** 현재 구독에서 실제 결제한 금액 */
   currentPlanPrice: number;
-  /** 새 플랜 월 가격 */
+  /** 현재 빌링 주기 */
+  currentBillingCycle: BillingCycle;
+  /** 새 플랜 가격 (월간이면 월 가격, 연간이면 연 가격) */
   newPlanPrice: number;
+  /** 새 빌링 주기 */
+  newBillingCycle: BillingCycle;
   /** 현재 결제 주기 시작일 */
   billingStartDate: Date;
   /** 현재 결제 주기 종료일 (다음 결제일) */
   billingEndDate: Date;
+  /** 기존에 보유한 크레딧 (이전 플랜 변경에서 남은 금액) */
+  existingCredit?: number;
 };
 
 /**
  * 비례 정산 금액 계산
  *
  * @example
- * // Standard $10,000 → Pro $20,000 (15일 사용 후 변경, 30일 주기)
+ * // 같은 빌링 주기: Standard 월간 29,000 → Pro 월간 49,000 (15일 사용 후 변경)
  * calculateProration({
- *   currentPlanPrice: 10000,
- *   newPlanPrice: 20000,
+ *   currentPlanPrice: 29000,
+ *   currentBillingCycle: 'monthly',
+ *   newPlanPrice: 49000,
+ *   newBillingCycle: 'monthly',
  *   billingStartDate: new Date('2024-01-01'),
  *   billingEndDate: new Date('2024-01-31'),
  * })
- * // 결과 (1월 16일에 변경 시):
- * // - remainingDays: 15
- * // - currentPlanCredit: 5000 (10000 × 15/30)
- * // - newPlanCost: 10000 (20000 × 15/30)
- * // - amountDue: 5000 (10000 - 5000)
+ * // 결과: amountDue = (49000 - 29000) × 15/30 = 10,000원
+ *
+ * @example
+ * // 빌링 주기 변경: Standard 연간 288,000 → Pro 월간 49,000 (3개월 사용 후)
+ * calculateProration({
+ *   currentPlanPrice: 288000,
+ *   currentBillingCycle: 'yearly',
+ *   newPlanPrice: 49000,
+ *   newBillingCycle: 'monthly',
+ *   billingStartDate: new Date('2024-01-01'),
+ *   billingEndDate: new Date('2025-01-01'),
+ * })
+ * // 결과: 크레딧 = 288000 × 275/365 ≈ 217,000원
+ * //       첫 월 비용 = 49,000원
+ * //       amountDue = 0원, remainingCredit = 168,000원
  */
 export function calculateProration({
   currentPlanPrice,
+  currentBillingCycle,
   newPlanPrice,
+  newBillingCycle,
   billingStartDate,
   billingEndDate,
+  existingCredit = 0,
 }: CalculateProrationParams): ProrationResult {
   const now = new Date();
   const startTime = billingStartDate.getTime();
@@ -70,30 +106,64 @@ export function calculateProration({
     Math.ceil((endTime - nowTime) / (1000 * 60 * 60 * 24)),
   );
 
-  // 업그레이드 여부
-  const isUpgrade = newPlanPrice > currentPlanPrice;
-
-  // 일일 요금
-  const currentDailyRate = currentPlanPrice / totalDays;
-  const newDailyRate = newPlanPrice / totalDays;
+  // 빌링 주기 변경 여부
+  const isBillingCycleChange = currentBillingCycle !== newBillingCycle;
 
   // 현재 플랜 미사용 크레딧 (남은 기간에 대한 환불)
+  const currentDailyRate = currentPlanPrice / totalDays;
   const currentPlanCredit = Math.round(currentDailyRate * remainingDays);
 
-  // 새 플랜 남은 기간 비용
-  const newPlanCost = Math.round(newDailyRate * remainingDays);
+  let newPlanCost: number;
+  let nextBillingDate: Date;
 
-  // 실제 청구 금액
-  const amountDue = Math.max(0, newPlanCost - currentPlanCredit);
+  if (isBillingCycleChange) {
+    // 빌링 주기 변경: 새 주기의 첫 결제 비용 (전체 금액)
+    newPlanCost = newPlanPrice;
+    nextBillingDate = new Date();
+
+    if (newBillingCycle === 'yearly') {
+      nextBillingDate.setFullYear(nextBillingDate.getFullYear() + 1);
+    } else {
+      nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+    }
+  } else {
+    // 같은 빌링 주기: 남은 기간에 대한 비례 정산
+    const newDailyRate = newPlanPrice / totalDays;
+
+    newPlanCost = Math.round(newDailyRate * remainingDays);
+    nextBillingDate = billingEndDate;
+  }
+
+  // 총 크레딧 (현재 플랜 미사용 + 기존 보유 크레딧)
+  const totalCredit = currentPlanCredit + existingCredit;
+
+  // 실제 청구 금액 (크레딧으로 상쇄)
+  const amountDue = Math.max(0, newPlanCost - totalCredit);
+
+  // 남은 크레딧 (새 플랜 비용보다 크레딧이 많은 경우)
+  const remainingCredit = Math.max(0, totalCredit - newPlanCost);
+
+  // 업그레이드 여부: 월 단위로 환산하여 비교
+  const currentMonthlyEquivalent =
+    currentBillingCycle === 'yearly'
+      ? currentPlanPrice / 12
+      : currentPlanPrice;
+  const newMonthlyEquivalent =
+    newBillingCycle === 'yearly' ? newPlanPrice / 12 : newPlanPrice;
+  const isUpgrade = newMonthlyEquivalent > currentMonthlyEquivalent;
 
   return {
     isUpgrade,
+    isBillingCycleChange,
     remainingDays,
     totalDays,
     currentPlanCredit,
+    existingCredit,
+    totalCredit,
     newPlanCost,
     amountDue,
-    nextBillingDate: billingEndDate,
+    remainingCredit,
+    nextBillingDate,
   };
 }
 
@@ -101,6 +171,18 @@ export function calculateProration({
  * 비례 정산 설명 텍스트 생성
  */
 export function getProrationDescription(proration: ProrationResult): string {
+  if (proration.isBillingCycleChange) {
+    if (proration.amountDue === 0 && proration.remainingCredit > 0) {
+      return `총 ${proration.totalCredit.toLocaleString()}원 크레딧이 적용됩니다. 남은 ${proration.remainingCredit.toLocaleString()}원은 다음 결제에서 차감됩니다.`;
+    }
+
+    if (proration.amountDue === 0) {
+      return '보유 크레딧으로 첫 결제가 충당됩니다.';
+    }
+
+    return `총 ${proration.totalCredit.toLocaleString()}원 크레딧 적용 후 ${proration.amountDue.toLocaleString()}원이 청구됩니다.`;
+  }
+
   if (proration.amountDue === 0) {
     return '추가 결제 없이 플랜이 변경됩니다.';
   }

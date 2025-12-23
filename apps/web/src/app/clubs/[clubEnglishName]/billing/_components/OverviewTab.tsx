@@ -10,11 +10,12 @@ import {
   CardTitle,
 } from '@workspace/ui/components/card';
 import { Separator } from '@workspace/ui/components/separator';
+import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 import {
   SUBSCRIPTION_PLANS,
   type SubscriptionPlanId,
 } from '@workspace/ui/constants/plans';
-import { AlertCircle, ArrowRight, CreditCard } from 'lucide-react';
+import { AlertCircle, ArrowRight, CreditCard, Wallet } from 'lucide-react';
 
 type OverviewTabProps = {
   subscription: Subscription | null;
@@ -59,6 +60,9 @@ export const OverviewTab = ({
   const hasScheduledChange = !!subscription?.nextPlanId;
   const nextPlanId = subscription?.nextPlanId?.toUpperCase() as SubscriptionPlanId | undefined;
   const nextPlan = nextPlanId ? SUBSCRIPTION_PLANS[nextPlanId] : null;
+
+  // 남은 크레딧 정보
+  const hasCredit = subscription?.credit && subscription.credit > 0;
 
   return (
     <Card>
@@ -125,6 +129,42 @@ export const OverviewTab = ({
                   {isCancelingScheduledChange ? '취소 중...' : '예약 취소'}
                 </Button>
               )}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* 남은 크레딧 안내 */}
+        {hasCredit && !isCanceled && (
+          <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
+            <Wallet className="size-4 text-green-600" />
+            <AlertDescription className="text-green-800 dark:text-green-200">
+              <span>
+                <strong>{subscription.credit?.toLocaleString()}원</strong>의 크레딧이
+                있습니다. 다음 결제 시 자동으로 차감됩니다.
+              </span>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* 취소 예정 + 크레딧 있을 때 환불 안내 */}
+        {hasCredit && isCanceled && (
+          <Alert className="mb-4 border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
+            <Wallet className="size-4 text-amber-600" />
+            <AlertDescription className="flex flex-col gap-2 text-amber-800 dark:text-amber-200">
+              <span>
+                <strong>{subscription.credit?.toLocaleString()}원</strong>의 크레딧이
+                있습니다. 구독 종료 시 크레딧은 소멸됩니다.
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-fit text-amber-700 hover:bg-amber-100 hover:text-amber-800"
+                asChild>
+                <a
+                  href={`mailto:${EXTERNAL_LINKS.SUPPORT_EMAIL}?subject=${encodeURIComponent('크레딧 환불 요청')}&body=${encodeURIComponent(`동아리 ID: ${subscription.clubId}\n구독 ID: ${subscription.id}\n크레딧 금액: ${subscription.credit?.toLocaleString()}원\n\n환불 사유:\n`)}`}>
+                  환불 문의하기
+                </a>
+              </Button>
             </AlertDescription>
           </Alert>
         )}

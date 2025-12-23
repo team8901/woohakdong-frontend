@@ -67,6 +67,8 @@ export type Subscription = {
   nextPlanId?: string;
   nextPlanName?: string;
   nextPlanPrice?: number;
+  // 빌링 주기 변경 시 남은 크레딧 (다음 결제에서 차감)
+  credit?: number;
 };
 
 export type PaymentRecord = {
@@ -362,6 +364,7 @@ export const schedulePlanChange = async (
       nextPlanName,
       nextPlanPrice,
       status: 'active', // 취소된 구독도 재활성화
+      canceledAt: deleteField(), // 취소 상태 제거
       updatedAt: serverTimestamp(),
     });
   } catch (error) {
@@ -755,18 +758,22 @@ export type UpgradePlanInput = {
   userEmail: string;
   planId: string;
   planName: string;
-  newPrice: number; // 새 플랜의 월 가격
+  newPrice: number; // 새 플랜 가격 (월간이면 월 가격, 연간이면 연 가격)
   proratedAmount: number; // 비례 정산 금액 (실제 청구 금액)
   billingKeyId: string;
   orderId: string;
   transactionId: string;
+  /** 빌링 주기 변경 시 필수 */
+  newBillingCycle?: BillingCycle;
+  /** 남은 크레딧 (다음 결제 시 적용) */
+  remainingCredit?: number;
 };
 
 /**
  * 즉시 플랜 업그레이드 (비례 정산)
  * - 구독 플랜을 즉시 변경
  * - 비례 정산된 금액으로 결제 기록 생성
- * - endDate는 유지 (기존 결제 주기 유지)
+ * - 빌링 주기 변경 시 새로운 주기로 startDate/endDate 갱신
  * @param input - 업그레이드에 필요한 정보
  */
 export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
@@ -777,19 +784,45 @@ export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
       input.subscriptionId,
     );
 
-    // 구독 플랜 즉시 변경 (endDate는 유지, 취소된 경우 재활성화)
-    await updateDoc(subscriptionRef, {
+    // 기본 업데이트 데이터
+    const updateData: Record<string, unknown> = {
       planId: input.planId,
       planName: input.planName,
       price: input.newPrice,
       billingKeyId: input.billingKeyId,
       status: 'active', // 취소된 구독도 재활성화
+      canceledAt: deleteField(), // 취소 상태 제거
       // nextPlan 필드가 있으면 제거 (즉시 업그레이드했으므로)
       nextPlanId: deleteField(),
       nextPlanName: deleteField(),
       nextPlanPrice: deleteField(),
       updatedAt: serverTimestamp(),
-    });
+    };
+
+    // 빌링 주기 변경 시 새로운 주기로 startDate/endDate 갱신
+    if (input.newBillingCycle) {
+      const now = new Date();
+      const newEndDate = new Date(now);
+
+      if (input.newBillingCycle === 'yearly') {
+        newEndDate.setFullYear(newEndDate.getFullYear() + 1);
+      } else {
+        newEndDate.setMonth(newEndDate.getMonth() + 1);
+      }
+
+      updateData.billingCycle = input.newBillingCycle;
+      updateData.startDate = serverTimestamp();
+      updateData.endDate = newEndDate;
+
+      // 남은 크레딧이 있으면 저장 (다음 결제 시 적용)
+      if (input.remainingCredit && input.remainingCredit > 0) {
+        updateData.credit = input.remainingCredit;
+      } else {
+        updateData.credit = deleteField();
+      }
+    }
+
+    await updateDoc(subscriptionRef, updateData);
 
     // 비례 정산 결제 기록 생성
     const paymentId = `pay_${Date.now()}_${input.orderId.slice(-8)}`;
@@ -807,7 +840,7 @@ export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
       planId: input.planId,
       planName: input.planName,
       status: 'success',
-      type: 'upgrade', // 업그레이드 결제임을 표시
+      type: input.newBillingCycle ? 'billing_cycle_change' : 'upgrade',
       createdAt: serverTimestamp(),
     });
   } catch (error) {

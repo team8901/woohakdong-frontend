@@ -55,6 +55,8 @@ interface Subscription {
   nextPlanId?: string;
   nextPlanName?: string;
   nextPlanPrice?: number;
+  // 빌링 주기 변경 시 남은 크레딧
+  credit?: number;
 }
 
 interface BillingKey {
@@ -471,15 +473,114 @@ async function renewSubscription(
   const paymentId = `renewal_${subscription.clubId}_${Date.now()}`;
   const orderName = `${subscription.planName} 플랜 정기결제`;
 
-  const result = await processBillingPayment(
-    env,
-    billingKey.billingKey,
-    subscription.price,
-    paymentId,
-    orderName,
-  );
+  // 크레딧이 있으면 결제 금액에서 차감
+  const existingCredit = subscription.credit ?? 0;
+  const actualPaymentAmount = Math.max(0, subscription.price - existingCredit);
+  const remainingCredit = Math.max(0, existingCredit - subscription.price);
 
-  if (result.success) {
+  let paymentSuccess = false;
+  let paymentData: {
+    paymentId: string;
+    transactionId: string;
+    amount: number;
+    paidAt: string;
+  } | null = null;
+
+  // 결제 금액이 0보다 크면 실제 결제 진행
+  if (actualPaymentAmount > 0) {
+    const result = await processBillingPayment(
+      env,
+      billingKey.billingKey,
+      actualPaymentAmount,
+      paymentId,
+      existingCredit > 0
+        ? `${orderName} (크레딧 ${existingCredit.toLocaleString()}원 적용)`
+        : orderName,
+    );
+
+    paymentSuccess = result.success;
+
+    if (result.success) {
+      paymentData = result.data;
+    } else {
+      // 결제 실패 처리
+      const currentRetryCount = subscription.retryCount ?? 0;
+      const newRetryCount = currentRetryCount + 1;
+
+      if (newRetryCount >= MAX_RETRY_COUNT) {
+        await updateFirestoreDocument(
+          env,
+          firebaseToken,
+          SUBSCRIPTIONS_COLLECTION,
+          subscription.id,
+          {
+            status: 'expired',
+            retryCount: newRetryCount,
+            lastPaymentError: result.error.message,
+            updatedAt: new Date(),
+          },
+        );
+
+        console.error(
+          `Subscription expired after ${MAX_RETRY_COUNT} retries: ${subscription.id}`,
+        );
+      } else {
+        await updateFirestoreDocument(
+          env,
+          firebaseToken,
+          SUBSCRIPTIONS_COLLECTION,
+          subscription.id,
+          {
+            status: 'payment_failed',
+            retryCount: newRetryCount,
+            lastPaymentError: result.error.message,
+            updatedAt: new Date(),
+          },
+        );
+
+        console.warn(
+          `Payment failed for ${subscription.id}, retry ${newRetryCount}/${MAX_RETRY_COUNT}`,
+        );
+      }
+
+      // 실패한 결제 기록
+      const failedPaymentId = `failed_${subscription.clubId}_${Date.now()}`;
+
+      await createFirestoreDocument(
+        env,
+        firebaseToken,
+        PAYMENTS_COLLECTION,
+        failedPaymentId,
+        {
+          id: failedPaymentId,
+          subscriptionId: subscription.id,
+          clubId: subscription.clubId,
+          userId: subscription.userId,
+          userEmail: subscription.userEmail,
+          paymentId: paymentId,
+          transactionId: '',
+          amount: actualPaymentAmount,
+          planId: subscription.planId,
+          planName: subscription.planName,
+          status: 'failed',
+          errorCode: result.error.code,
+          errorMessage: result.error.message,
+          createdAt: new Date(),
+        },
+      );
+
+      return false;
+    }
+  } else {
+    // 크레딧으로 전액 충당 - 결제 없이 성공 처리
+    paymentSuccess = true;
+
+    console.log(
+      `Subscription ${subscription.id} renewed with credit (no payment needed)`,
+    );
+  }
+
+  if (paymentSuccess) {
     // 결제 성공: 구독 기간 연장 (billingCycle에 따라)
     const newEndDate = new Date(subscription.endDate._seconds * 1000);
 
@@ -494,6 +595,7 @@ async function renewSubscription(
       endDate: newEndDate,
       retryCount: 0,
       lastPaymentError: null,
+      credit: remainingCredit > 0 ? remainingCredit : null, // 남은 크레딧 저장
       updatedAt: new Date(),
     };
 
@@ -520,101 +622,64 @@ async function renewSubscription(
       updateData,
     );
 
-    // 결제 기록 생성
-    await createFirestoreDocument(
-      env,
-      firebaseToken,
-      PAYMENTS_COLLECTION,
-      result.data.paymentId,
-      {
-        id: result.data.paymentId,
-        subscriptionId: subscription.id,
-        clubId: subscription.clubId,
-        userId: subscription.userId,
-        userEmail: subscription.userEmail,
-        paymentId: result.data.paymentId,
-        transactionId: result.data.transactionId,
-        amount: result.data.amount,
-        planId: subscription.planId,
-        planName: subscription.planName,
-        status: 'success',
-        paidAt: result.data.paidAt,
-        createdAt: new Date(),
-      },
-    );
+    // 결제 기록 생성 (실제 결제가 있었을 경우에만)
+    if (paymentData) {
+      await createFirestoreDocument(
+        env,
+        firebaseToken,
+        PAYMENTS_COLLECTION,
+        paymentData.paymentId,
+        {
+          id: paymentData.paymentId,
+          subscriptionId: subscription.id,
+          clubId: subscription.clubId,
+          userId: subscription.userId,
+          userEmail: subscription.userEmail,
+          paymentId: paymentData.paymentId,
+          transactionId: paymentData.transactionId,
+          amount: paymentData.amount,
+          creditApplied: existingCredit > 0 ? existingCredit : undefined,
+          planId: subscription.planId,
+          planName: subscription.planName,
+          status: 'success',
+          paidAt: paymentData.paidAt,
+          createdAt: new Date(),
+        },
+      );
+    } else if (existingCredit > 0) {
+      // 크레딧으로 전액 충당된 경우 기록
+      const creditPaymentId = `credit_${subscription.clubId}_${Date.now()}`;
+
+      await createFirestoreDocument(
+        env,
+        firebaseToken,
+        PAYMENTS_COLLECTION,
+        creditPaymentId,
+        {
+          id: creditPaymentId,
+          subscriptionId: subscription.id,
+          clubId: subscription.clubId,
+          userId: subscription.userId,
+          userEmail: subscription.userEmail,
+          paymentId: creditPaymentId,
+          transactionId: '',
+          amount: 0,
+          creditApplied: existingCredit,
+          planId: subscription.planId,
+          planName: subscription.planName,
+          status: 'success',
+          type: 'credit_applied',
+          createdAt: new Date(),
+        },
+      );
+    }
 
     console.log(`Subscription renewed: ${subscription.id}`);
 
     return true;
-  } else {
-    // 결제 실패: 재시도 카운트 증가
-    const currentRetryCount = subscription.retryCount ?? 0;
-    const newRetryCount = currentRetryCount + 1;
-
-    if (newRetryCount >= MAX_RETRY_COUNT) {
-      await updateFirestoreDocument(
-        env,
-        firebaseToken,
-        SUBSCRIPTIONS_COLLECTION,
-        subscription.id,
-        {
-          status: 'expired',
-          retryCount: newRetryCount,
-          lastPaymentError: result.error.message,
-          updatedAt: new Date(),
-        },
-      );
-
-      console.error(
-        `Subscription expired after ${MAX_RETRY_COUNT} retries: ${subscription.id}`,
-      );
-    } else {
-      await updateFirestoreDocument(
-        env,
-        firebaseToken,
-        SUBSCRIPTIONS_COLLECTION,
-        subscription.id,
-        {
-          status: 'payment_failed',
-          retryCount: newRetryCount,
-          lastPaymentError: result.error.message,
-          updatedAt: new Date(),
-        },
-      );
-
-      console.warn(
-        `Payment failed for ${subscription.id}, retry ${newRetryCount}/${MAX_RETRY_COUNT}`,
-      );
-    }
-
-    // 실패한 결제 기록
-    const failedPaymentId = `failed_${subscription.clubId}_${Date.now()}`;
-
-    await createFirestoreDocument(
-      env,
-      firebaseToken,
-      PAYMENTS_COLLECTION,
-      failedPaymentId,
-      {
-        id: failedPaymentId,
-        subscriptionId: subscription.id,
-        clubId: subscription.clubId,
-        userId: subscription.userId,
-        userEmail: subscription.userEmail,
-        paymentId: paymentId,
-        transactionId: '',
-        amount: subscription.price,
-        planId: subscription.planId,
-        planName: subscription.planName,
-        status: 'failed',
-        errorCode: result.error.code,
-        errorMessage: result.error.message,
-        createdAt: new Date(),
-      },
-    );
-
-    return false;
   }
+
+  return false;
 }
 
 /**
@@ -753,6 +818,13 @@ async function processCanceledSubscriptions(env: Env): Promise<void> {
     const newPlanName = subscription.nextPlanName ?? 'Free';
     const newPrice = subscription.nextPlanPrice ?? 0;
 
+    // 크레딧이 있었으면 로그 남기기 (환불 요청 추적용)
+    if (subscription.credit && subscription.credit > 0) {
+      console.log(
+        `Subscription ${subscription.id} had ${subscription.credit} credit forfeited on cancellation`,
+      );
+    }
+
     await updateFirestoreDocument(
       env,
       firebaseToken,
@@ -764,6 +836,7 @@ async function processCanceledSubscriptions(env: Env): Promise<void> {
         price: newPrice,
         status: 'active',
         canceledAt: null, // 취소 완료되었으므로 제거
+        credit: null, // 크레딧 소멸
         nextPlanId: null,
         nextPlanName: null,
         nextPlanPrice: null,

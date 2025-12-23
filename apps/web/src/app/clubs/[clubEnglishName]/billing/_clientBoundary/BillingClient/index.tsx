@@ -129,7 +129,6 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     setSelectedBillingKeyForPayment(defaultBillingKey);
 
     const targetPlan = SUBSCRIPTION_PLANS[plan];
-    const currentPlan = SUBSCRIPTION_PLANS[currentPlanId];
     const isFreeDowngrade = targetPlan.monthlyPrice === 0;
 
     // 비례 정산 계산 (유료 플랜에서 다른 유료 플랜으로 변경 시)
@@ -142,14 +141,24 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       subscription.startDate &&
       subscription.endDate
     ) {
-      const newPrice = isYearly ? targetPlan.yearlyPrice * 12 : targetPlan.monthlyPrice;
-      const currentPrice = currentPlan.monthlyPrice; // 현재 구독 가격
+      // 새 플랜 가격 (빌링 주기에 따라)
+      const newPrice = isYearly
+        ? targetPlan.yearlyPrice * 12
+        : targetPlan.monthlyPrice;
+
+      // 현재 구독의 실제 결제 금액 사용 (플랜 상수가 아닌 실제 저장된 값)
+      const currentPrice = subscription.price;
+      const currentBillingCycle = subscription.billingCycle ?? 'monthly';
+      const newBillingCycle = isYearly ? 'yearly' : 'monthly';
 
       const prorationResult = calculateProration({
         currentPlanPrice: currentPrice,
+        currentBillingCycle,
         newPlanPrice: newPrice,
+        newBillingCycle,
         billingStartDate: new Date(subscription.startDate.seconds * 1000),
         billingEndDate: new Date(subscription.endDate.seconds * 1000),
+        existingCredit: subscription.credit ?? 0,
       });
 
       setProration(prorationResult);
@@ -506,8 +515,12 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           return;
         }
 
-        // 업그레이드: 즉시 적용 + 비례 정산 결제
-        if (proration && proration.isUpgrade) {
+        // 업그레이드 또는 빌링 주기 변경: 즉시 적용 + 비례 정산 결제
+        // 빌링 주기가 변경되면 다운그레이드여도 즉시 처리 (새로운 빌링 주기 시작)
+        const shouldProcessImmediately =
+          proration && (proration.isUpgrade || proration.isBillingCycleChange);
+
+        if (shouldProcessImmediately) {
           // 전화번호 필수 체크 (PortOne 요구사항)
           if (!isMockMode && !myProfile?.phoneNumber) {
             throw new Error(
@@ -517,6 +530,12 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
 
           const paymentId = `payment_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
           const amountToPay = proration.amountDue;
+          const newBillingCycle = isYearlyBilling ? 'yearly' : 'monthly';
+
+          // 주문명 설정
+          const orderName = proration.isBillingCycleChange
+            ? `${plan.name} 플랜 (${isYearlyBilling ? '연간' : '월간'} 전환)`
+            : `${plan.name} 플랜 업그레이드 (비례 정산)`;
 
           // 비례 정산 금액이 0보다 크면 결제 진행
           if (amountToPay > 0 && !isMockMode) {
@@ -526,7 +545,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
               body: JSON.stringify({
                 billingKey: selectedBillingKeyForPayment.billingKey,
                 paymentId,
-                orderName: `${plan.name} 플랜 업그레이드 (비례 정산)`,
+                orderName,
                 amount: amountToPay,
                 customer: {
                   id: user.uid,
@@ -557,6 +576,10 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
               billingKeyId: selectedBillingKeyForPayment.id,
               orderId: paymentId,
               transactionId: transactionId ?? paymentId,
+              newBillingCycle: proration.isBillingCycleChange
+                ? newBillingCycle
+                : undefined,
+              remainingCredit: proration.remainingCredit,
             });
           } else {
             // Mock 모드이거나 결제 금액이 0인 경우 플랜만 변경
@@ -572,6 +595,10 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
               billingKeyId: selectedBillingKeyForPayment.id,
               orderId: paymentId,
               transactionId: `mock_${paymentId}`,
+              newBillingCycle: proration.isBillingCycleChange
+                ? newBillingCycle
+                : undefined,
+              remainingCredit: proration.remainingCredit,
             });
           }
 
@@ -581,7 +608,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           return;
         }
 
-        // 다운그레이드: 다음 결제일에 플랜 변경 예약
+        // 다운그레이드 (빌링 주기 동일): 다음 결제일에 플랜 변경 예약
         await schedulePlanChange(subscription.id, plan.id, plan.name, billingPrice);
         await refetch();
         setIsScheduledChange(true);
@@ -775,6 +802,11 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
               billingKeys={billingKeys}
               selectedBillingKey={selectedBillingKeyForPayment}
               proration={proration}
+              scheduledDate={
+                subscription?.endDate
+                  ? new Date(subscription.endDate.seconds * 1000).toLocaleDateString('ko-KR')
+                  : undefined
+              }
               onSelectBillingKey={setSelectedBillingKeyForPayment}
               onPayment={handlePayment}
               onRegisterCard={() => setModalStep('select-card')}

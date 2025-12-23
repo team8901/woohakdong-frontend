@@ -30,9 +30,6 @@ const REGULAR_PLAN_IDS = (
   Object.keys(SUBSCRIPTION_PLANS) as SubscriptionPlanId[]
 ).filter((key) => !SUBSCRIPTION_PLANS[key].contactOnly);
 
-// 준비중인 플랜
-const COMING_SOON_PLANS: SubscriptionPlanId[] = ['PRO'];
-
 export const PlansTab = ({
   currentPlanId,
   isPaidPlanDisabled,
@@ -74,7 +71,7 @@ export const PlansTab = ({
           const isCurrentPlan = currentPlanId === planId;
           const isPaidPlan = plan.monthlyPrice > 0;
           const isFreePlan = plan.monthlyPrice === 0;
-          const isComingSoon = COMING_SOON_PLANS.includes(planId);
+          const isComingSoon = plan.comingSoon;
           const isDisabled = isPaidPlanDisabled && isPaidPlan;
 
           // 무료 플랜이고 취소된 구독이 만료 후 무료로 전환 예정
