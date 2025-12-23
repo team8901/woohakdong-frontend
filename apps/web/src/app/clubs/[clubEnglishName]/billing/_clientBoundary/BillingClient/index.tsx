@@ -83,7 +83,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
 
     const targetPlan = SUBSCRIPTION_PLANS[plan];
     // 무료 플랜은 카드 등록 불필요, 바로 확인 단계로
-    const isFreeDowngrade = targetPlan.basePrice === 0;
+    const isFreeDowngrade = targetPlan.monthlyPrice === 0;
 
     setModalStep(
       isFreeDowngrade
@@ -278,7 +278,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       const plan = SUBSCRIPTION_PLANS[selectedPlan];
 
       // 무료 플랜 변경 (결제 없이 처리)
-      if (plan.basePrice === 0) {
+      if (plan.monthlyPrice === 0) {
         await createFreeSubscription({
           clubId,
           userId: user.uid,
@@ -308,7 +308,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             userEmail: user.email ?? '',
             planId: plan.id,
             planName: plan.name,
-            price: plan.basePrice,
+            price: plan.monthlyPrice,
           },
           defaultBillingKey.id,
         );
@@ -323,7 +323,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             billingKey: defaultBillingKey.billingKey,
             paymentId,
             orderName: `${plan.name} 플랜 구독`,
-            amount: plan.basePrice,
+            amount: plan.monthlyPrice,
             customer: {
               id: user.uid,
               name: user.displayName,
@@ -346,7 +346,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           userEmail: user.email ?? '',
           planId: plan.id,
           planName: plan.name,
-          price: plan.basePrice,
+          price: plan.monthlyPrice,
           billingKeyId: defaultBillingKey.id,
           orderId: paymentId,
           transactionId: transactionId ?? paymentId,
@@ -431,9 +431,9 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">월 결제 금액</span>
               <span className="font-medium">
-                {currentPlan.basePrice === 0
+                {currentPlan.monthlyPrice === 0
                   ? '무료'
-                  : `${currentPlan.basePrice.toLocaleString()}원`}
+                  : `${currentPlan.monthlyPrice.toLocaleString()}원`}
               </span>
             </div>
             {subscription?.endDate && (
@@ -553,7 +553,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             ][]
           ).map(([key, plan]) => {
             const isCurrentPlan = currentPlanId === key;
-            const isPaidPlan = plan.basePrice > 0;
+            const isPaidPlan = plan.monthlyPrice > 0;
             const isDisabled = isPaidPlanDisabled && isPaidPlan;
             const isSelected = selectedPlan === key;
 
@@ -598,11 +598,11 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
                 <CardContent>
                   <div className="mb-4 text-center">
                     <span className="text-foreground text-2xl font-bold">
-                      {plan.basePrice === 0
+                      {plan.monthlyPrice === 0
                         ? '무료'
-                        : `${plan.basePrice.toLocaleString()}원`}
+                        : `${plan.monthlyPrice.toLocaleString()}원`}
                     </span>
-                    {plan.basePrice > 0 && (
+                    {plan.monthlyPrice > 0 && (
                       <span className="text-muted-foreground text-sm">/월</span>
                     )}
                   </div>

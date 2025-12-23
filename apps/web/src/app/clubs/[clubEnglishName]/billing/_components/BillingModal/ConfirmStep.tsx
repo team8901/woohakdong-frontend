@@ -80,15 +80,15 @@ export const ConfirmStep = ({
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">월 결제 금액</span>
             <span className="text-primary text-lg font-bold">
-              {plan.basePrice === 0
+              {plan.monthlyPrice === 0
                 ? '무료'
-                : `${plan.basePrice.toLocaleString()}원`}
+                : `${plan.monthlyPrice.toLocaleString()}원`}
             </span>
           </div>
         </div>
 
         {/* 결제 수단 */}
-        {plan.basePrice > 0 && (
+        {plan.monthlyPrice > 0 && (
           <div className="rounded-lg border p-4">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-muted-foreground text-sm">결제수단</span>
@@ -131,10 +131,10 @@ export const ConfirmStep = ({
           className="w-full"
           size="lg"
           onClick={onPayment}
-          disabled={!defaultBillingKey && plan.basePrice > 0}>
-          {plan.basePrice === 0
+          disabled={!defaultBillingKey && plan.monthlyPrice > 0}>
+          {plan.monthlyPrice === 0
             ? '무료 플랜으로 변경'
-            : `${plan.basePrice.toLocaleString()}원 결제하기`}
+            : `${plan.monthlyPrice.toLocaleString()}원 결제하기`}
         </Button>
         <Button variant="ghost" className="w-full" onClick={onClose}>
           취소

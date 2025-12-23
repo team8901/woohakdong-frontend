@@ -51,7 +51,7 @@ export const PaymentFormClient = ({
   const { requestPayment, isReady } = usePortone();
 
   const plan = SUBSCRIPTION_PLANS[selectedPlan];
-  const isPaidPlan = plan.basePrice > 0;
+  const isPaidPlan = plan.monthlyPrice > 0;
   // Mock 환경이 아니고 포트원 설정이 없으면 결제 비활성화
   const isPaymentDisabled = !isMockMode && !isPortoneEnabled && isPaidPlan;
 
@@ -95,7 +95,7 @@ export const PaymentFormClient = ({
         channelKey: DEFAULT_BILLING_CHANNEL,
         orderId,
         orderName: `우학동 ${plan.name} 플랜 구독`,
-        amount: plan.basePrice,
+        amount: plan.monthlyPrice,
         customer: user
           ? {
               customerId: user.uid,
@@ -109,7 +109,7 @@ export const PaymentFormClient = ({
       const successParams = new URLSearchParams({
         orderId: result.paymentId,
         transactionId: result.txId ?? '',
-        amount: String(plan.basePrice),
+        amount: String(plan.monthlyPrice),
         plan: plan.id,
         planName: plan.name,
         clubId: String(clubId),
@@ -139,7 +139,7 @@ export const PaymentFormClient = ({
     const successParams = new URLSearchParams({
       orderId,
       transactionId,
-      amount: String(plan.basePrice),
+      amount: String(plan.monthlyPrice),
       plan: plan.id,
       planName: plan.name,
       clubId: String(clubId),
@@ -182,14 +182,14 @@ export const PaymentFormClient = ({
               {plan.name} 플랜 기본금
             </span>
             <span className="font-medium">
-              {plan.basePrice.toLocaleString()}원
+              {plan.monthlyPrice.toLocaleString()}원
             </span>
           </div>
           <Separator />
           <div className="flex justify-between">
             <span className="text-lg font-semibold">총 결제 금액</span>
             <span className="text-primary text-lg font-bold">
-              {plan.basePrice.toLocaleString()}원
+              {plan.monthlyPrice.toLocaleString()}원
             </span>
           </div>
         </CardContent>
@@ -242,7 +242,7 @@ export const PaymentFormClient = ({
             {isLoggingIn
               ? '로그인 중...'
               : isLoggedIn
-                ? `${plan.basePrice.toLocaleString()}원 결제하기 (Mock)`
+                ? `${plan.monthlyPrice.toLocaleString()}원 결제하기 (Mock)`
                 : '로그인하고 결제하기'}
           </Button>
         ) : (
@@ -256,7 +256,7 @@ export const PaymentFormClient = ({
               : isProcessing
                 ? '결제 처리 중...'
                 : isLoggedIn
-                  ? `${plan.basePrice.toLocaleString()}원 결제하기`
+                  ? `${plan.monthlyPrice.toLocaleString()}원 결제하기`
                   : '로그인하고 결제하기'}
           </Button>
         )
