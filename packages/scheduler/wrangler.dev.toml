@@ -1,0 +1,16 @@
+# 개발/테스트용 설정 (짧은 Cron 간격)
+# 사용법: pnpm wrangler dev --config wrangler.dev.toml --port 8787
+
+name = "woohakdong-scheduler-dev"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+
+# 테스트용 Cron Triggers (1분 간격)
+[triggers]
+crons = [
+  # 매분 실행 (테스트용)
+  "* * * * *"
+]
+
+[vars]
+ENVIRONMENT = "development"
