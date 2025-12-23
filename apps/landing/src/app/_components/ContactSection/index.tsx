@@ -1,10 +1,12 @@
 import {
+  BUSINESS_INFO,
   GITHUB_URL,
   SERVICE_NAME,
   SUPPORT_MAIL,
 } from '@/app/_helpers/constants/service';
 import { Button } from '@workspace/ui/components/button';
 import { Separator } from '@workspace/ui/components/separator';
+import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 import { MailIcon } from 'lucide-react';
 import Image from 'next/image';
 
@@ -54,9 +56,37 @@ export const ContactSection = () => {
               </div>
             </div>
           </div>
-          <div className="text-muted-foreground text-center text-sm md:text-right">
-            © 2025 {SERVICE_NAME}. All rights reserved.
+          <div className="text-center md:text-right">
+            <div className="text-muted-foreground mb-2 flex justify-center gap-4 text-sm md:justify-end">
+              <a
+                href={EXTERNAL_LINKS.TERMS_OF_SERVICE}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline">
+                이용약관
+              </a>
+              <a
+                href={EXTERNAL_LINKS.PRIVACY_POLICY}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline">
+                개인정보처리방침
+              </a>
+            </div>
+            <div className="text-muted-foreground text-center text-sm md:text-right">
+              © 2025 {SERVICE_NAME}. All rights reserved.
+            </div>
           </div>
+        </div>
+        <Separator className="my-6" />
+        <div className="text-muted-foreground text-center text-xs leading-relaxed md:text-left">
+          <p>
+            상호명: {BUSINESS_INFO.companyName} | 대표자:{' '}
+            {BUSINESS_INFO.ceoName} | 사업자등록번호:{' '}
+            {BUSINESS_INFO.registrationNumber}
+          </p>
+          <p className="mt-1">주소: {BUSINESS_INFO.address}</p>
+          <p className="mt-1">고객문의: {SUPPORT_MAIL}</p>
         </div>
       </div>
     </section>
