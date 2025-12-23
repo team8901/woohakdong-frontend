@@ -1,16 +1,20 @@
 /**
  * 포트원 정기결제(빌링) 훅
+ * 빌링키 발급 로직을 추상화하여 재사용성을 높입니다.
  * @see https://developers.portone.io/
  */
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { PORTONE_STORE_ID } from '../constants/portone';
 
-type BillingKeyOptions = {
+export type BillingKeyMethod = 'CARD' | 'EASY_PAY';
+
+export type BillingKeyOptions = {
   channelKey: string;
-  billingKeyId: string; // 고유한 빌링키 ID
+  billingKeyId: string;
+  billingKeyMethod?: BillingKeyMethod;
   customer?: {
     customerId?: string;
     fullName?: string;
@@ -19,100 +23,120 @@ type BillingKeyOptions = {
   };
 };
 
-type BillingKeyResult = {
+export type BillingKeyResult = {
   billingKey: string;
-  cardInfo?: {
-    cardName?: string;
-    cardNumber?: string;
+  billingKeyId: string;
+  cardInfo: {
+    cardName: string;
+    cardNumber: string;
   };
 };
 
 type UsePortoneBillingReturn = {
   requestBillingKey: (options: BillingKeyOptions) => Promise<BillingKeyResult>;
-  isReady: boolean;
+  isLoading: boolean;
+  error: string | null;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PortOneModule = any;
-
+/**
+ * 포트원 빌링키 발급 훅
+ * @example
+ * const { requestBillingKey, isLoading } = usePortoneBilling();
+ *
+ * const result = await requestBillingKey({
+ *   channelKey: 'channel_xxx',
+ *   billingKeyId: 'billing_xxx',
+ *   billingKeyMethod: 'CARD',
+ *   customer: { customerId: 'user_xxx', fullName: '홍길동' },
+ * });
+ */
 export const usePortoneBilling = (): UsePortoneBillingReturn => {
-  const [isReady, setIsReady] = useState(false);
-  const [portone, setPortone] = useState<PortOneModule | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadPortone = async () => {
-      try {
-        const portoneModule = await import('@portone/browser-sdk/v2');
-
-        setPortone(portoneModule);
-        setIsReady(true);
-      } catch (error) {
-        console.error('Failed to load PortOne SDK:', error);
-      }
-    };
-
-    if (PORTONE_STORE_ID) {
-      loadPortone();
-    }
-  }, []);
-
-  /**
-   * 빌링키 발급 요청
-   * 사용자가 카드 정보를 입력하면 빌링키를 발급받습니다.
-   */
   const requestBillingKey = useCallback(
     async (options: BillingKeyOptions): Promise<BillingKeyResult> => {
-      if (!portone) {
-        throw new Error('PortOne SDK not initialized');
+      if (!PORTONE_STORE_ID) {
+        throw new Error('결제 시스템 설정이 완료되지 않았습니다.');
       }
 
-      const PortOne = portone.default ?? portone;
+      if (!options.channelKey) {
+        throw new Error('결제 채널이 설정되지 않았습니다.');
+      }
 
-      console.log('[PortOne] requestIssueBillingKey params:', {
-        storeId: PORTONE_STORE_ID,
-        channelKey: options.channelKey,
-        issueId: options.billingKeyId,
-      });
+      setIsLoading(true);
+      setError(null);
 
-      const response = await PortOne.requestIssueBillingKey({
-        storeId: PORTONE_STORE_ID,
-        channelKey: options.channelKey,
-        issueId: options.billingKeyId,
-        issueName: '정기결제 카드 등록',
-        customer: options.customer
-          ? {
-              customerId: options.customer.customerId,
-              fullName: options.customer.fullName,
-              email: options.customer.email,
-              phoneNumber: options.customer.phoneNumber,
-            }
-          : undefined,
-      });
+      try {
+        const portoneModule = await import('@portone/browser-sdk/v2');
+        const PortOne = portoneModule.default ?? portoneModule;
 
-      console.log('[PortOne] requestIssueBillingKey response:', response);
+        const requestParams = {
+          storeId: PORTONE_STORE_ID,
+          channelKey: options.channelKey,
+          billingKeyMethod: options.billingKeyMethod ?? 'CARD',
+          issueId: options.billingKeyId,
+          issueName: '정기결제 등록',
+          customer: options.customer
+            ? {
+                customerId: options.customer.customerId,
+                fullName: options.customer.fullName,
+                email: options.customer.email,
+                phoneNumber: options.customer.phoneNumber,
+              }
+            : undefined,
+        };
 
-      if (response.code) {
-        // 사용자 취소
-        if (response.code === 'USER_CANCEL') {
-          throw new Error('cancel');
+        console.log('[PortOne] requestIssueBillingKey params:', requestParams);
+
+        const response = await PortOne.requestIssueBillingKey(requestParams);
+
+        console.log('[PortOne] requestIssueBillingKey response:', response);
+
+        if (!response) {
+          throw new Error('빌링키 발급 응답이 없습니다.');
         }
 
-        throw new Error(response.message ?? '빌링키 발급에 실패했습니다.');
-      }
+        if (response.code) {
+          if (response.code === 'USER_CANCEL') {
+            throw new Error('USER_CANCEL');
+          }
 
-      return {
-        billingKey: response.billingKey,
-        cardInfo: {
-          cardName: response.card?.name,
-          cardNumber: response.card?.number,
-        },
-      };
+          throw new Error(response.message ?? '빌링키 발급에 실패했습니다.');
+        }
+
+        if (!response.billingKey) {
+          throw new Error('빌링키가 발급되지 않았습니다.');
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const responseAny = response as any;
+
+        return {
+          billingKey: response.billingKey,
+          billingKeyId: options.billingKeyId,
+          cardInfo: {
+            cardName: responseAny.card?.name ?? '',
+            cardNumber: responseAny.card?.number ?? '',
+          },
+        };
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : '빌링키 발급에 실패했습니다.';
+
+        setError(message);
+
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
     },
-    [portone],
+    [],
   );
 
   return {
     requestBillingKey,
-    isReady,
+    isLoading,
+    error,
   };
 };

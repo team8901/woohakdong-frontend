@@ -9,6 +9,7 @@ import {
   type PaymentMethodId,
   PORTONE_STORE_ID,
 } from '@/app/payment/_helpers/constants/portone';
+import { usePortoneBilling } from '@/app/payment/_helpers/hooks/usePortoneBilling';
 import { useSubscription } from '@/app/payment/_helpers/hooks/useSubscription';
 import {
   calculateProration,
@@ -77,6 +78,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     refetch,
   } = useSubscription({ clubId });
   const { data: myProfile } = useGetMyProfile();
+  const { requestBillingKey } = usePortoneBilling();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanId | null>(
     null,
   );
@@ -92,7 +94,8 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [isReactivating, setIsReactivating] = useState(false);
-  const [isCancelingScheduledChange, setIsCancelingScheduledChange] = useState(false);
+  const [isCancelingScheduledChange, setIsCancelingScheduledChange] =
+    useState(false);
   const [isYearlyBilling, setIsYearlyBilling] = useState(false);
   const [isScheduledChange, setIsScheduledChange] = useState(false);
   const [proration, setProration] = useState<ProrationResult | null>(null);
@@ -116,7 +119,9 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     }
   }, [isModalOpen, defaultBillingKey, selectedBillingKeyForPayment]);
 
-  const rawPlanId = subscription?.planId?.toUpperCase() as SubscriptionPlanId | undefined;
+  const rawPlanId = subscription?.planId?.toUpperCase() as
+    | SubscriptionPlanId
+    | undefined;
   const currentPlanId: SubscriptionPlanId =
     rawPlanId && SUBSCRIPTION_PLANS[rawPlanId] ? rawPlanId : 'FREE';
 
@@ -266,7 +271,10 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     try {
       await cancelScheduledPlanChange(subscription.id);
       await refetch();
-      showToast({ message: '플랜 변경 예약이 취소되었습니다.', type: 'success' });
+      showToast({
+        message: '플랜 변경 예약이 취소되었습니다.',
+        type: 'success',
+      });
     } catch (err) {
       console.error('Failed to cancel scheduled change:', err);
       showToast({ message: '예약 취소에 실패했습니다.', type: 'error' });
@@ -340,83 +348,31 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
         throw new Error('로그인이 필요합니다.');
       }
 
-      const portoneModule = await import('@portone/browser-sdk/v2');
-      const PortOne = portoneModule.default ?? portoneModule;
-
-      if (!PORTONE_STORE_ID) {
-        if (standalone) {
-          showToast({
-            message: '결제 시스템 설정이 완료되지 않았습니다.',
-            type: 'error',
-          });
-        } else {
-          setErrorMessage('결제 시스템 설정이 완료되지 않았습니다.');
-          setModalStep('error');
-        }
-
-        return;
-      }
-
-      const billingKeyId = `billing_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
       const methodInfo = BILLING_PAYMENT_METHODS.find((m) => m.id === methodId);
       const channelKey = methodInfo?.channelKey ?? DEFAULT_BILLING_CHANNEL;
       const billingKeyMethod = methodInfo?.billingKeyMethod ?? 'CARD';
+      const billingKeyId = `billing_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
 
-      // channelKey가 비어있으면 에러
-      if (!channelKey) {
-        throw new Error(
-          '결제 채널이 설정되지 않았습니다. 환경 변수를 확인해주세요.',
-        );
-      }
-
-      const requestParams = {
-        storeId: PORTONE_STORE_ID,
+      const result = await requestBillingKey({
         channelKey,
+        billingKeyId,
         billingKeyMethod,
-        issueId: billingKeyId,
-        issueName: '정기결제 등록',
         customer: {
           customerId: user.uid,
           fullName: myProfile?.nickname ?? user.displayName ?? undefined,
           email: myProfile?.email ?? user.email ?? undefined,
           phoneNumber: myProfile?.phoneNumber ?? undefined,
         },
-      };
-
-      console.log('[PortOne] requestIssueBillingKey params:', requestParams);
-
-      const response = await PortOne.requestIssueBillingKey(requestParams);
-
-      console.log('[PortOne] requestIssueBillingKey response:', response);
-
-      if (!response) {
-        throw new Error('빌링키 발급 응답이 없습니다.');
-      }
-
-      if (response.code) {
-        if (response.code === 'USER_CANCEL') {
-          // 사용자가 취소한 경우 에러로 처리하지 않음
-          return;
-        }
-
-        throw new Error(response.message ?? '빌링키 발급에 실패했습니다.');
-      }
-
-      if (!response.billingKey) {
-        throw new Error('빌링키가 발급되지 않았습니다.');
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const responseAny = response as any;
+      });
 
       await saveBillingKey({
         clubId,
         userId: user.uid,
         userEmail: user.email ?? '',
-        billingKey: response.billingKey,
-        customerKey: billingKeyId,
-        cardCompany: responseAny.card?.name ?? methodInfo?.label ?? '카드',
-        cardNumber: responseAny.card?.number ?? '',
+        billingKey: result.billingKey,
+        customerKey: result.billingKeyId,
+        cardCompany: result.cardInfo.cardName || methodInfo?.label || '카드',
+        cardNumber: result.cardInfo.cardNumber,
       });
 
       await refetch();
@@ -429,8 +385,8 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     } catch (err) {
       console.error('Failed to register payment method:', err);
 
-      if (err instanceof Error && err.message.includes('cancel')) {
-        // 사용자 취소는 에러로 처리하지 않음
+      // 사용자 취소는 에러로 처리하지 않음
+      if (err instanceof Error && err.message === 'USER_CANCEL') {
         return;
       }
 
@@ -609,7 +565,12 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
         }
 
         // 다운그레이드 (빌링 주기 동일): 다음 결제일에 플랜 변경 예약
-        await schedulePlanChange(subscription.id, plan.id, plan.name, billingPrice);
+        await schedulePlanChange(
+          subscription.id,
+          plan.id,
+          plan.name,
+          billingPrice,
+        );
         await refetch();
         setIsScheduledChange(true);
         setModalStep('success');
@@ -804,7 +765,9 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
               proration={proration}
               scheduledDate={
                 subscription?.endDate
-                  ? new Date(subscription.endDate.seconds * 1000).toLocaleDateString('ko-KR')
+                  ? new Date(
+                      subscription.endDate.seconds * 1000,
+                    ).toLocaleDateString('ko-KR')
                   : undefined
               }
               onSelectBillingKey={setSelectedBillingKeyForPayment}
@@ -822,7 +785,9 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
               isScheduledChange={isScheduledChange}
               scheduledDate={
                 subscription?.endDate
-                  ? new Date(subscription.endDate.seconds * 1000).toLocaleDateString('ko-KR')
+                  ? new Date(
+                      subscription.endDate.seconds * 1000,
+                    ).toLocaleDateString('ko-KR')
                   : undefined
               }
               onClose={handleCloseModal}
