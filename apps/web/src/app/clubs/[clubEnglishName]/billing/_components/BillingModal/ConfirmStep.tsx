@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import type { BillingKey } from '@workspace/firebase/subscription';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
@@ -14,6 +16,8 @@ import {
 } from '@workspace/ui/constants/plans';
 import {
   Check,
+  ChevronDown,
+  ChevronUp,
   CreditCard,
   MessageCircle,
   Plus,
@@ -23,9 +27,11 @@ import {
 type ConfirmStepProps = {
   selectedPlan: SubscriptionPlanId;
   isYearly: boolean;
-  defaultBillingKey: BillingKey | null;
+  billingKeys: BillingKey[];
+  selectedBillingKey: BillingKey | null;
+  onSelectBillingKey: (billingKey: BillingKey) => void;
   onPayment: () => void;
-  onSelectCard: () => void;
+  onRegisterCard: () => void;
   onClose: () => void;
 };
 
@@ -46,17 +52,20 @@ const getPaymentMethodIcon = (cardCompany: string) => {
 export const ConfirmStep = ({
   selectedPlan,
   isYearly,
-  defaultBillingKey,
+  billingKeys,
+  selectedBillingKey,
+  onSelectBillingKey,
   onPayment,
-  onSelectCard,
+  onRegisterCard,
   onClose,
 }: ConfirmStepProps) => {
+  const [isCardListOpen, setIsCardListOpen] = useState(false);
+
   const plan = SUBSCRIPTION_PLANS[selectedPlan];
-  const billingPrice = isYearly
-    ? plan.yearlyPrice * 12
-    : plan.monthlyPrice;
+  const billingPrice = isYearly ? plan.yearlyPrice * 12 : plan.monthlyPrice;
   const billingCycle = isYearly ? '연' : '월';
   const isFree = plan.monthlyPrice === 0;
+  const hasMultipleCards = billingKeys.length > 1;
 
   return (
     <>
@@ -104,33 +113,86 @@ export const ConfirmStep = ({
           <div className="rounded-lg border p-4">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-muted-foreground text-sm">결제수단</span>
-              {defaultBillingKey && (
+              {hasMultipleCards && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-muted-foreground hover:text-foreground h-auto p-0 text-xs"
-                  onClick={onSelectCard}>
-                  변경
+                  className="text-muted-foreground hover:text-foreground h-auto gap-1 p-0 text-xs"
+                  onClick={() => setIsCardListOpen(!isCardListOpen)}>
+                  {isCardListOpen ? '접기' : '변경'}
+                  {isCardListOpen ? (
+                    <ChevronUp className="size-3" />
+                  ) : (
+                    <ChevronDown className="size-3" />
+                  )}
                 </Button>
               )}
             </div>
-            {defaultBillingKey ? (
-              <div className="flex items-center gap-3">
-                {getPaymentMethodIcon(defaultBillingKey.cardCompany)}
-                <div>
-                  <p className="font-medium">{defaultBillingKey.cardCompany}</p>
-                  {defaultBillingKey.cardNumber && (
-                    <p className="text-muted-foreground text-sm">
-                      {defaultBillingKey.cardNumber}
+
+            {selectedBillingKey ? (
+              <>
+                {/* 선택된 카드 표시 */}
+                <div className="flex items-center gap-3">
+                  {getPaymentMethodIcon(selectedBillingKey.cardCompany)}
+                  <div>
+                    <p className="font-medium">
+                      {selectedBillingKey.cardCompany}
                     </p>
-                  )}
+                    {selectedBillingKey.cardNumber && (
+                      <p className="text-muted-foreground text-sm">
+                        {selectedBillingKey.cardNumber}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
+
+                {/* 카드 목록 (펼쳤을 때) */}
+                {isCardListOpen && hasMultipleCards && (
+                  <div className="mt-3 space-y-2 border-t pt-3">
+                    {billingKeys.map((key) => (
+                      <button
+                        key={key.id}
+                        type="button"
+                        className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                          selectedBillingKey.id === key.id
+                            ? 'border-primary bg-primary/5'
+                            : 'hover:bg-muted/50'
+                        }`}
+                        onClick={() => {
+                          onSelectBillingKey(key);
+                          setIsCardListOpen(false);
+                        }}>
+                        {getPaymentMethodIcon(key.cardCompany)}
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">
+                            {key.cardCompany}
+                          </p>
+                          {key.cardNumber && (
+                            <p className="text-muted-foreground text-xs">
+                              {key.cardNumber}
+                            </p>
+                          )}
+                        </div>
+                        {selectedBillingKey.id === key.id && (
+                          <Check className="text-primary size-4" />
+                        )}
+                      </button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={onRegisterCard}>
+                      <Plus className="mr-2 size-4" />새 결제수단 등록
+                    </Button>
+                  </div>
+                )}
+              </>
             ) : (
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={onSelectCard}>
+                onClick={onRegisterCard}>
                 <Plus className="mr-2 size-4" />
                 결제수단 등록하기
               </Button>
@@ -143,7 +205,7 @@ export const ConfirmStep = ({
           className="w-full"
           size="lg"
           onClick={onPayment}
-          disabled={!defaultBillingKey && !isFree}>
+          disabled={!selectedBillingKey && !isFree}>
           {isFree
             ? '무료 플랜으로 변경'
             : `${billingPrice.toLocaleString()}원/${billingCycle} 결제하기`}

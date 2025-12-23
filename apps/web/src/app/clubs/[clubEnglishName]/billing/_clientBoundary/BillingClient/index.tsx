@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { showToast } from '@/_shared/helpers/utils/showToast';
 import {
   BILLING_PAYMENT_METHODS,
   DEFAULT_BILLING_CHANNEL,
@@ -12,12 +13,14 @@ import { useSubscription } from '@/app/payment/_helpers/hooks/useSubscription';
 import { useGetMyProfile } from '@workspace/api';
 import { getCurrentUser } from '@workspace/firebase/auth';
 import {
+  type BillingKey,
   cancelSubscription,
   createFreeSubscription,
   createMockSubscription,
   createSubscriptionWithBillingKey,
   deleteBillingKey,
   saveBillingKey,
+  setDefaultBillingKey,
 } from '@workspace/firebase/subscription';
 import { Badge } from '@workspace/ui/components/badge';
 import { Card, CardContent } from '@workspace/ui/components/card';
@@ -59,6 +62,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
   const {
     subscription,
     paymentHistory,
+    billingKeys,
     defaultBillingKey,
     isLoading,
     error,
@@ -71,16 +75,34 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStep, setModalStep] = useState<ModalStep>('select-card');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
+  const [settingDefaultCardId, setSettingDefaultCardId] = useState<
+    string | null
+  >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isMockMode, setIsMockMode] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [isYearlyBilling, setIsYearlyBilling] = useState(false);
+  const [isCardRegistrationModalOpen, setIsCardRegistrationModalOpen] =
+    useState(false);
+  const [selectedBillingKeyForPayment, setSelectedBillingKeyForPayment] =
+    useState<BillingKey | null>(null);
 
   useEffect(() => {
     setIsMockMode(process.env.NEXT_PUBLIC_IS_MOCK === 'true');
   }, []);
+
+  // 카드 등록 후 selectedBillingKeyForPayment 동기화
+  useEffect(() => {
+    if (
+      isModalOpen &&
+      selectedBillingKeyForPayment === null &&
+      defaultBillingKey
+    ) {
+      setSelectedBillingKeyForPayment(defaultBillingKey);
+    }
+  }, [isModalOpen, defaultBillingKey, selectedBillingKeyForPayment]);
 
   const currentPlanId: SubscriptionPlanId = subscription?.planId
     ? (subscription.planId.toUpperCase() as SubscriptionPlanId)
@@ -92,6 +114,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
   const handleOpenModal = (plan: SubscriptionPlanId, isYearly = false) => {
     setSelectedPlan(plan);
     setIsYearlyBilling(isYearly);
+    setSelectedBillingKeyForPayment(defaultBillingKey);
 
     const targetPlan = SUBSCRIPTION_PLANS[plan];
     const isFreeDowngrade = targetPlan.monthlyPrice === 0;
@@ -112,20 +135,42 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     setSelectedPlan(null);
     setModalStep('select-card');
     setErrorMessage(null);
+    setSelectedBillingKeyForPayment(null);
   };
 
-  const handleDeleteCard = async () => {
-    if (!defaultBillingKey) return;
-
-    setIsDeleting(true);
+  const handleDeleteCard = async (billingKeyId: string) => {
+    setDeletingCardId(billingKeyId);
 
     try {
-      await deleteBillingKey(defaultBillingKey.id);
+      await deleteBillingKey(billingKeyId);
       await refetch();
+      showToast({ message: '결제수단이 삭제되었습니다.', type: 'success' });
     } catch (err) {
       console.error('Failed to delete card:', err);
+      showToast({ message: '결제수단 삭제에 실패했습니다.', type: 'error' });
     } finally {
-      setIsDeleting(false);
+      setDeletingCardId(null);
+    }
+  };
+
+  const handleSetDefaultCard = async (billingKeyId: string) => {
+    setSettingDefaultCardId(billingKeyId);
+
+    try {
+      await setDefaultBillingKey(billingKeyId, clubId);
+      await refetch();
+      showToast({
+        message: '기본 결제수단이 변경되었습니다.',
+        type: 'success',
+      });
+    } catch (err) {
+      console.error('Failed to set default card:', err);
+      showToast({
+        message: '기본 결제수단 변경에 실패했습니다.',
+        type: 'error',
+      });
+    } finally {
+      setSettingDefaultCardId(null);
     }
   };
 
@@ -138,16 +183,21 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       await cancelSubscription(subscription.id);
       await refetch();
       setIsCancelModalOpen(false);
+      showToast({ message: '구독이 취소되었습니다.', type: 'success' });
     } catch (err) {
       console.error('Failed to cancel subscription:', err);
+      showToast({ message: '구독 취소에 실패했습니다.', type: 'error' });
     } finally {
       setIsCanceling(false);
     }
   };
 
-  const handleRegisterMockCard = async () => {
+  const handleRegisterMockCard = async (standalone = false) => {
     setIsProcessing(true);
-    setModalStep('processing');
+
+    if (!standalone) {
+      setModalStep('processing');
+    }
 
     try {
       const user = getCurrentUser();
@@ -170,19 +220,35 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       });
 
       await refetch();
-      setModalStep('confirm');
+
+      if (standalone) {
+        showToast({ message: '결제수단이 등록되었습니다.', type: 'success' });
+      } else {
+        setModalStep('confirm');
+      }
     } catch (err) {
       console.error('Failed to register mock payment method:', err);
-      setErrorMessage('결제수단 등록 중 오류가 발생했습니다.');
-      setModalStep('error');
+
+      if (standalone) {
+        showToast({ message: '결제수단 등록에 실패했습니다.', type: 'error' });
+      } else {
+        setErrorMessage('결제수단 등록 중 오류가 발생했습니다.');
+        setModalStep('error');
+      }
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleRegisterRealCard = async (methodId?: PaymentMethodId) => {
+  const handleRegisterRealCard = async (
+    methodId?: PaymentMethodId,
+    standalone = false,
+  ) => {
     setIsProcessing(true);
-    setModalStep('processing');
+
+    if (!standalone) {
+      setModalStep('processing');
+    }
 
     try {
       const user = getCurrentUser();
@@ -195,8 +261,15 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       const PortOne = portoneModule.default ?? portoneModule;
 
       if (!PORTONE_STORE_ID) {
-        setErrorMessage('결제 시스템 설정이 완료되지 않았습니다.');
-        setModalStep('error');
+        if (standalone) {
+          showToast({
+            message: '결제 시스템 설정이 완료되지 않았습니다.',
+            type: 'error',
+          });
+        } else {
+          setErrorMessage('결제 시스템 설정이 완료되지 않았습니다.');
+          setModalStep('error');
+        }
 
         return;
       }
@@ -205,6 +278,13 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       const methodInfo = BILLING_PAYMENT_METHODS.find((m) => m.id === methodId);
       const channelKey = methodInfo?.channelKey ?? DEFAULT_BILLING_CHANNEL;
       const billingKeyMethod = methodInfo?.billingKeyMethod ?? 'CARD';
+
+      // channelKey가 비어있으면 에러
+      if (!channelKey) {
+        throw new Error(
+          '결제 채널이 설정되지 않았습니다. 환경 변수를 확인해주세요.',
+        );
+      }
 
       const requestParams = {
         storeId: PORTONE_STORE_ID,
@@ -232,8 +312,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
 
       if (response.code) {
         if (response.code === 'USER_CANCEL') {
-          setModalStep('select-card');
-
+          // 사용자가 취소한 경우 에러로 처리하지 않음
           return;
         }
 
@@ -258,22 +337,36 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       });
 
       await refetch();
-      setModalStep('confirm');
+
+      if (standalone) {
+        showToast({ message: '결제수단이 등록되었습니다.', type: 'success' });
+      } else {
+        setModalStep('confirm');
+      }
     } catch (err) {
       console.error('Failed to register payment method:', err);
 
       if (err instanceof Error && err.message.includes('cancel')) {
-        setModalStep('select-card');
-
+        // 사용자 취소는 에러로 처리하지 않음
         return;
       }
 
-      setErrorMessage(
-        err instanceof Error
-          ? err.message
-          : '결제수단 등록창을 열 수 없습니다.',
-      );
-      setModalStep('error');
+      if (standalone) {
+        showToast({
+          message:
+            err instanceof Error
+              ? err.message
+              : '결제수단 등록에 실패했습니다.',
+          type: 'error',
+        });
+      } else {
+        setErrorMessage(
+          err instanceof Error
+            ? err.message
+            : '결제수단 등록창을 열 수 없습니다.',
+        );
+        setModalStep('error');
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -313,10 +406,17 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
         return;
       }
 
-      if (!defaultBillingKey) {
+      if (!selectedBillingKeyForPayment) {
         setModalStep('select-card');
 
         return;
+      }
+
+      // 전화번호 필수 체크 (PortOne 요구사항)
+      if (!isMockMode && !myProfile?.phoneNumber) {
+        throw new Error(
+          '결제를 위해 전화번호가 필요합니다. 프로필에서 전화번호를 등록해주세요.',
+        );
       }
 
       if (isMockMode) {
@@ -329,7 +429,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             planName: plan.name,
             price: billingPrice,
           },
-          defaultBillingKey.id,
+          selectedBillingKeyForPayment.id,
         );
       } else {
         const paymentId = `payment_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
@@ -338,14 +438,15 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            billingKey: defaultBillingKey.billingKey,
+            billingKey: selectedBillingKeyForPayment.billingKey,
             paymentId,
             orderName: `${plan.name} 플랜 ${billingCycle} 구독`,
             amount: billingPrice,
             customer: {
               id: user.uid,
-              name: user.displayName,
-              email: user.email,
+              name: myProfile?.nickname ?? user.displayName,
+              email: myProfile?.email ?? user.email,
+              phoneNumber: myProfile?.phoneNumber,
             },
           }),
         });
@@ -365,7 +466,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           planId: plan.id,
           planName: plan.name,
           price: billingPrice,
-          billingKeyId: defaultBillingKey.id,
+          billingKeyId: selectedBillingKeyForPayment.id,
           orderId: paymentId,
           transactionId: transactionId ?? paymentId,
         });
@@ -439,12 +540,14 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
 
         <TabsContent value="payment-methods">
           <PaymentMethodsTab
-            defaultBillingKey={defaultBillingKey}
+            billingKeys={billingKeys}
             isPaidPlanDisabled={isPaidPlanDisabled}
             isProcessing={isProcessing}
-            isDeleting={isDeleting}
-            onRegisterCard={handleRegisterRealCard}
+            deletingCardId={deletingCardId}
+            settingDefaultCardId={settingDefaultCardId}
+            onOpenRegisterModal={() => setIsCardRegistrationModalOpen(true)}
             onDeleteCard={handleDeleteCard}
+            onSetDefaultCard={handleSetDefaultCard}
           />
         </TabsContent>
 
@@ -478,9 +581,11 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             <ConfirmStep
               selectedPlan={selectedPlan}
               isYearly={isYearlyBilling}
-              defaultBillingKey={defaultBillingKey}
+              billingKeys={billingKeys}
+              selectedBillingKey={selectedBillingKeyForPayment}
+              onSelectBillingKey={setSelectedBillingKeyForPayment}
               onPayment={handlePayment}
-              onSelectCard={() => setModalStep('select-card')}
+              onRegisterCard={() => setModalStep('select-card')}
               onClose={handleCloseModal}
             />
           )}
@@ -511,6 +616,28 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
         onConfirm={handleCancelSubscription}
         onClose={() => setIsCancelModalOpen(false)}
       />
+
+      {/* 결제수단 등록 모달 */}
+      <Dialog
+        open={isCardRegistrationModalOpen}
+        onOpenChange={setIsCardRegistrationModalOpen}>
+        <DialogContent>
+          <SelectCardStep
+            isMockMode={isMockMode}
+            isProcessing={isProcessing}
+            onRegisterPaymentMethod={(methodId) => {
+              // 모달을 먼저 닫고 PortOne SDK 호출
+              setIsCardRegistrationModalOpen(false);
+              handleRegisterRealCard(methodId, true);
+            }}
+            onRegisterMockCard={() => {
+              setIsCardRegistrationModalOpen(false);
+              handleRegisterMockCard(true);
+            }}
+            onClose={() => setIsCardRegistrationModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {isMockMode && (
         <Badge variant="outline" className="w-fit">

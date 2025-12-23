@@ -1,4 +1,3 @@
-import type { PaymentMethodId } from '@/app/payment/_helpers/constants/portone';
 import type { BillingKey } from '@workspace/firebase/subscription';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
@@ -9,15 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@workspace/ui/components/card';
-import { CreditCard, ShoppingBag, Trash2 } from 'lucide-react';
+import { CreditCard, Loader2, ShoppingBag, Star, Trash2 } from 'lucide-react';
 
 type PaymentMethodsTabProps = {
-  defaultBillingKey: BillingKey | null;
+  billingKeys: BillingKey[];
   isPaidPlanDisabled: boolean;
   isProcessing: boolean;
-  isDeleting: boolean;
-  onRegisterCard: (methodId: PaymentMethodId) => void;
-  onDeleteCard: () => void;
+  deletingCardId: string | null;
+  settingDefaultCardId: string | null;
+  onOpenRegisterModal: () => void;
+  onDeleteCard: (billingKeyId: string) => void;
+  onSetDefaultCard: (billingKeyId: string) => void;
 };
 
 const getPaymentMethodIcon = (cardCompany: string) => {
@@ -35,13 +36,17 @@ const getPaymentMethodIcon = (cardCompany: string) => {
 };
 
 export const PaymentMethodsTab = ({
-  defaultBillingKey,
+  billingKeys,
   isPaidPlanDisabled,
   isProcessing,
-  isDeleting,
-  onRegisterCard,
+  deletingCardId,
+  settingDefaultCardId,
+  onOpenRegisterModal,
   onDeleteCard,
+  onSetDefaultCard,
 }: PaymentMethodsTabProps) => {
+  const hasCards = billingKeys.length > 0;
+
   return (
     <Card>
       <CardHeader>
@@ -51,35 +56,66 @@ export const PaymentMethodsTab = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {defaultBillingKey ? (
+        {hasCards ? (
           <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div className="flex items-center gap-3">
-                {getPaymentMethodIcon(defaultBillingKey.cardCompany)}
-                <div>
-                  <p className="font-medium">{defaultBillingKey.cardCompany}</p>
-                  <p className="text-muted-foreground text-sm">
-                    {defaultBillingKey.cardNumber}
-                  </p>
+            {billingKeys.map((billingKey) => {
+              const isDefault = billingKey.isDefault;
+              const isDeleting = deletingCardId === billingKey.id;
+              const isSettingDefault = settingDefaultCardId === billingKey.id;
+
+              return (
+                <div
+                  key={billingKey.id}
+                  className={`flex items-center justify-between rounded-lg border p-4 ${
+                    isDefault ? 'border-primary bg-primary/5' : ''
+                  }`}>
+                  <div className="flex items-center gap-3">
+                    {getPaymentMethodIcon(billingKey.cardCompany)}
+                    <div>
+                      <p className="font-medium">{billingKey.cardCompany}</p>
+                      <p className="text-muted-foreground text-sm">
+                        {billingKey.cardNumber}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {isDefault ? (
+                      <Badge variant="default">기본</Badge>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onSetDefaultCard(billingKey.id)}
+                        disabled={isSettingDefault}>
+                        {isSettingDefault ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <Star className="size-4" />
+                        )}
+                        기본으로 설정
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDeleteCard(billingKey.id)}
+                      disabled={isDeleting}
+                      className="text-muted-foreground hover:text-destructive size-8">
+                      {isDeleting ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="size-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">기본 결제수단</Badge>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onDeleteCard}
-                  disabled={isDeleting}
-                  className="text-muted-foreground hover:text-destructive size-8">
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
-            </div>
+              );
+            })}
             {!isPaidPlanDisabled && (
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onRegisterCard('card')}
+                onClick={onOpenRegisterModal}
                 disabled={isProcessing}>
                 {isProcessing ? '등록 중...' : '새 결제수단 등록'}
               </Button>
@@ -97,7 +133,7 @@ export const PaymentMethodsTab = ({
             {!isPaidPlanDisabled && (
               <Button
                 className="w-full"
-                onClick={() => onRegisterCard('card')}
+                onClick={onOpenRegisterModal}
                 disabled={isProcessing}>
                 {isProcessing ? '등록 중...' : '결제수단 등록하기'}
               </Button>

@@ -401,6 +401,48 @@ export const deleteBillingKey = async (billingKeyId: string): Promise<void> => {
   }
 };
 
+/**
+ * 기본 빌링키 설정
+ * @param billingKeyId - 기본으로 설정할 빌링키 문서 ID
+ * @param clubId - 동아리 ID
+ */
+export const setDefaultBillingKey = async (
+  billingKeyId: string,
+  clubId: number,
+): Promise<void> => {
+  try {
+    // 기존 기본 카드 해제
+    const existingKeys = await getBillingKeys(clubId);
+
+    for (const key of existingKeys) {
+      if (key.isDefault && key.id !== billingKeyId) {
+        const existingRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, key.id);
+
+        await updateDoc(existingRef, {
+          isDefault: false,
+          updatedAt: serverTimestamp(),
+        });
+      }
+    }
+
+    // 새 기본 카드 설정
+    const billingKeyRef = doc(
+      firebaseDb,
+      BILLING_KEYS_COLLECTION,
+      billingKeyId,
+    );
+
+    await updateDoc(billingKeyRef, {
+      isDefault: true,
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Failed to set default billing key:', error);
+
+    throw new SubscriptionError('기본 카드 설정 중 오류가 발생했습니다.');
+  }
+};
+
 export type CreateSubscriptionWithPaymentInput = {
   clubId: number;
   userId: string;

@@ -17,6 +17,7 @@ type BillingPaymentRequest = {
     id?: string;
     name?: string;
     email?: string;
+    phoneNumber?: string;
   };
 };
 
@@ -103,6 +104,7 @@ export async function POST(request: Request) {
                 id: customer.id,
                 name: { full: customer.name },
                 email: customer.email,
+                phoneNumber: customer.phoneNumber,
               }
             : undefined,
         }),
