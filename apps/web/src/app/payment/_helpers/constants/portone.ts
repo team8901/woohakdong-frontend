@@ -19,13 +19,12 @@ export const PORTONE_STORE_ID = process.env.NEXT_PUBLIC_PORTONE_STORE_ID ?? '';
  * - 간편결제(카카오페이/네이버페이) 정기결제: billingKeyMethod를 'EASY_PAY'로 설정
  */
 export const PORTONE_CHANNEL_KEY = {
+  /** KG이니시스 - 카드 정기결제 */
+  INICIS_BILLING: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_INICIS_BILLING ?? '',
+
   /** 카카오페이 - 정기결제 */
   KAKAOPAY_BILLING:
     process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KAKAOPAY_BILLING ?? '',
-
-  /** KG이니시스 - 카드 정기결제 */
-  INICIS_BILLING:
-    process.env.NEXT_PUBLIC_PORTONE_CHANNEL_INICIS_BILLING ?? '',
 } as const;
 
 /**
