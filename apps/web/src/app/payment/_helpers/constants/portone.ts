@@ -19,17 +19,13 @@ export const PORTONE_STORE_ID = process.env.NEXT_PUBLIC_PORTONE_STORE_ID ?? '';
  * - 간편결제(카카오페이/네이버페이) 정기결제: billingKeyMethod를 'EASY_PAY'로 설정
  */
 export const PORTONE_CHANNEL_KEY = {
-  /** 카카오페이 - 정기결제 (현재 사용 중) */
+  /** 카카오페이 - 정기결제 */
   KAKAOPAY_BILLING:
     process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KAKAOPAY_BILLING ?? '',
 
-  // [추후 추가 가능한 결제수단]
-  // /** 카카오페이 - 일반결제 */
-  // KAKAOPAY: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KAKAOPAY ?? '',
-  // /** 네이버페이 - 일반결제 */
-  // NAVERPAY: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_NAVERPAY ?? '',
-  // /** KG이니시스 - 카드 정기결제 */
-  // INICIS_BILLING: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_INICIS_BILLING ?? '',
+  /** KG이니시스 - 카드 정기결제 */
+  INICIS_BILLING:
+    process.env.NEXT_PUBLIC_PORTONE_CHANNEL_INICIS_BILLING ?? '',
 } as const;
 
 /**
@@ -53,6 +49,15 @@ export type PortonePayMethod =
  */
 export const SUPPORTED_PAYMENT_METHODS = [
   {
+    id: 'card',
+    channelKey: PORTONE_CHANNEL_KEY.INICIS_BILLING,
+    label: '신용/체크카드',
+    description: 'KG이니시스 카드 정기결제',
+    icon: 'credit-card',
+    supportsBilling: true,
+    billingKeyMethod: 'CARD' as const,
+  },
+  {
     id: 'kakaopay',
     channelKey: PORTONE_CHANNEL_KEY.KAKAOPAY_BILLING,
     label: '카카오페이',
@@ -61,17 +66,6 @@ export const SUPPORTED_PAYMENT_METHODS = [
     supportsBilling: true,
     billingKeyMethod: 'EASY_PAY' as const,
   },
-
-  // [추후 추가 가능한 결제수단 예시]
-  // {
-  //   id: 'inicis',
-  //   channelKey: PORTONE_CHANNEL_KEY.INICIS_BILLING,
-  //   label: '신용/체크카드',
-  //   description: 'KG이니시스 카드 정기결제',
-  //   icon: 'credit-card',
-  //   supportsBilling: true,
-  //   billingKeyMethod: 'CARD' as const,
-  // },
 ] as const;
 
 /**
@@ -84,11 +78,11 @@ export const BILLING_PAYMENT_METHODS = SUPPORTED_PAYMENT_METHODS.filter(
 export type PaymentMethodId = (typeof SUPPORTED_PAYMENT_METHODS)[number]['id'];
 
 /**
- * 기본 빌링 채널 (카카오페이)
+ * 기본 빌링 채널 (신용/체크카드)
  */
-export const DEFAULT_BILLING_CHANNEL = PORTONE_CHANNEL_KEY.KAKAOPAY_BILLING;
+export const DEFAULT_BILLING_CHANNEL = PORTONE_CHANNEL_KEY.INICIS_BILLING;
 
 /**
  * 기본 결제수단 ID
  */
-export const DEFAULT_PAYMENT_METHOD_ID: PaymentMethodId = 'kakaopay';
+export const DEFAULT_PAYMENT_METHOD_ID: PaymentMethodId = 'card';

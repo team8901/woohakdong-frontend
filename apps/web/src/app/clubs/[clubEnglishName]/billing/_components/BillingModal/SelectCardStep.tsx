@@ -1,3 +1,7 @@
+import {
+  BILLING_PAYMENT_METHODS,
+  type PaymentMethodId,
+} from '@/app/payment/_helpers/constants/portone';
 import { Button } from '@workspace/ui/components/button';
 import {
   DialogDescription,
@@ -5,14 +9,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@workspace/ui/components/dialog';
-import { MessageCircle, Wallet } from 'lucide-react';
+import { CreditCard, MessageCircle, Wallet } from 'lucide-react';
 
 type SelectCardStepProps = {
   isMockMode: boolean;
   isProcessing: boolean;
-  onRegisterPaymentMethod: () => void;
+  onRegisterPaymentMethod: (methodId: PaymentMethodId) => void;
   onRegisterMockCard: () => void;
   onClose: () => void;
+};
+
+const getPaymentMethodIcon = (icon: string) => {
+  switch (icon) {
+    case 'kakaopay':
+      return <MessageCircle className="mr-3 size-5 text-yellow-500" />;
+    case 'credit-card':
+      return <CreditCard className="mr-3 size-5 text-blue-500" />;
+
+    default:
+      return <CreditCard className="mr-3 size-5" />;
+  }
 };
 
 export const SelectCardStep = ({
@@ -27,23 +43,26 @@ export const SelectCardStep = ({
       <DialogHeader>
         <DialogTitle>결제수단 등록</DialogTitle>
         <DialogDescription>
-          정기 결제에 사용할 결제수단을 등록해주세요.
+          정기 결제에 사용할 결제수단을 선택해주세요.
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-3">
-        <Button
-          variant="outline"
-          className="hover:border-primary h-auto w-full justify-start p-4 transition-colors"
-          onClick={onRegisterPaymentMethod}
-          disabled={isProcessing}>
-          <MessageCircle className="mr-3 size-5 text-yellow-500" />
-          <div className="text-left">
-            <p className="font-medium">카카오페이</p>
-            <p className="text-muted-foreground text-sm">
-              카카오페이로 정기 결제
-            </p>
-          </div>
-        </Button>
+        {BILLING_PAYMENT_METHODS.map((method) => (
+          <Button
+            key={method.id}
+            variant="outline"
+            className="hover:border-primary h-auto w-full justify-start p-4 transition-colors"
+            onClick={() => onRegisterPaymentMethod(method.id)}
+            disabled={isProcessing}>
+            {getPaymentMethodIcon(method.icon)}
+            <div className="text-left">
+              <p className="font-medium">{method.label}</p>
+              <p className="text-muted-foreground text-sm">
+                {method.description}
+              </p>
+            </div>
+          </Button>
+        ))}
         {isMockMode && (
           <Button
             variant="ghost"

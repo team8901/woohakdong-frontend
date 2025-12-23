@@ -22,6 +22,7 @@ import {
 
 type ConfirmStepProps = {
   selectedPlan: SubscriptionPlanId;
+  isYearly: boolean;
   defaultBillingKey: BillingKey | null;
   onPayment: () => void;
   onSelectCard: () => void;
@@ -44,12 +45,18 @@ const getPaymentMethodIcon = (cardCompany: string) => {
 
 export const ConfirmStep = ({
   selectedPlan,
+  isYearly,
   defaultBillingKey,
   onPayment,
   onSelectCard,
   onClose,
 }: ConfirmStepProps) => {
   const plan = SUBSCRIPTION_PLANS[selectedPlan];
+  const billingPrice = isYearly
+    ? plan.yearlyPrice * 12
+    : plan.monthlyPrice;
+  const billingCycle = isYearly ? '연' : '월';
+  const isFree = plan.monthlyPrice === 0;
 
   return (
     <>
@@ -64,7 +71,7 @@ export const ConfirmStep = ({
         <div className="bg-muted/50 rounded-lg p-4">
           <div className="mb-3 flex items-center justify-between">
             <span className="font-medium">{plan.name} 플랜</span>
-            {plan.recommended && <Badge variant="secondary">추천</Badge>}
+            {plan.recommended && <Badge variant="secondary">인기</Badge>}
           </div>
           <ul className="mb-3 space-y-1">
             {plan.features.slice(0, 3).map((feature, idx) => (
@@ -78,17 +85,22 @@ export const ConfirmStep = ({
           </ul>
           <Separator className="my-3" />
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">월 결제 금액</span>
+            <span className="text-muted-foreground">
+              {isYearly ? '연간' : '월간'} 결제 금액
+            </span>
             <span className="text-primary text-lg font-bold">
-              {plan.monthlyPrice === 0
-                ? '무료'
-                : `${plan.monthlyPrice.toLocaleString()}원`}
+              {isFree ? '무료' : `${billingPrice.toLocaleString()}원`}
             </span>
           </div>
+          {isYearly && !isFree && (
+            <p className="text-muted-foreground mt-1 text-right text-xs">
+              월 {plan.yearlyPrice.toLocaleString()}원 ×12개월
+            </p>
+          )}
         </div>
 
         {/* 결제 수단 */}
-        {plan.monthlyPrice > 0 && (
+        {!isFree && (
           <div className="rounded-lg border p-4">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-muted-foreground text-sm">결제수단</span>
@@ -131,10 +143,10 @@ export const ConfirmStep = ({
           className="w-full"
           size="lg"
           onClick={onPayment}
-          disabled={!defaultBillingKey && plan.monthlyPrice > 0}>
-          {plan.monthlyPrice === 0
+          disabled={!defaultBillingKey && !isFree}>
+          {isFree
             ? '무료 플랜으로 변경'
-            : `${plan.monthlyPrice.toLocaleString()}원 결제하기`}
+            : `${billingPrice.toLocaleString()}원/${billingCycle} 결제하기`}
         </Button>
         <Button variant="ghost" className="w-full" onClick={onClose}>
           취소
