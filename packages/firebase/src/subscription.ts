@@ -45,6 +45,8 @@ export type CreateBillingKeyInput = {
   cardNumber: string;
 };
 
+export type BillingCycle = 'monthly' | 'yearly';
+
 export type Subscription = {
   id: string;
   clubId: number;
@@ -53,6 +55,7 @@ export type Subscription = {
   planId: string;
   planName: string;
   price: number;
+  billingCycle: BillingCycle;
   status: SubscriptionStatus;
   startDate: Timestamp;
   endDate: Timestamp;
@@ -603,6 +606,7 @@ export type CreateSubscriptionWithPaymentInput = {
   planId: string;
   planName: string;
   price: number;
+  isYearly: boolean;
   billingKeyId: string;
   orderId: string;
   transactionId: string; // 포트원 트랜잭션 ID
@@ -627,7 +631,14 @@ export const createSubscriptionWithBillingKey = async (
     const now = new Date();
     const endDate = new Date(now);
 
-    endDate.setMonth(endDate.getMonth() + 1);
+    // 연간 결제면 12개월 후, 월간 결제면 1개월 후
+    if (input.isYearly) {
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    } else {
+      endDate.setMonth(endDate.getMonth() + 1);
+    }
+
+    const billingCycle: BillingCycle = input.isYearly ? 'yearly' : 'monthly';
 
     // 구독 문서 생성
     const subscriptionRef = doc(
@@ -644,6 +655,7 @@ export const createSubscriptionWithBillingKey = async (
       planId: input.planId,
       planName: input.planName,
       price: input.price,
+      billingCycle,
       billingKeyId: input.billingKeyId,
       status: 'active' as SubscriptionStatus,
       startDate: serverTimestamp(),
@@ -809,18 +821,27 @@ export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
  * 빌링키로 구독 생성 (Mock 환경용 - 결제 없이)
  * @param input - 구독 생성에 필요한 정보
  * @param billingKeyId - 사용할 빌링키 ID
+ * @param isYearly - 연간 결제 여부
  * @returns 생성된 구독 ID
  */
 export const createMockSubscription = async (
   input: Omit<CreateSubscriptionInput, 'orderId' | 'transactionId'>,
   billingKeyId: string,
+  isYearly = false,
 ): Promise<string> => {
   try {
     const subscriptionId = `sub_${Date.now()}_${input.clubId}`;
     const now = new Date();
     const endDate = new Date(now);
 
-    endDate.setMonth(endDate.getMonth() + 1);
+    // 연간 결제면 12개월 후, 월간 결제면 1개월 후
+    if (isYearly) {
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    } else {
+      endDate.setMonth(endDate.getMonth() + 1);
+    }
+
+    const billingCycle: BillingCycle = isYearly ? 'yearly' : 'monthly';
 
     const subscriptionRef = doc(
       firebaseDb,
@@ -836,6 +857,7 @@ export const createMockSubscription = async (
       planId: input.planId,
       planName: input.planName,
       price: input.price,
+      billingCycle,
       billingKeyId,
       status: 'active' as SubscriptionStatus,
       startDate: serverTimestamp(),

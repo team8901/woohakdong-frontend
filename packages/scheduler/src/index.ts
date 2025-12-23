@@ -32,6 +32,8 @@ type SubscriptionStatus =
   | 'pending'
   | 'payment_failed';
 
+type BillingCycle = 'monthly' | 'yearly';
+
 interface Subscription {
   id: string;
   clubId: number;
@@ -40,6 +42,7 @@ interface Subscription {
   planId: string;
   planName: string;
   price: number;
+  billingCycle: BillingCycle;
   billingKeyId: string;
   status: SubscriptionStatus;
   startDate: { _seconds: number };
@@ -477,10 +480,14 @@ async function renewSubscription(
   );
 
   if (result.success) {
-    // 결제 성공: 구독 기간 연장
+    // 결제 성공: 구독 기간 연장 (billingCycle에 따라)
     const newEndDate = new Date(subscription.endDate._seconds * 1000);
 
-    newEndDate.setMonth(newEndDate.getMonth() + 1);
+    if (subscription.billingCycle === 'yearly') {
+      newEndDate.setFullYear(newEndDate.getFullYear() + 1);
+    } else {
+      newEndDate.setMonth(newEndDate.getMonth() + 1);
+    }
 
     // 예약된 플랜 변경이 있으면 적용
     const updateData: Record<string, unknown> = {

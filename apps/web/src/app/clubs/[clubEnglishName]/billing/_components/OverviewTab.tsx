@@ -136,11 +136,13 @@ export const OverviewTab = ({
           </div>
           <Separator />
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">월 결제 금액</span>
+            <span className="text-muted-foreground">
+              {subscription?.billingCycle === 'yearly' ? '연간 결제 금액' : '월 결제 금액'}
+            </span>
             <span className="font-medium">
-              {currentPlan.monthlyPrice === 0
+              {!subscription?.price || subscription.price === 0
                 ? '무료'
-                : `${currentPlan.monthlyPrice.toLocaleString()}원`}
+                : `${subscription.price.toLocaleString()}원`}
             </span>
           </div>
           {endDate && (

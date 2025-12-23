@@ -609,6 +609,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             price: billingPrice,
           },
           selectedBillingKeyForPayment.id,
+          isYearlyBilling,
         );
       } else {
         const paymentId = `payment_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
@@ -645,6 +646,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           planId: plan.id,
           planName: plan.name,
           price: billingPrice,
+          isYearly: isYearlyBilling,
           billingKeyId: selectedBillingKeyForPayment.id,
           orderId: paymentId,
           transactionId: transactionId ?? paymentId,
