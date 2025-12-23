@@ -80,7 +80,7 @@ pnpm wrangler secret put FIREBASE_PROJECT_ID
 pnpm wrangler secret put FIREBASE_SERVICE_ACCOUNT_KEY
 
 # 3. 배포
-pnpm deploy
+pnpm wrangler deploy
 ```
 
 배포 완료 시 URL이 출력됩니다:
