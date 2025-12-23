@@ -1,6 +1,7 @@
 import { firebaseDb } from '@workspace/firebase/firebase-config';
 import {
   collection,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -57,6 +58,12 @@ export type Subscription = {
   endDate: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  // 구독 취소 시점 (취소했지만 endDate까지 이용 가능)
+  canceledAt?: Timestamp;
+  // 다음 결제일에 적용될 플랜 (업그레이드/다운그레이드 예약)
+  nextPlanId?: string;
+  nextPlanName?: string;
+  nextPlanPrice?: number;
 };
 
 export type PaymentRecord = {
@@ -190,6 +197,59 @@ export const getActiveSubscription = async (
 };
 
 /**
+ * 동아리의 현재 구독 조회
+ * - status가 'active'인 구독만 조회
+ * - canceledAt이 있으면 취소 예정이지만 endDate까지 이용 가능
+ * 우선순위:
+ * 1. 활성 유료 구독 (canceledAt 유무와 관계없이)
+ * 2. 활성 무료 구독
+ * @param clubId - 동아리 ID
+ * @returns 구독 정보 또는 null
+ */
+export const getCurrentSubscription = async (
+  clubId: number,
+): Promise<Subscription | null> => {
+  try {
+    const subscriptionsRef = collection(firebaseDb, SUBSCRIPTIONS_COLLECTION);
+
+    // 활성 구독만 조회
+    const activeQuery = query(
+      subscriptionsRef,
+      where('clubId', '==', clubId),
+      where('status', '==', 'active'),
+    );
+
+    const snapshot = await getDocs(activeQuery);
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    const subscriptions = snapshot.docs.map((doc) => doc.data() as Subscription);
+
+    // 1. 활성 유료 구독 우선 (canceledAt 유무와 관계없이 endDate까지 이용 가능)
+    const activePaid = subscriptions.find((sub) => sub.price > 0);
+
+    if (activePaid) {
+      return activePaid;
+    }
+
+    // 2. 활성 무료 구독
+    const activeFree = subscriptions.find((sub) => sub.price === 0);
+
+    if (activeFree) {
+      return activeFree;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Failed to get current subscription:', error);
+
+    throw new SubscriptionError('구독 조회 중 오류가 발생했습니다.');
+  }
+};
+
+/**
  * 구독 ID로 구독 정보 조회
  * @param subscriptionId - 구독 ID
  * @returns 구독 정보 또는 null
@@ -218,7 +278,10 @@ export const getSubscriptionById = async (
 };
 
 /**
- * 구독 취소
+ * 구독 취소 (endDate까지는 이용 가능)
+ * - status는 'active' 유지
+ * - canceledAt 필드 추가하여 취소 시점 기록
+ * - endDate 이후에는 스케줄러가 status를 'expired'로 변경
  * @param subscriptionId - 구독 ID
  */
 export const cancelSubscription = async (
@@ -232,13 +295,103 @@ export const cancelSubscription = async (
     );
 
     await updateDoc(subscriptionRef, {
-      status: 'canceled',
+      canceledAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
   } catch (error) {
     console.error('Failed to cancel subscription:', error);
 
     throw new SubscriptionError('구독 취소 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 취소된 구독 재활성화 (canceledAt 제거)
+ * @param subscriptionId - 구독 ID
+ */
+export const reactivateSubscription = async (
+  subscriptionId: string,
+): Promise<void> => {
+  try {
+    const subscriptionRef = doc(
+      firebaseDb,
+      SUBSCRIPTIONS_COLLECTION,
+      subscriptionId,
+    );
+
+    await updateDoc(subscriptionRef, {
+      canceledAt: deleteField(),
+      // 예약된 플랜 변경이 있었다면 제거
+      nextPlanId: deleteField(),
+      nextPlanName: deleteField(),
+      nextPlanPrice: deleteField(),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Failed to reactivate subscription:', error);
+
+    throw new SubscriptionError('구독 재활성화 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 플랜 변경 예약 (다음 결제일에 적용)
+ * @param subscriptionId - 구독 ID
+ * @param nextPlanId - 다음 플랜 ID
+ * @param nextPlanName - 다음 플랜 이름
+ * @param nextPlanPrice - 다음 플랜 가격
+ */
+export const schedulePlanChange = async (
+  subscriptionId: string,
+  nextPlanId: string,
+  nextPlanName: string,
+  nextPlanPrice: number,
+): Promise<void> => {
+  try {
+    const subscriptionRef = doc(
+      firebaseDb,
+      SUBSCRIPTIONS_COLLECTION,
+      subscriptionId,
+    );
+
+    await updateDoc(subscriptionRef, {
+      nextPlanId,
+      nextPlanName,
+      nextPlanPrice,
+      status: 'active', // 취소된 구독도 재활성화
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Failed to schedule plan change:', error);
+
+    throw new SubscriptionError('플랜 변경 예약 중 오류가 발생했습니다.');
+  }
+};
+
+/**
+ * 플랜 변경 예약 취소
+ * @param subscriptionId - 구독 ID
+ */
+export const cancelScheduledPlanChange = async (
+  subscriptionId: string,
+): Promise<void> => {
+  try {
+    const subscriptionRef = doc(
+      firebaseDb,
+      SUBSCRIPTIONS_COLLECTION,
+      subscriptionId,
+    );
+
+    await updateDoc(subscriptionRef, {
+      nextPlanId: deleteField(),
+      nextPlanName: deleteField(),
+      nextPlanPrice: deleteField(),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Failed to cancel scheduled plan change:', error);
+
+    throw new SubscriptionError('플랜 변경 예약 취소 중 오류가 발생했습니다.');
   }
 };
 
@@ -580,6 +733,75 @@ export const createFreeSubscription = async (
     console.error('Failed to create free subscription:', error);
 
     throw new SubscriptionError('무료 구독 생성 중 오류가 발생했습니다.');
+  }
+};
+
+export type UpgradePlanInput = {
+  subscriptionId: string;
+  clubId: number;
+  userId: string;
+  userEmail: string;
+  planId: string;
+  planName: string;
+  newPrice: number; // 새 플랜의 월 가격
+  proratedAmount: number; // 비례 정산 금액 (실제 청구 금액)
+  billingKeyId: string;
+  orderId: string;
+  transactionId: string;
+};
+
+/**
+ * 즉시 플랜 업그레이드 (비례 정산)
+ * - 구독 플랜을 즉시 변경
+ * - 비례 정산된 금액으로 결제 기록 생성
+ * - endDate는 유지 (기존 결제 주기 유지)
+ * @param input - 업그레이드에 필요한 정보
+ */
+export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
+  try {
+    const subscriptionRef = doc(
+      firebaseDb,
+      SUBSCRIPTIONS_COLLECTION,
+      input.subscriptionId,
+    );
+
+    // 구독 플랜 즉시 변경 (endDate는 유지, 취소된 경우 재활성화)
+    await updateDoc(subscriptionRef, {
+      planId: input.planId,
+      planName: input.planName,
+      price: input.newPrice,
+      billingKeyId: input.billingKeyId,
+      status: 'active', // 취소된 구독도 재활성화
+      // nextPlan 필드가 있으면 제거 (즉시 업그레이드했으므로)
+      nextPlanId: deleteField(),
+      nextPlanName: deleteField(),
+      nextPlanPrice: deleteField(),
+      updatedAt: serverTimestamp(),
+    });
+
+    // 비례 정산 결제 기록 생성
+    const paymentId = `pay_${Date.now()}_${input.orderId.slice(-8)}`;
+    const paymentRef = doc(firebaseDb, PAYMENTS_COLLECTION, paymentId);
+
+    await setDoc(paymentRef, {
+      id: paymentId,
+      subscriptionId: input.subscriptionId,
+      clubId: input.clubId,
+      userId: input.userId,
+      userEmail: input.userEmail,
+      orderId: input.orderId,
+      transactionId: input.transactionId,
+      amount: input.proratedAmount,
+      planId: input.planId,
+      planName: input.planName,
+      status: 'success',
+      type: 'upgrade', // 업그레이드 결제임을 표시
+      createdAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Failed to upgrade plan:', error);
+
+    throw new SubscriptionError('플랜 업그레이드 중 오류가 발생했습니다.');
   }
 };
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import type { ProrationResult } from '@/app/payment/_helpers/utils/proration';
 import type { BillingKey } from '@workspace/firebase/subscription';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
@@ -15,6 +16,7 @@ import {
   type SubscriptionPlanId,
 } from '@workspace/ui/constants/plans';
 import {
+  ArrowRight,
   Check,
   ChevronDown,
   ChevronUp,
@@ -26,9 +28,12 @@ import {
 
 type ConfirmStepProps = {
   selectedPlan: SubscriptionPlanId;
+  currentPlanId?: SubscriptionPlanId;
   isYearly: boolean;
   billingKeys: BillingKey[];
   selectedBillingKey: BillingKey | null;
+  /** 비례 정산 정보 (업그레이드 시) */
+  proration?: ProrationResult | null;
   onSelectBillingKey: (billingKey: BillingKey) => void;
   onPayment: () => void;
   onRegisterCard: () => void;
@@ -51,9 +56,11 @@ const getPaymentMethodIcon = (cardCompany: string) => {
 
 export const ConfirmStep = ({
   selectedPlan,
+  currentPlanId,
   isYearly,
   billingKeys,
   selectedBillingKey,
+  proration,
   onSelectBillingKey,
   onPayment,
   onRegisterCard,
@@ -62,10 +69,15 @@ export const ConfirmStep = ({
   const [isCardListOpen, setIsCardListOpen] = useState(false);
 
   const plan = SUBSCRIPTION_PLANS[selectedPlan];
+  const currentPlan = currentPlanId ? SUBSCRIPTION_PLANS[currentPlanId] : null;
   const billingPrice = isYearly ? plan.yearlyPrice * 12 : plan.monthlyPrice;
   const billingCycle = isYearly ? '연' : '월';
   const isFree = plan.monthlyPrice === 0;
   const hasMultipleCards = billingKeys.length > 1;
+
+  // 비례 정산이 있는 경우 (업그레이드)
+  const hasProration = proration && proration.isUpgrade && proration.amountDue > 0;
+  const amountToPay = hasProration ? proration.amountDue : billingPrice;
 
   return (
     <>
@@ -76,6 +88,17 @@ export const ConfirmStep = ({
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-4">
+        {/* 플랜 변경 정보 (업그레이드 시) */}
+        {hasProration && currentPlan && (
+          <div className="bg-primary/5 flex items-center justify-center gap-2 rounded-lg p-3">
+            <span className="text-muted-foreground text-sm">
+              {currentPlan.name}
+            </span>
+            <ArrowRight className="text-primary size-4" />
+            <span className="text-primary font-medium">{plan.name}</span>
+          </div>
+        )}
+
         {/* 플랜 정보 */}
         <div className="bg-muted/50 rounded-lg p-4">
           <div className="mb-3 flex items-center justify-between">
@@ -93,18 +116,52 @@ export const ConfirmStep = ({
             ))}
           </ul>
           <Separator className="my-3" />
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">
-              {isYearly ? '연간' : '월간'} 결제 금액
-            </span>
-            <span className="text-primary text-lg font-bold">
-              {isFree ? '무료' : `${billingPrice.toLocaleString()}원`}
-            </span>
-          </div>
-          {isYearly && !isFree && (
-            <p className="text-muted-foreground mt-1 text-right text-xs">
-              월 {plan.yearlyPrice.toLocaleString()}원 ×12개월
-            </p>
+
+          {/* 비례 정산 상세 (업그레이드 시) */}
+          {hasProration && proration ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  {plan.name} 플랜 ({proration.remainingDays}일)
+                </span>
+                <span>{proration.newPlanCost.toLocaleString()}원</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  {currentPlan?.name} 미사용 크레딧
+                </span>
+                <span className="text-green-600">
+                  -{proration.currentPlanCredit.toLocaleString()}원
+                </span>
+              </div>
+              <Separator className="my-2" />
+              <div className="flex items-center justify-between">
+                <span className="font-medium">오늘 결제 금액</span>
+                <span className="text-primary text-lg font-bold">
+                  {proration.amountDue.toLocaleString()}원
+                </span>
+              </div>
+              <p className="text-muted-foreground text-right text-xs">
+                다음 결제일({proration.nextBillingDate.toLocaleDateString('ko-KR')})부터{' '}
+                {billingPrice.toLocaleString()}원/{billingCycle}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">
+                  {isYearly ? '연간' : '월간'} 결제 금액
+                </span>
+                <span className="text-primary text-lg font-bold">
+                  {isFree ? '무료' : `${billingPrice.toLocaleString()}원`}
+                </span>
+              </div>
+              {isYearly && !isFree && (
+                <p className="text-muted-foreground mt-1 text-right text-xs">
+                  월 {plan.yearlyPrice.toLocaleString()}원 ×12개월
+                </p>
+              )}
+            </>
           )}
         </div>
 
@@ -207,8 +264,10 @@ export const ConfirmStep = ({
           onClick={onPayment}
           disabled={!selectedBillingKey && !isFree}>
           {isFree
-            ? '무료 플랜으로 변경'
-            : `${billingPrice.toLocaleString()}원/${billingCycle} 결제하기`}
+            ? '무료로 시작하기'
+            : hasProration
+              ? `${amountToPay.toLocaleString()}원 결제하기`
+              : `${billingPrice.toLocaleString()}원/${billingCycle} 결제하기`}
         </Button>
         <Button variant="ghost" className="w-full" onClick={onClose}>
           취소

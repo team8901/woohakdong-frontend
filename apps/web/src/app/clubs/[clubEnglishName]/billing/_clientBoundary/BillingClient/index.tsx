@@ -10,17 +10,25 @@ import {
   PORTONE_STORE_ID,
 } from '@/app/payment/_helpers/constants/portone';
 import { useSubscription } from '@/app/payment/_helpers/hooks/useSubscription';
+import {
+  calculateProration,
+  type ProrationResult,
+} from '@/app/payment/_helpers/utils/proration';
 import { useGetMyProfile } from '@workspace/api';
 import { getCurrentUser } from '@workspace/firebase/auth';
 import {
   type BillingKey,
+  cancelScheduledPlanChange,
   cancelSubscription,
   createFreeSubscription,
   createMockSubscription,
   createSubscriptionWithBillingKey,
   deleteBillingKey,
+  reactivateSubscription,
   saveBillingKey,
+  schedulePlanChange,
   setDefaultBillingKey,
+  upgradePlan,
 } from '@workspace/firebase/subscription';
 import { Badge } from '@workspace/ui/components/badge';
 import { Card, CardContent } from '@workspace/ui/components/card';
@@ -83,7 +91,11 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
   const [isMockMode, setIsMockMode] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [isCancelingScheduledChange, setIsCancelingScheduledChange] = useState(false);
   const [isYearlyBilling, setIsYearlyBilling] = useState(false);
+  const [isScheduledChange, setIsScheduledChange] = useState(false);
+  const [proration, setProration] = useState<ProrationResult | null>(null);
   const [isCardRegistrationModalOpen, setIsCardRegistrationModalOpen] =
     useState(false);
   const [selectedBillingKeyForPayment, setSelectedBillingKeyForPayment] =
@@ -104,9 +116,9 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     }
   }, [isModalOpen, defaultBillingKey, selectedBillingKeyForPayment]);
 
-  const currentPlanId: SubscriptionPlanId = subscription?.planId
-    ? (subscription.planId.toUpperCase() as SubscriptionPlanId)
-    : 'FREE';
+  const rawPlanId = subscription?.planId?.toUpperCase() as SubscriptionPlanId | undefined;
+  const currentPlanId: SubscriptionPlanId =
+    rawPlanId && SUBSCRIPTION_PLANS[rawPlanId] ? rawPlanId : 'FREE';
 
   const isPortoneEnabled = !!PORTONE_STORE_ID;
   const isPaidPlanDisabled = !isMockMode && !isPortoneEnabled;
@@ -117,7 +129,33 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     setSelectedBillingKeyForPayment(defaultBillingKey);
 
     const targetPlan = SUBSCRIPTION_PLANS[plan];
+    const currentPlan = SUBSCRIPTION_PLANS[currentPlanId];
     const isFreeDowngrade = targetPlan.monthlyPrice === 0;
+
+    // 비례 정산 계산 (유료 플랜에서 다른 유료 플랜으로 변경 시)
+    // 취소 예정(canceledAt)인 구독도 endDate 전이면 다른 플랜으로 변경 가능
+    if (
+      subscription &&
+      subscription.status === 'active' &&
+      currentPlanId !== 'FREE' &&
+      !isFreeDowngrade &&
+      subscription.startDate &&
+      subscription.endDate
+    ) {
+      const newPrice = isYearly ? targetPlan.yearlyPrice * 12 : targetPlan.monthlyPrice;
+      const currentPrice = currentPlan.monthlyPrice; // 현재 구독 가격
+
+      const prorationResult = calculateProration({
+        currentPlanPrice: currentPrice,
+        newPlanPrice: newPrice,
+        billingStartDate: new Date(subscription.startDate.seconds * 1000),
+        billingEndDate: new Date(subscription.endDate.seconds * 1000),
+      });
+
+      setProration(prorationResult);
+    } else {
+      setProration(null);
+    }
 
     setModalStep(
       isFreeDowngrade
@@ -136,6 +174,8 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     setModalStep('select-card');
     setErrorMessage(null);
     setSelectedBillingKeyForPayment(null);
+    setIsScheduledChange(false);
+    setProration(null);
   };
 
   const handleDeleteCard = async (billingKeyId: string) => {
@@ -183,12 +223,46 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       await cancelSubscription(subscription.id);
       await refetch();
       setIsCancelModalOpen(false);
-      showToast({ message: '구독이 취소되었습니다.', type: 'success' });
+      showToast({ message: '구독 취소가 예약되었습니다.', type: 'success' });
     } catch (err) {
       console.error('Failed to cancel subscription:', err);
       showToast({ message: '구독 취소에 실패했습니다.', type: 'error' });
     } finally {
       setIsCanceling(false);
+    }
+  };
+
+  const handleReactivateSubscription = async () => {
+    if (!subscription) return;
+
+    setIsReactivating(true);
+
+    try {
+      await reactivateSubscription(subscription.id);
+      await refetch();
+      showToast({ message: '구독이 유지됩니다.', type: 'success' });
+    } catch (err) {
+      console.error('Failed to reactivate subscription:', err);
+      showToast({ message: '구독 유지에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsReactivating(false);
+    }
+  };
+
+  const handleCancelScheduledChange = async () => {
+    if (!subscription) return;
+
+    setIsCancelingScheduledChange(true);
+
+    try {
+      await cancelScheduledPlanChange(subscription.id);
+      await refetch();
+      showToast({ message: '플랜 변경 예약이 취소되었습니다.', type: 'success' });
+    } catch (err) {
+      console.error('Failed to cancel scheduled change:', err);
+      showToast({ message: '예약 취소에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsCancelingScheduledChange(false);
     }
   };
 
@@ -391,6 +465,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
         : plan.monthlyPrice;
       const billingCycle = isYearlyBilling ? '연간' : '월간';
 
+      // 무료 플랜으로 변경하는 경우 (신규 무료 구독)
       if (plan.monthlyPrice === 0) {
         await createFreeSubscription({
           clubId,
@@ -412,6 +487,110 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
         return;
       }
 
+      // 기존 유료 구독이 있는 경우
+      const hasExistingPaidSubscription =
+        subscription &&
+        subscription.status === 'active' &&
+        currentPlanId !== 'FREE';
+
+      if (hasExistingPaidSubscription) {
+        const isCanceled = !!subscription.canceledAt;
+        const isSamePlan = plan.id.toUpperCase() === currentPlanId;
+
+        // 같은 플랜 재구독 (취소 예정 → 취소 철회)
+        if (isSamePlan && isCanceled) {
+          await reactivateSubscription(subscription.id);
+          await refetch();
+          setModalStep('success');
+
+          return;
+        }
+
+        // 업그레이드: 즉시 적용 + 비례 정산 결제
+        if (proration && proration.isUpgrade) {
+          // 전화번호 필수 체크 (PortOne 요구사항)
+          if (!isMockMode && !myProfile?.phoneNumber) {
+            throw new Error(
+              '결제를 위해 전화번호가 필요합니다. 프로필에서 전화번호를 등록해주세요.',
+            );
+          }
+
+          const paymentId = `payment_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
+          const amountToPay = proration.amountDue;
+
+          // 비례 정산 금액이 0보다 크면 결제 진행
+          if (amountToPay > 0 && !isMockMode) {
+            const paymentResponse = await fetch('/api/portone/billing', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                billingKey: selectedBillingKeyForPayment.billingKey,
+                paymentId,
+                orderName: `${plan.name} 플랜 업그레이드 (비례 정산)`,
+                amount: amountToPay,
+                customer: {
+                  id: user.uid,
+                  name: myProfile?.nickname ?? user.displayName,
+                  email: myProfile?.email ?? user.email,
+                  phoneNumber: myProfile?.phoneNumber,
+                },
+              }),
+            });
+
+            if (!paymentResponse.ok) {
+              const errorData = await paymentResponse.json();
+
+              throw new Error(errorData.message ?? '결제에 실패했습니다.');
+            }
+
+            const { transactionId } = await paymentResponse.json();
+
+            await upgradePlan({
+              subscriptionId: subscription.id,
+              clubId,
+              userId: user.uid,
+              userEmail: user.email ?? '',
+              planId: plan.id,
+              planName: plan.name,
+              newPrice: billingPrice,
+              proratedAmount: amountToPay,
+              billingKeyId: selectedBillingKeyForPayment.id,
+              orderId: paymentId,
+              transactionId: transactionId ?? paymentId,
+            });
+          } else {
+            // Mock 모드이거나 결제 금액이 0인 경우 플랜만 변경
+            await upgradePlan({
+              subscriptionId: subscription.id,
+              clubId,
+              userId: user.uid,
+              userEmail: user.email ?? '',
+              planId: plan.id,
+              planName: plan.name,
+              newPrice: billingPrice,
+              proratedAmount: amountToPay,
+              billingKeyId: selectedBillingKeyForPayment.id,
+              orderId: paymentId,
+              transactionId: `mock_${paymentId}`,
+            });
+          }
+
+          await refetch();
+          setModalStep('success');
+
+          return;
+        }
+
+        // 다운그레이드: 다음 결제일에 플랜 변경 예약
+        await schedulePlanChange(subscription.id, plan.id, plan.name, billingPrice);
+        await refetch();
+        setIsScheduledChange(true);
+        setModalStep('success');
+
+        return;
+      }
+
+      // 신규 유료 구독 (기존 구독 없거나 무료 플랜) → 즉시 결제
       // 전화번호 필수 체크 (PortOne 요구사항)
       if (!isMockMode && !myProfile?.phoneNumber) {
         throw new Error(
@@ -535,6 +714,10 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             subscription={subscription}
             currentPlanId={currentPlanId}
             onCancelSubscription={() => setIsCancelModalOpen(true)}
+            onReactivateSubscription={handleReactivateSubscription}
+            isReactivating={isReactivating}
+            onCancelScheduledChange={handleCancelScheduledChange}
+            isCancelingScheduledChange={isCancelingScheduledChange}
           />
         </TabsContent>
 
@@ -559,6 +742,11 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           <PlansTab
             currentPlanId={currentPlanId}
             isPaidPlanDisabled={isPaidPlanDisabled}
+            isCanceledAndPendingFree={
+              !!subscription?.canceledAt && !subscription?.nextPlanId
+            }
+            onReactivate={handleReactivateSubscription}
+            isReactivating={isReactivating}
             onOpenModal={handleOpenModal}
           />
         </TabsContent>
@@ -580,9 +768,11 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           {modalStep === 'confirm' && selectedPlan && (
             <ConfirmStep
               selectedPlan={selectedPlan}
+              currentPlanId={currentPlanId}
               isYearly={isYearlyBilling}
               billingKeys={billingKeys}
               selectedBillingKey={selectedBillingKeyForPayment}
+              proration={proration}
               onSelectBillingKey={setSelectedBillingKeyForPayment}
               onPayment={handlePayment}
               onRegisterCard={() => setModalStep('select-card')}
@@ -595,6 +785,12 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
           {modalStep === 'success' && selectedPlan && (
             <SuccessStep
               selectedPlan={selectedPlan}
+              isScheduledChange={isScheduledChange}
+              scheduledDate={
+                subscription?.endDate
+                  ? new Date(subscription.endDate.seconds * 1000).toLocaleDateString('ko-KR')
+                  : undefined
+              }
               onClose={handleCloseModal}
             />
           )}

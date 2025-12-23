@@ -15,6 +15,8 @@ export interface Env {
   FIREBASE_PROJECT_ID: string;
   FIREBASE_SERVICE_ACCOUNT_KEY: string;
   ENVIRONMENT: string;
+  // 테스트 엔드포인트 접근용 API 키 (선택)
+  SCHEDULER_API_KEY?: string;
 }
 
 // 상수
@@ -44,6 +46,12 @@ interface Subscription {
   endDate: { _seconds: number };
   retryCount?: number;
   lastPaymentError?: string;
+  // 구독 취소 시점 (취소했지만 endDate까지 이용 가능)
+  canceledAt?: { _seconds: number };
+  // 예약된 플랜 변경
+  nextPlanId?: string;
+  nextPlanName?: string;
+  nextPlanPrice?: number;
 }
 
 interface BillingKey {
@@ -402,7 +410,10 @@ async function processBillingPayment(
   if (!response.ok) {
     return {
       success: false,
-      error: { code: data.status ?? 'UNKNOWN', message: data.message ?? '결제 실패' },
+      error: {
+        code: data.status ?? 'UNKNOWN',
+        message: data.message ?? '결제 실패',
+      },
     };
   }
 
@@ -471,17 +482,35 @@ async function renewSubscription(
 
     newEndDate.setMonth(newEndDate.getMonth() + 1);
 
+    // 예약된 플랜 변경이 있으면 적용
+    const updateData: Record<string, unknown> = {
+      endDate: newEndDate,
+      retryCount: 0,
+      lastPaymentError: null,
+      updatedAt: new Date(),
+    };
+
+    if (subscription.nextPlanId) {
+      updateData.planId = subscription.nextPlanId;
+      updateData.planName =
+        subscription.nextPlanName ?? subscription.nextPlanId;
+      updateData.price = subscription.nextPlanPrice ?? subscription.price;
+      // 예약 필드 초기화
+      updateData.nextPlanId = null;
+      updateData.nextPlanName = null;
+      updateData.nextPlanPrice = null;
+
+      console.log(
+        `Applying scheduled plan change for ${subscription.id}: ${subscription.planId} -> ${subscription.nextPlanId}`,
+      );
+    }
+
     await updateFirestoreDocument(
       env,
       firebaseToken,
       SUBSCRIPTIONS_COLLECTION,
       subscription.id,
-      {
-        endDate: newEndDate,
-        retryCount: 0,
-        lastPaymentError: null,
-        updatedAt: new Date(),
-      },
+      updateData,
     );
 
     // 결제 기록 생성
@@ -681,6 +710,69 @@ async function retryFailedPayments(env: Env): Promise<void> {
 }
 
 /**
+ * 취소 예정 구독 만료 처리 (매일 오전 9시 KST, 갱신 처리와 함께)
+ * canceledAt이 있고 endDate가 지난 구독을 FREE로 전환
+ */
+async function processCanceledSubscriptions(env: Env): Promise<void> {
+  console.log('Starting canceled subscription expiry process...');
+
+  const firebaseToken = await getFirebaseAccessToken(env);
+
+  const now = new Date();
+
+  // endDate가 지난 active 구독 조회 (canceledAt 여부는 코드에서 확인)
+  const subscriptions = (await queryFirestore(
+    env,
+    firebaseToken,
+    SUBSCRIPTIONS_COLLECTION,
+    [
+      { field: 'status', op: 'EQUAL', value: 'active' },
+      { field: 'endDate', op: 'LESS_THAN_OR_EQUAL', value: now },
+    ],
+  )) as Subscription[];
+
+  // canceledAt이 있는 구독만 필터링 (취소 예정이었던 구독)
+  const canceledSubscriptions = subscriptions.filter(
+    (sub) => sub.canceledAt != null,
+  );
+
+  console.log(
+    `Found ${canceledSubscriptions.length} canceled subscriptions to expire`,
+  );
+
+  for (const subscription of canceledSubscriptions) {
+    // 예약된 플랜 변경이 있으면 적용, 없으면 FREE로 다운그레이드
+    const newPlanId = subscription.nextPlanId ?? 'FREE';
+    const newPlanName = subscription.nextPlanName ?? 'Free';
+    const newPrice = subscription.nextPlanPrice ?? 0;
+
+    await updateFirestoreDocument(
+      env,
+      firebaseToken,
+      SUBSCRIPTIONS_COLLECTION,
+      subscription.id,
+      {
+        planId: newPlanId,
+        planName: newPlanName,
+        price: newPrice,
+        status: 'active',
+        canceledAt: null, // 취소 완료되었으므로 제거
+        nextPlanId: null,
+        nextPlanName: null,
+        nextPlanPrice: null,
+        updatedAt: new Date(),
+      },
+    );
+
+    console.log(
+      `Canceled subscription ${subscription.id} transitioned to ${newPlanId}`,
+    );
+  }
+
+  console.log('Canceled subscription expiry process complete');
+}
+
+/**
  * 만료 구독 정리 (매주 월요일 오전 3시 KST)
  */
 async function cleanupExpiredSubscriptions(env: Env): Promise<void> {
@@ -737,9 +829,14 @@ export default {
     const hour = new Date(event.scheduledTime).getUTCHours();
     const dayOfWeek = new Date(event.scheduledTime).getUTCDay();
 
-    // UTC 0시 = KST 9시: 구독 갱신
+    // UTC 0시 = KST 9시: 구독 갱신 + 취소된 구독 만료 처리
     if (hour === 0) {
-      ctx.waitUntil(processSubscriptionRenewals(env));
+      ctx.waitUntil(
+        Promise.all([
+          processSubscriptionRenewals(env),
+          processCanceledSubscriptions(env),
+        ]),
+      );
     }
     // UTC 5시 = KST 14시: 결제 실패 재시도
     else if (hour === 5) {
@@ -757,23 +854,52 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    // 헬스체크는 인증 불필요
     if (url.pathname === '/health') {
       return new Response('OK', { status: 200 });
     }
 
-    if (url.pathname === '/test/renewals' && env.ENVIRONMENT !== 'production') {
+    // 테스트 엔드포인트 보안 검증
+    const isTestEndpoint = url.pathname.startsWith('/test/');
+
+    if (isTestEndpoint) {
+      // 프로덕션 환경에서는 테스트 엔드포인트 비활성화
+      if (env.ENVIRONMENT === 'production') {
+        return new Response('Forbidden', { status: 403 });
+      }
+
+      // API 키가 설정된 경우 인증 필요
+      if (env.SCHEDULER_API_KEY) {
+        const authHeader = request.headers.get('Authorization');
+        const providedKey = authHeader?.replace('Bearer ', '');
+
+        if (providedKey !== env.SCHEDULER_API_KEY) {
+          return new Response('Unauthorized', { status: 401 });
+        }
+      }
+    }
+
+    if (url.pathname === '/test/renewals') {
       await processSubscriptionRenewals(env);
 
       return new Response('Renewal process completed', { status: 200 });
     }
 
-    if (url.pathname === '/test/retry' && env.ENVIRONMENT !== 'production') {
+    if (url.pathname === '/test/canceled') {
+      await processCanceledSubscriptions(env);
+
+      return new Response('Canceled subscription process completed', {
+        status: 200,
+      });
+    }
+
+    if (url.pathname === '/test/retry') {
       await retryFailedPayments(env);
 
       return new Response('Retry process completed', { status: 200 });
     }
 
-    if (url.pathname === '/test/cleanup' && env.ENVIRONMENT !== 'production') {
+    if (url.pathname === '/test/cleanup') {
       await cleanupExpiredSubscriptions(env);
 
       return new Response('Cleanup process completed', { status: 200 });

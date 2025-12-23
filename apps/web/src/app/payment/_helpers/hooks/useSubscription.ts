@@ -5,8 +5,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { onAuthStateChange } from '@workspace/firebase/auth';
 import {
   type BillingKey,
-  getActiveSubscription,
   getBillingKeys,
+  getCurrentSubscription,
   getPaymentHistory,
   type PaymentRecord,
   type Subscription,
@@ -47,7 +47,7 @@ export const useSubscription = ({
       setError(null);
 
       const [subscriptionData, payments, keys] = await Promise.all([
-        getActiveSubscription(id),
+        getCurrentSubscription(id),
         getPaymentHistory(id),
         getBillingKeys(id),
       ]);

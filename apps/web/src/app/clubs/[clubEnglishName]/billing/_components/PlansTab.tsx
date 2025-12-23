@@ -17,6 +17,11 @@ import { AlertCircle } from 'lucide-react';
 type PlansTabProps = {
   currentPlanId: SubscriptionPlanId;
   isPaidPlanDisabled: boolean;
+  /** 구독이 취소되어 만료 후 무료 플랜으로 전환 예정인지 */
+  isCanceledAndPendingFree?: boolean;
+  /** 구독 유지하기 (취소 철회) */
+  onReactivate?: () => void;
+  isReactivating?: boolean;
   onOpenModal: (plan: SubscriptionPlanId, isYearly: boolean) => void;
 };
 
@@ -31,6 +36,9 @@ const COMING_SOON_PLANS: SubscriptionPlanId[] = ['PRO'];
 export const PlansTab = ({
   currentPlanId,
   isPaidPlanDisabled,
+  isCanceledAndPendingFree,
+  onReactivate,
+  isReactivating,
   onOpenModal,
 }: PlansTabProps) => {
   const [isYearly, setIsYearly] = useState(false);
@@ -65,8 +73,25 @@ export const PlansTab = ({
           const plan = SUBSCRIPTION_PLANS[planId];
           const isCurrentPlan = currentPlanId === planId;
           const isPaidPlan = plan.monthlyPrice > 0;
+          const isFreePlan = plan.monthlyPrice === 0;
           const isComingSoon = COMING_SOON_PLANS.includes(planId);
           const isDisabled = isPaidPlanDisabled && isPaidPlan;
+
+          // 무료 플랜이고 취소된 구독이 만료 후 무료로 전환 예정
+          const isPendingFree = isFreePlan && isCanceledAndPendingFree;
+
+          // 취소된 현재 플랜은 재구독 가능
+          const canReactivate = isCurrentPlan && isCanceledAndPendingFree;
+
+          // 유료 플랜 구독 중이면 무료 플랜 버튼 숨김 (구독 취소는 오버뷰에서)
+          const hideFreePlanButton =
+            isFreePlan && currentPlanId !== 'FREE' && !isCanceledAndPendingFree;
+
+          // 버튼 표시 조건:
+          // - 현재 플랜이 아니고 무료 플랜 버튼 숨김이 아니면 표시
+          // - 취소된 현재 플랜이면 표시 (재구독)
+          const showButton =
+            (!isCurrentPlan && !hideFreePlanButton) || canReactivate;
 
           return (
             <PlanCard
@@ -74,9 +99,16 @@ export const PlansTab = ({
               planId={planId}
               isYearly={isYearly}
               isCurrentPlan={isCurrentPlan}
-              isComingSoon={isComingSoon || isDisabled}
-              showActionButton={!isCurrentPlan}
-              onAction={() => onOpenModal(planId, isYearly)}
+              isComingSoon={isComingSoon || isDisabled || isReactivating}
+              isPendingPlan={isPendingFree}
+              canReactivate={canReactivate}
+              actionLabel={canReactivate ? '구독 유지하기' : undefined}
+              showActionButton={showButton}
+              onAction={
+                canReactivate && onReactivate
+                  ? onReactivate
+                  : () => onOpenModal(planId, isYearly)
+              }
             />
           );
         })}

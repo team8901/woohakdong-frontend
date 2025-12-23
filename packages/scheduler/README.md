@@ -4,11 +4,12 @@ Cloudflare Workers 기반 정기결제 자동화 스케줄러입니다.
 
 ## 개요
 
-| 스케줄 | 시간 (KST) | 기능 |
-|--------|------------|------|
-| 구독 갱신 | 매일 오전 9시 | 만료 예정 구독의 정기결제 처리 |
-| 결제 재시도 | 매일 오후 2시 | 실패한 결제 재시도 (최대 3회) |
-| 만료 정리 | 매주 월요일 오전 3시 | 30일 이상 만료된 구독을 무료 플랜으로 다운그레이드 |
+| 스케줄         | 시간 (KST)           | 기능                                                     |
+| -------------- | -------------------- | -------------------------------------------------------- |
+| 구독 갱신      | 매일 오전 9시        | 만료 예정 구독의 정기결제 처리 + 다운그레이드 적용       |
+| 취소 구독 만료 | 매일 오전 9시        | 취소된 구독의 만료 처리 (FREE 또는 예약된 플랜으로 전환) |
+| 결제 재시도    | 매일 오후 2시        | 실패한 결제 재시도 (최대 3회)                            |
+| 만료 정리      | 매주 월요일 오전 3시 | 30일 이상 만료된 구독을 무료 플랜으로 다운그레이드       |
 
 ## 환경 설정
 
@@ -83,6 +84,7 @@ pnpm deploy
 ```
 
 배포 완료 시 URL이 출력됩니다:
+
 ```
 https://woohakdong-scheduler.<subdomain>.workers.dev
 ```
@@ -95,12 +97,13 @@ https://woohakdong-scheduler.<subdomain>.workers.dev
 
 로컬 개발 서버 실행 후 다음 엔드포인트로 테스트할 수 있습니다.
 
-| 엔드포인트 | 설명 | 환경 제한 |
-|------------|------|-----------|
-| `GET /health` | 헬스 체크 | 없음 |
-| `GET /test/renewals` | 구독 갱신 테스트 | development만 |
-| `GET /test/retry` | 결제 재시도 테스트 | development만 |
-| `GET /test/cleanup` | 만료 정리 테스트 | development만 |
+| 엔드포인트           | 설명                         | 환경 제한     |
+| -------------------- | ---------------------------- | ------------- |
+| `GET /health`        | 헬스 체크                    | 없음          |
+| `GET /test/renewals` | 구독 갱신 테스트             | development만 |
+| `GET /test/canceled` | 취소된 구독 만료 처리 테스트 | development만 |
+| `GET /test/retry`    | 결제 재시도 테스트           | development만 |
+| `GET /test/cleanup`  | 만료 정리 테스트             | development만 |
 
 ```bash
 # 개발 서버 실행 후 터미널에 출력된 포트 확인
@@ -112,6 +115,9 @@ curl http://localhost:8787/health
 # 구독 갱신 테스트 (ENVIRONMENT=development 필요)
 curl http://localhost:8787/test/renewals
 
+# 취소된 구독 만료 처리 테스트
+curl http://localhost:8787/test/canceled
+
 # 결제 재시도 테스트
 curl http://localhost:8787/test/retry
 
@@ -120,6 +126,19 @@ curl http://localhost:8787/test/cleanup
 ```
 
 > **참고**: `/test/*` 엔드포인트는 `ENVIRONMENT`가 `production`이 아닐 때만 동작합니다. 포트 번호는 터미널 출력을 확인하세요.
+
+### 보안 (선택)
+
+API 키 인증을 추가하려면:
+
+```bash
+# API 키 시크릿 등록
+pnpm wrangler secret put SCHEDULER_API_KEY
+
+# 요청 시 Bearer 토큰 포함
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+     http://localhost:8787/test/renewals
+```
 
 ### Cron 트리거 테스트
 
@@ -195,6 +214,13 @@ pnpm wrangler deploy --config wrangler.dev.toml
 3. 성공 시: `active` 상태로 복원
 4. 실패 시: 재시도 카운트 증가, 3회 초과 시 `expired` 상태로 변경
 
+### 취소된 구독 만료 처리 (processCanceledSubscriptions)
+
+1. `canceled` 상태이고 `endDate <= 오늘`인 구독 조회
+2. `nextPlanId`가 있으면 해당 플랜으로 변경
+3. 없으면 `FREE` 플랜으로 다운그레이드
+4. `status`를 `active`로 변경
+
 ### 만료 정리 (cleanupExpiredSubscriptions)
 
 1. `expired` 상태이고 30일 이상 지난 구독 조회
@@ -222,8 +248,8 @@ pnpm wrangler tail
 
 ### 일반적인 오류
 
-| 오류 | 원인 | 해결 |
-|------|------|------|
-| `Billing key not found` | 삭제된 빌링키 | 사용자에게 결제수단 재등록 요청 |
+| 오류                           | 원인                  | 해결                                  |
+| ------------------------------ | --------------------- | ------------------------------------- |
+| `Billing key not found`        | 삭제된 빌링키         | 사용자에게 결제수단 재등록 요청       |
 | `Firebase access token failed` | 잘못된 서비스 계정 키 | `FIREBASE_SERVICE_ACCOUNT_KEY` 재설정 |
-| `PortOne API error` | 잘못된 API 시크릿 | `PORTONE_API_SECRET` 재설정 |
+| `PortOne API error`            | 잘못된 API 시크릿     | `PORTONE_API_SECRET` 재설정           |

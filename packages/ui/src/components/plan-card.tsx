@@ -23,6 +23,12 @@ type PlanCardProps = {
   isYearly?: boolean;
   isCurrentPlan?: boolean;
   isComingSoon?: boolean;
+  /** 만료 후 이 플랜으로 전환 예정 */
+  isPendingPlan?: boolean;
+  /** 구독이 취소되어 재구독 가능한 상태 */
+  canReactivate?: boolean;
+  /** 버튼 텍스트 커스텀 */
+  actionLabel?: string;
   showActionButton?: boolean;
   actionButton?: ReactNode;
   onAction?: () => void;
@@ -33,6 +39,9 @@ export const PlanCard = ({
   isYearly = false,
   isCurrentPlan = false,
   isComingSoon: isComingSoonProp,
+  isPendingPlan = false,
+  canReactivate = false,
+  actionLabel,
   showActionButton = false,
   actionButton,
   onAction,
@@ -55,7 +64,7 @@ export const PlanCard = ({
   return (
     <Card
       className={`relative flex flex-col transition-all ${
-        isCurrentPlan
+        isCurrentPlan || isPendingPlan
           ? 'border-primary/50 border-2'
           : plan.recommended && !isComingSoon
             ? 'border-primary ring-primary/20 border-2 ring-2'
@@ -77,11 +86,18 @@ export const PlanCard = ({
           준비중
         </Badge>
       )}
-      {isCurrentPlan && (
+      {isCurrentPlan && !isPendingPlan && (
         <Badge
           variant="outline"
           className="absolute -top-3 right-4 border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
           현재 플랜
+        </Badge>
+      )}
+      {isPendingPlan && (
+        <Badge
+          variant="outline"
+          className="absolute -top-3 right-4 border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300">
+          전환 예정
         </Badge>
       )}
       <CardHeader className="text-center">
@@ -132,13 +148,22 @@ export const PlanCard = ({
             {actionButton ?? (
               <Button
                 className="w-full"
-                disabled={isCurrentPlan || isComingSoon}
+                disabled={
+                  (isCurrentPlan && !canReactivate) ||
+                  isComingSoon ||
+                  isPendingPlan
+                }
                 onClick={onAction}>
-                {isComingSoon
-                  ? '준비중'
-                  : plan.monthlyPrice === 0
-                    ? '무료로 시작'
-                    : '플랜 변경'}
+                {actionLabel ??
+                  (isComingSoon
+                    ? '준비중'
+                    : isPendingPlan
+                      ? '전환 예정'
+                      : canReactivate
+                        ? '재구독'
+                        : plan.monthlyPrice === 0
+                          ? '무료로 시작'
+                          : '플랜 변경')}
               </Button>
             )}
           </div>
