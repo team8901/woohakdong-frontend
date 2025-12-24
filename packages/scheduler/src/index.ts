@@ -83,28 +83,62 @@ interface PortonePaymentResponse {
 
 /**
  * Firebase Auth 토큰 발급 (Service Account)
+ *
+ * Google Cloud Service Account를 사용하여 OAuth2 액세스 토큰을 발급받습니다.
+ * 이 토큰으로 Firestore REST API에 인증된 요청을 보낼 수 있습니다.
+ *
+ * ## 왜 직접 구현하는가?
+ * - Cloudflare Workers는 Node.js 환경이 아니라 V8 isolates 기반
+ * - google-auth-library는 Node.js fs, crypto, http 모듈에 의존하여 사용 불가
+ * - Web Crypto API (crypto.subtle)를 사용하여 직접 JWT 서명 구현
+ *
+ * ## 인증 흐름 (RFC 7523 - JWT Bearer Grant)
+ * 1. Service Account 비공개 키로 JWT 생성 및 서명
+ * 2. Google OAuth2 서버에 JWT를 전송하여 액세스 토큰 교환
+ * 3. 발급받은 액세스 토큰으로 Firestore API 호출
+ *
+ * ## 보안 고려사항
+ * - FIREBASE_SERVICE_ACCOUNT_KEY는 Cloudflare Secrets에 안전하게 저장
+ * - 비공개 키는 메모리에서만 처리되고 로그에 노출되지 않음
+ * - 토큰 유효시간은 1시간 (Google 권장)
+ * - scope는 Firestore 접근에 필요한 최소 권한만 요청
+ *
+ * @see https://developers.google.com/identity/protocols/oauth2/service-account
+ * @see https://datatracker.ietf.org/doc/html/rfc7523
  */
 async function getFirebaseAccessToken(env: Env): Promise<string> {
+  // 1. Service Account JSON 파싱
+  // Cloudflare Secrets에서 가져온 JSON 문자열을 파싱
   const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
   const now = Math.floor(Date.now() / 1000);
 
-  // JWT 헤더
+  // 2. JWT 헤더 구성
+  // alg: RS256 = RSA + SHA-256 (Google이 요구하는 서명 알고리즘)
   const header = {
     alg: 'RS256',
     typ: 'JWT',
   };
 
-  // JWT 페이로드
+  // 3. JWT 페이로드 (Claims) 구성
+  // Google OAuth2 서버가 검증할 정보들
   const payload = {
+    // iss (issuer): 토큰 발급자 - Service Account 이메일
     iss: serviceAccount.client_email,
+    // sub (subject): 토큰 주체 - Service Account 이메일 (동일)
     sub: serviceAccount.client_email,
+    // aud (audience): 토큰 수신자 - Google OAuth2 토큰 엔드포인트
     aud: 'https://oauth2.googleapis.com/token',
+    // iat (issued at): 토큰 발급 시간 (Unix timestamp)
     iat: now,
+    // exp (expiration): 토큰 만료 시간 (최대 1시간)
     exp: now + 3600,
+    // scope: 요청하는 API 권한 (Firestore 읽기/쓰기)
     scope: 'https://www.googleapis.com/auth/datastore',
   };
 
-  // Base64URL 인코딩
+  // 4. JWT 헤더와 페이로드를 Base64URL 인코딩
+  // Base64URL: Base64에서 +를 -, /를 _로 변환하고 패딩(=) 제거
+  // URL-safe하며 JWT 표준에서 요구하는 형식
   const base64UrlEncode = (obj: object) =>
     btoa(JSON.stringify(obj))
       .replace(/\+/g, '-')
@@ -113,15 +147,20 @@ async function getFirebaseAccessToken(env: Env): Promise<string> {
 
   const headerEncoded = base64UrlEncode(header);
   const payloadEncoded = base64UrlEncode(payload);
+
+  // 5. 서명 입력 문자열 생성
+  // JWT 서명은 "header.payload" 문자열에 대해 수행됨
   const signatureInput = `${headerEncoded}.${payloadEncoded}`;
 
-  // RSA-SHA256 서명
+  // 6. RSA-SHA256 서명 생성
+  // Service Account의 비공개 키로 서명 (Google 서버가 공개 키로 검증)
+  // PKCS#8: 비공개 키의 표준 형식 (PEM에서 추출)
   const privateKey = await crypto.subtle.importKey(
     'pkcs8',
     pemToArrayBuffer(serviceAccount.private_key),
     { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['sign'],
+    false, // extractable: false - 키를 다시 추출할 수 없도록 (보안)
+    ['sign'], // keyUsages: 서명 용도로만 사용
   );
 
   const signature = await crypto.subtle.sign(
@@ -130,10 +169,13 @@ async function getFirebaseAccessToken(env: Env): Promise<string> {
     new TextEncoder().encode(signatureInput),
   );
 
+  // 7. 서명을 Base64URL로 인코딩하여 최종 JWT 생성
+  // JWT 형식: header.payload.signature
   const signatureEncoded = arrayBufferToBase64Url(signature);
   const jwt = `${signatureInput}.${signatureEncoded}`;
 
-  // OAuth2 토큰 교환
+  // 8. Google OAuth2 서버에 JWT를 전송하여 액세스 토큰 교환
+  // grant_type: JWT Bearer Grant (RFC 7523)
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -143,17 +185,36 @@ async function getFirebaseAccessToken(env: Env): Promise<string> {
     }),
   });
 
+  if (!tokenResponse.ok) {
+    const errorText = await tokenResponse.text();
+
+    throw new Error(`Firebase token exchange failed: ${errorText}`);
+  }
+
   const tokenData = (await tokenResponse.json()) as { access_token: string };
 
   return tokenData.access_token;
 }
 
+/**
+ * PEM 형식의 비공개 키를 ArrayBuffer로 변환
+ *
+ * PEM (Privacy-Enhanced Mail) 형식:
+ * - -----BEGIN PRIVATE KEY----- 헤더
+ * - Base64로 인코딩된 키 데이터
+ * - -----END PRIVATE KEY----- 푸터
+ *
+ * Web Crypto API는 DER(바이너리) 형식을 요구하므로
+ * Base64 디코딩하여 ArrayBuffer로 변환
+ */
 function pemToArrayBuffer(pem: string): ArrayBuffer {
+  // PEM 헤더/푸터 및 공백 제거하여 순수 Base64 문자열 추출
   const base64 = pem
     .replace(/-----BEGIN PRIVATE KEY-----/g, '')
     .replace(/-----END PRIVATE KEY-----/g, '')
     .replace(/\s/g, '');
 
+  // Base64 디코딩 → 바이너리 문자열 → Uint8Array → ArrayBuffer
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
 
@@ -164,6 +225,14 @@ function pemToArrayBuffer(pem: string): ArrayBuffer {
   return bytes.buffer;
 }
 
+/**
+ * ArrayBuffer를 Base64URL 문자열로 변환
+ *
+ * Base64URL은 URL-safe한 Base64 변형:
+ * - '+' → '-' (URL에서 +는 공백으로 해석됨)
+ * - '/' → '_' (URL 경로 구분자와 충돌 방지)
+ * - 패딩 '=' 제거 (JWT 표준)
+ */
 function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   let binary = '';
