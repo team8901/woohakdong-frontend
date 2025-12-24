@@ -440,22 +440,29 @@ export const saveBillingKey = async (
   try {
     const billingKeyId = `billing_${Date.now()}_${input.clubId}`;
 
-    await runTransaction(firebaseDb, async (transaction) => {
-      // 1. 기존 빌링키 목록 조회 (트랜잭션 내에서 읽기)
-      const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
-      const q = query(
-        billingKeysRef,
-        where('clubId', '==', input.clubId),
-        where('isDefault', '==', true),
-      );
-      const snapshot = await getDocs(q);
+    // 1. 트랜잭션 외부에서 기존 기본 카드 문서 ID 목록 조회
+    const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
+    const q = query(
+      billingKeysRef,
+      where('clubId', '==', input.clubId),
+      where('isDefault', '==', true),
+    );
+    const snapshot = await getDocs(q);
+    const existingDefaultIds = snapshot.docs.map((d) => d.id);
 
-      // 2. 기존 기본 카드 해제
-      for (const docSnapshot of snapshot.docs) {
-        transaction.update(docSnapshot.ref, {
-          isDefault: false,
-          updatedAt: serverTimestamp(),
-        });
+    await runTransaction(firebaseDb, async (transaction) => {
+      // 2. 트랜잭션 내에서 기존 기본 카드 해제
+      for (const docId of existingDefaultIds) {
+        const docRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, docId);
+        const docSnap = await transaction.get(docRef);
+
+        // 여전히 기본 카드인 경우에만 해제
+        if (docSnap.exists() && docSnap.data().isDefault) {
+          transaction.update(docRef, {
+            isDefault: false,
+            updatedAt: serverTimestamp(),
+          });
+        }
       }
 
       // 3. 새 빌링키 생성
@@ -557,14 +564,26 @@ export const deleteBillingKey = async (
   clubId: number,
 ): Promise<void> => {
   try {
-    // 빌링키 ID 목록만 먼저 조회 (트랜잭션 내에서 재검증)
+    // 1. 트랜잭션 외부에서 필요한 문서 ID 목록 조회
     const billingKeys = await getBillingKeys(clubId);
     const billingKeyIds = billingKeys
       .filter((key) => key.billingKey && key.billingKey.length > 0)
       .map((key) => key.id);
 
+    // 활성 구독 문서 ID 조회
+    const subscriptionsRef = collection(firebaseDb, SUBSCRIPTIONS_COLLECTION);
+    const activeSubQuery = query(
+      subscriptionsRef,
+      where('clubId', '==', clubId),
+      where('status', '==', 'active'),
+    );
+    const activeSubSnapshot = await getDocs(activeSubQuery);
+    const activeSubIds = activeSubSnapshot.docs
+      .filter((d) => d.data().price > 0)
+      .map((d) => d.id);
+
     await runTransaction(firebaseDb, async (transaction) => {
-      // 1. 트랜잭션 내에서 모든 빌링키 문서 읽기 (최신 데이터 보장)
+      // 2. 트랜잭션 내에서 모든 빌링키 문서 읽기 (최신 데이터 보장)
       const billingKeyRefs = billingKeyIds.map((id) =>
         doc(firebaseDb, BILLING_KEYS_COLLECTION, id),
       );
@@ -590,21 +609,22 @@ export const deleteBillingKey = async (
         throw new SubscriptionError('결제수단을 찾을 수 없습니다.');
       }
 
-      // 2. 활성 유료 구독 확인 (트랜잭션 내에서)
-      const subscriptionsRef = collection(firebaseDb, SUBSCRIPTIONS_COLLECTION);
-      const activeSubQuery = query(
-        subscriptionsRef,
-        where('clubId', '==', clubId),
-        where('status', '==', 'active'),
-      );
-      const activeSubSnapshot = await getDocs(activeSubQuery);
-      const activeSubscription = activeSubSnapshot.docs.find((d) => {
-        const data = d.data();
+      // 3. 트랜잭션 내에서 활성 유료 구독 재확인
+      let hasPaidSubscription = false;
 
-        return data.price > 0;
-      });
+      for (const subId of activeSubIds) {
+        const subRef = doc(firebaseDb, SUBSCRIPTIONS_COLLECTION, subId);
+        const subSnap = await transaction.get(subRef);
 
-      const hasPaidSubscription = !!activeSubscription;
+        if (subSnap.exists()) {
+          const data = subSnap.data();
+
+          if (data.status === 'active' && data.price > 0) {
+            hasPaidSubscription = true;
+            break;
+          }
+        }
+      }
 
       if (hasPaidSubscription && validBillingKeys.length <= 1) {
         throw new SubscriptionError(
@@ -666,8 +686,18 @@ export const setDefaultBillingKey = async (
   clubId: number,
 ): Promise<void> => {
   try {
+    // 1. 트랜잭션 외부에서 기존 기본 카드 문서 ID 목록 조회
+    const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
+    const q = query(
+      billingKeysRef,
+      where('clubId', '==', clubId),
+      where('isDefault', '==', true),
+    );
+    const snapshot = await getDocs(q);
+    const existingDefaultIds = snapshot.docs.map((d) => d.id);
+
     await runTransaction(firebaseDb, async (transaction) => {
-      // 1. 새 기본 카드로 설정할 문서 확인
+      // 2. 새 기본 카드로 설정할 문서 확인
       const newDefaultRef = doc(
         firebaseDb,
         BILLING_KEYS_COLLECTION,
@@ -679,22 +709,19 @@ export const setDefaultBillingKey = async (
         throw new SubscriptionError('빌링키를 찾을 수 없습니다.');
       }
 
-      // 2. 기존 기본 카드 조회
-      const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
-      const q = query(
-        billingKeysRef,
-        where('clubId', '==', clubId),
-        where('isDefault', '==', true),
-      );
-      const snapshot = await getDocs(q);
-
       // 3. 기존 기본 카드 해제 (새 기본 카드와 다른 경우만)
-      for (const docSnapshot of snapshot.docs) {
-        if (docSnapshot.id !== billingKeyId) {
-          transaction.update(docSnapshot.ref, {
-            isDefault: false,
-            updatedAt: serverTimestamp(),
-          });
+      for (const docId of existingDefaultIds) {
+        if (docId !== billingKeyId) {
+          const docRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, docId);
+          const docSnap = await transaction.get(docRef);
+
+          // 여전히 기본 카드인 경우에만 해제
+          if (docSnap.exists() && docSnap.data().isDefault) {
+            transaction.update(docRef, {
+              isDefault: false,
+              updatedAt: serverTimestamp(),
+            });
+          }
         }
       }
 
