@@ -43,7 +43,8 @@ export const SUBSCRIPTION_PLANS = {
     description: '체계적인 관리가 필요한 동아리를 위한 플랜',
     features: [
       'Standard의 모든 기능',
-      '회비 관리 및 정산',
+      '회비 납부 현황 관리',
+      '송금 링크 생성 (회비 수납)',
       '수입/지출 내역 관리',
       '회계 보고서 자동 생성',
       '다중 관리자 권한 설정',
