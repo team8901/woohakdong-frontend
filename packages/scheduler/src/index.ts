@@ -321,6 +321,11 @@ async function getFirestoreDocument(
 
 /**
  * Firestore 문서 업데이트
+ *
+ * null 값 처리:
+ * - null 값은 필드 삭제로 처리됩니다.
+ * - updateMask에는 포함하되 fields에서 제외하면 Firestore가 해당 필드를 삭제합니다.
+ * - 이는 클라이언트 SDK의 deleteField()와 동일한 동작입니다.
  */
 async function updateFirestoreDocument(
   env: Env,
@@ -330,11 +335,16 @@ async function updateFirestoreDocument(
   data: Record<string, unknown>,
 ): Promise<void> {
   const projectId = env.FIREBASE_PROJECT_ID;
+
+  // null이 아닌 필드만 fields 객체에 포함 (null 필드는 삭제됨)
   const fields = Object.fromEntries(
-    Object.entries(data).map(([k, v]) => [k, convertToFirestoreValue(v)]),
+    Object.entries(data)
+      .filter(([, v]) => v !== null)
+      .map(([k, v]) => [k, convertToFirestoreValue(v)]),
   );
 
-  // URLSearchParams로 updateMask 쿼리 파라미터 올바르게 구성
+  // 모든 필드(삭제 대상 포함)를 updateMask에 추가
+  // updateMask에 있지만 fields에 없는 필드는 Firestore에서 삭제됨
   const params = new URLSearchParams();
 
   for (const field of Object.keys(data)) {
