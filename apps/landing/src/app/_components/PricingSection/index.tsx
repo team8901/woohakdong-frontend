@@ -1,22 +1,8 @@
-'use client';
+import { EnterprisePlanCard } from '@workspace/ui/components/plan-card';
 
-import { useState } from 'react';
-
-import {
-  BillingCycleToggle,
-  EnterprisePlanCard,
-  PlanCard,
-} from '@workspace/ui/components/plan-card';
-import { SUBSCRIPTION_PLANS } from '@workspace/ui/constants/plans';
-
-// 엔터프라이즈를 제외한 일반 플랜
-const REGULAR_PLAN_IDS = (
-  Object.keys(SUBSCRIPTION_PLANS) as (keyof typeof SUBSCRIPTION_PLANS)[]
-).filter((key) => !SUBSCRIPTION_PLANS[key].contactOnly);
+import { PricingCardsClient } from '../../_clientBoundary/PricingCardsClient';
 
 export const PricingSection = () => {
-  const [isYearly, setIsYearly] = useState(false);
-
   return (
     <section id="pricing" className="bg-background py-20 md:py-24">
       <div className="font-pretendard container mx-auto max-w-5xl px-6">
@@ -27,14 +13,7 @@ export const PricingSection = () => {
           <p className="text-muted-foreground text-lg">
             동아리 규모와 필요에 맞는 플랜을 선택하세요
           </p>
-          <div className="mt-6">
-            <BillingCycleToggle isYearly={isYearly} onChange={setIsYearly} />
-          </div>
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {REGULAR_PLAN_IDS.map((planId) => (
-            <PlanCard key={planId} planId={planId} isYearly={isYearly} />
-          ))}
+          <PricingCardsClient />
         </div>
         <div className="mt-6">
           <EnterprisePlanCard />
