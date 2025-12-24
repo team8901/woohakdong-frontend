@@ -547,6 +547,7 @@ export const getDefaultBillingKey = async (
 /**
  * 빌링키 삭제 (카드 삭제)
  * - 활성 유료 구독이 있고 마지막 결제수단인 경우 삭제 불가
+ * - 기본 결제수단 삭제 시 다른 결제수단을 기본으로 자동 설정
  * @param billingKeyId - 빌링키 문서 ID
  * @param clubId - 동아리 ID (마지막 결제수단 검증용)
  */
@@ -555,36 +556,67 @@ export const deleteBillingKey = async (
   clubId: number,
 ): Promise<void> => {
   try {
+    // 유효한 빌링키 목록 조회 (billingKey가 비어있지 않은 것만)
+    const billingKeys = await getBillingKeys(clubId);
+    const validBillingKeys = billingKeys.filter(
+      (key) => key.billingKey && key.billingKey.length > 0,
+    );
+
+    // 삭제하려는 빌링키 찾기
+    const targetKey = validBillingKeys.find((key) => key.id === billingKeyId);
+
+    if (!targetKey) {
+      throw new SubscriptionError('결제수단을 찾을 수 없습니다.');
+    }
+
     // 활성 유료 구독 확인
     const activeSubscription = await getActiveSubscription(clubId);
     const hasPaidSubscription =
       activeSubscription && activeSubscription.price > 0;
 
-    if (hasPaidSubscription) {
-      // 유효한 빌링키 개수 확인 (billingKey가 비어있지 않은 것만)
-      const billingKeys = await getBillingKeys(clubId);
-      const validBillingKeys = billingKeys.filter(
-        (key) => key.billingKey && key.billingKey.length > 0,
+    if (hasPaidSubscription && validBillingKeys.length <= 1) {
+      throw new SubscriptionError(
+        '활성 구독이 있어 마지막 결제수단을 삭제할 수 없습니다. 구독을 취소하거나 다른 결제수단을 먼저 등록해주세요.',
       );
-
-      if (validBillingKeys.length <= 1) {
-        throw new SubscriptionError(
-          '활성 구독이 있어 마지막 결제수단을 삭제할 수 없습니다. 구독을 취소하거나 다른 결제수단을 먼저 등록해주세요.',
-        );
-      }
     }
 
-    const billingKeyRef = doc(
-      firebaseDb,
-      BILLING_KEYS_COLLECTION,
-      billingKeyId,
+    // 기본 결제수단인 경우, 다른 결제수단을 기본으로 설정
+    const isDefaultKey = targetKey.isDefault;
+    const otherValidKeys = validBillingKeys.filter(
+      (key) => key.id !== billingKeyId,
     );
 
-    // Firestore에서는 delete 대신 soft delete 처리 (보안상)
-    await updateDoc(billingKeyRef, {
-      billingKey: '',
-      isDefault: false,
-      updatedAt: serverTimestamp(),
+    await runTransaction(firebaseDb, async (transaction) => {
+      // 1. 삭제 대상 빌링키 soft delete
+      const billingKeyRef = doc(
+        firebaseDb,
+        BILLING_KEYS_COLLECTION,
+        billingKeyId,
+      );
+
+      transaction.update(billingKeyRef, {
+        billingKey: '',
+        isDefault: false,
+        updatedAt: serverTimestamp(),
+      });
+
+      // 2. 기본 결제수단이었고 다른 결제수단이 있으면 첫 번째를 기본으로 설정
+      if (isDefaultKey && otherValidKeys.length > 0) {
+        const newDefaultKey = otherValidKeys[0];
+
+        if (newDefaultKey) {
+          const newDefaultRef = doc(
+            firebaseDb,
+            BILLING_KEYS_COLLECTION,
+            newDefaultKey.id,
+          );
+
+          transaction.update(newDefaultRef, {
+            isDefault: true,
+            updatedAt: serverTimestamp(),
+          });
+        }
+      }
     });
   } catch (error) {
     console.error('Failed to delete billing key:', error);
