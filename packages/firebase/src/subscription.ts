@@ -8,6 +8,7 @@ import {
   limit,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   type Timestamp,
@@ -429,6 +430,7 @@ export const getPaymentHistory = async (
 
 /**
  * 빌링키 저장 (카드 등록)
+ * - 트랜잭션을 사용하여 기존 기본 카드 해제 + 새 카드 등록을 원자적으로 처리
  * @param input - 빌링키 생성에 필요한 정보
  * @returns 생성된 빌링키 문서 ID
  */
@@ -437,38 +439,45 @@ export const saveBillingKey = async (
 ): Promise<string> => {
   try {
     const billingKeyId = `billing_${Date.now()}_${input.clubId}`;
-    const billingKeyRef = doc(
-      firebaseDb,
-      BILLING_KEYS_COLLECTION,
-      billingKeyId,
-    );
 
-    // 기존 기본 카드가 있으면 해제
-    const existingKeys = await getBillingKeys(input.clubId);
+    await runTransaction(firebaseDb, async (transaction) => {
+      // 1. 기존 빌링키 목록 조회 (트랜잭션 내에서 읽기)
+      const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
+      const q = query(
+        billingKeysRef,
+        where('clubId', '==', input.clubId),
+        where('isDefault', '==', true),
+      );
+      const snapshot = await getDocs(q);
 
-    for (const key of existingKeys) {
-      if (key.isDefault) {
-        const existingRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, key.id);
-
-        await updateDoc(existingRef, {
+      // 2. 기존 기본 카드 해제
+      for (const docSnapshot of snapshot.docs) {
+        transaction.update(docSnapshot.ref, {
           isDefault: false,
           updatedAt: serverTimestamp(),
         });
       }
-    }
 
-    await setDoc(billingKeyRef, {
-      id: billingKeyId,
-      clubId: input.clubId,
-      userId: input.userId,
-      userEmail: input.userEmail,
-      billingKey: input.billingKey,
-      customerKey: input.customerKey,
-      cardCompany: input.cardCompany,
-      cardNumber: input.cardNumber,
-      isDefault: true,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+      // 3. 새 빌링키 생성
+      const newBillingKeyRef = doc(
+        firebaseDb,
+        BILLING_KEYS_COLLECTION,
+        billingKeyId,
+      );
+
+      transaction.set(newBillingKeyRef, {
+        id: billingKeyId,
+        clubId: input.clubId,
+        userId: input.userId,
+        userEmail: input.userEmail,
+        billingKey: input.billingKey,
+        customerKey: input.customerKey,
+        cardCompany: input.cardCompany,
+        cardNumber: input.cardNumber,
+        isDefault: true,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
     });
 
     return billingKeyId;
@@ -562,6 +571,7 @@ export const deleteBillingKey = async (billingKeyId: string): Promise<void> => {
 
 /**
  * 기본 빌링키 설정
+ * - 트랜잭션을 사용하여 기존 기본 카드 해제 + 새 기본 카드 설정을 원자적으로 처리
  * @param billingKeyId - 기본으로 설정할 빌링키 문서 ID
  * @param clubId - 동아리 ID
  */
@@ -570,33 +580,50 @@ export const setDefaultBillingKey = async (
   clubId: number,
 ): Promise<void> => {
   try {
-    // 기존 기본 카드 해제
-    const existingKeys = await getBillingKeys(clubId);
+    await runTransaction(firebaseDb, async (transaction) => {
+      // 1. 새 기본 카드로 설정할 문서 확인
+      const newDefaultRef = doc(
+        firebaseDb,
+        BILLING_KEYS_COLLECTION,
+        billingKeyId,
+      );
+      const newDefaultDoc = await transaction.get(newDefaultRef);
 
-    for (const key of existingKeys) {
-      if (key.isDefault && key.id !== billingKeyId) {
-        const existingRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, key.id);
-
-        await updateDoc(existingRef, {
-          isDefault: false,
-          updatedAt: serverTimestamp(),
-        });
+      if (!newDefaultDoc.exists()) {
+        throw new SubscriptionError('빌링키를 찾을 수 없습니다.');
       }
-    }
 
-    // 새 기본 카드 설정
-    const billingKeyRef = doc(
-      firebaseDb,
-      BILLING_KEYS_COLLECTION,
-      billingKeyId,
-    );
+      // 2. 기존 기본 카드 조회
+      const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
+      const q = query(
+        billingKeysRef,
+        where('clubId', '==', clubId),
+        where('isDefault', '==', true),
+      );
+      const snapshot = await getDocs(q);
 
-    await updateDoc(billingKeyRef, {
-      isDefault: true,
-      updatedAt: serverTimestamp(),
+      // 3. 기존 기본 카드 해제 (새 기본 카드와 다른 경우만)
+      for (const docSnapshot of snapshot.docs) {
+        if (docSnapshot.id !== billingKeyId) {
+          transaction.update(docSnapshot.ref, {
+            isDefault: false,
+            updatedAt: serverTimestamp(),
+          });
+        }
+      }
+
+      // 4. 새 기본 카드 설정
+      transaction.update(newDefaultRef, {
+        isDefault: true,
+        updatedAt: serverTimestamp(),
+      });
     });
   } catch (error) {
     console.error('Failed to set default billing key:', error);
+
+    if (error instanceof SubscriptionError) {
+      throw error;
+    }
 
     throw new SubscriptionError('기본 카드 설정 중 오류가 발생했습니다.');
   }
