@@ -101,7 +101,8 @@ service cloud.firestore {
 
     // 결제 선택적 필드
     function paymentOptionalFields() {
-      return ['type'];
+      return ['type', 'previousPlanId', 'previousPlanName', 'creditApplied', 'paidAt',
+              'errorCode', 'errorMessage'];
     }
 
     // 결제 허용 상태값
@@ -111,7 +112,8 @@ service cloud.firestore {
 
     // 결제 허용 타입
     function validPaymentType() {
-      return ['upgrade', 'billing_cycle_change', 'renewal'];
+      return ['upgrade', 'billing_cycle_change', 'renewal', 'plan_change',
+              'downgrade_to_free', 'subscription_canceled', 'credit_applied'];
     }
 
     // 결제 생성 검증
@@ -138,7 +140,13 @@ service cloud.firestore {
         && data.status is string
         && data.status in validPaymentStatus()
         // 선택적 필드 타입 검증
-        && (!('type' in data.keys()) || data.type in validPaymentType());
+        && (!('type' in data.keys()) || data.type in validPaymentType())
+        && (!('previousPlanId' in data.keys()) || data.previousPlanId is string)
+        && (!('previousPlanName' in data.keys()) || data.previousPlanName is string)
+        && (!('creditApplied' in data.keys()) || (data.creditApplied is number && data.creditApplied >= 0))
+        && (!('paidAt' in data.keys()) || data.paidAt is string)
+        && (!('errorCode' in data.keys()) || data.errorCode is string)
+        && (!('errorMessage' in data.keys()) || data.errorMessage is string);
     }
 
     // ===== 빌링키 (billingKeys) 검증 함수 =====
