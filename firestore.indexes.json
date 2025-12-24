@@ -10,6 +10,22 @@
       ]
     },
     {
+      "collectionGroup": "subscriptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "endDate", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "subscriptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "retryCount", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "payments",
       "queryScope": "COLLECTION",
       "fields": [
