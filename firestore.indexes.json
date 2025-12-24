@@ -5,8 +5,18 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "clubId", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "subscriptions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "clubId", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
       ]
     },
     {
@@ -30,6 +40,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "clubId", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
@@ -38,6 +49,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "clubId", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
@@ -46,6 +58,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "clubId", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "isDefault", "order": "ASCENDING" }
       ]
     }

@@ -1,4 +1,7 @@
-import { firebaseDb } from '@workspace/firebase/firebase-config';
+import {
+  firebaseAuth,
+  firebaseDb,
+} from '@workspace/firebase/firebase-config';
 import {
   collection,
   deleteField,
@@ -135,6 +138,20 @@ class SubscriptionError extends Error {
 }
 
 /**
+ * 현재 인증된 사용자의 UID를 반환
+ * @throws SubscriptionError 인증되지 않은 경우
+ */
+const getCurrentUserId = (): string => {
+  const user = firebaseAuth.currentUser;
+
+  if (!user) {
+    throw new SubscriptionError('로그인이 필요합니다.');
+  }
+
+  return user.uid;
+};
+
+/**
  * 테스트 빌링 주기 (분)
  * - 환경변수 NEXT_PUBLIC_TEST_BILLING_CYCLE_MINUTES로 설정
  * - 설정하지 않으면 null (일반 빌링 주기 사용)
@@ -240,10 +257,12 @@ export const getActiveSubscription = async (
   clubId: number,
 ): Promise<Subscription | null> => {
   try {
+    const userId = getCurrentUserId();
     const subscriptionsRef = collection(firebaseDb, SUBSCRIPTIONS_COLLECTION);
     const q = query(
       subscriptionsRef,
       where('clubId', '==', clubId),
+      where('userId', '==', userId),
       where('status', '==', 'active'),
       orderBy('createdAt', 'desc'),
       limit(1),
@@ -279,12 +298,14 @@ export const getCurrentSubscription = async (
   clubId: number,
 ): Promise<Subscription | null> => {
   try {
+    const userId = getCurrentUserId();
     const subscriptionsRef = collection(firebaseDb, SUBSCRIPTIONS_COLLECTION);
 
     // 활성 구독 조회
     const activeQuery = query(
       subscriptionsRef,
       where('clubId', '==', clubId),
+      where('userId', '==', userId),
       where('status', '==', 'active'),
     );
 
@@ -292,6 +313,7 @@ export const getCurrentSubscription = async (
     const failedQuery = query(
       subscriptionsRef,
       where('clubId', '==', clubId),
+      where('userId', '==', userId),
       where('status', '==', 'payment_failed'),
     );
 
@@ -499,10 +521,12 @@ export const getPaymentHistory = async (
   clubId: number,
 ): Promise<PaymentRecord[]> => {
   try {
+    const userId = getCurrentUserId();
     const paymentsRef = collection(firebaseDb, PAYMENTS_COLLECTION);
     const q = query(
       paymentsRef,
       where('clubId', '==', clubId),
+      where('userId', '==', userId),
       orderBy('createdAt', 'desc'),
     );
 
@@ -526,6 +550,7 @@ export const saveBillingKey = async (
   input: CreateBillingKeyInput,
 ): Promise<string> => {
   try {
+    const userId = getCurrentUserId();
     const billingKeyId = `billing_${Date.now()}_${input.clubId}`;
 
     // 1. 트랜잭션 외부에서 기존 기본 카드 문서 ID 목록 조회
@@ -533,6 +558,7 @@ export const saveBillingKey = async (
     const q = query(
       billingKeysRef,
       where('clubId', '==', input.clubId),
+      where('userId', '==', userId),
       where('isDefault', '==', true),
     );
     const snapshot = await getDocs(q);
@@ -590,10 +616,12 @@ export const saveBillingKey = async (
  */
 export const getBillingKeys = async (clubId: number): Promise<BillingKey[]> => {
   try {
+    const userId = getCurrentUserId();
     const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
     const q = query(
       billingKeysRef,
       where('clubId', '==', clubId),
+      where('userId', '==', userId),
       orderBy('createdAt', 'desc'),
     );
 
@@ -616,10 +644,12 @@ export const getDefaultBillingKey = async (
   clubId: number,
 ): Promise<BillingKey | null> => {
   try {
+    const userId = getCurrentUserId();
     const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
     const q = query(
       billingKeysRef,
       where('clubId', '==', clubId),
+      where('userId', '==', userId),
       where('isDefault', '==', true),
       limit(1),
     );
@@ -652,6 +682,8 @@ export const deleteBillingKey = async (
   clubId: number,
 ): Promise<void> => {
   try {
+    const userId = getCurrentUserId();
+
     // 1. 트랜잭션 외부에서 필요한 문서 ID 목록 조회
     const billingKeys = await getBillingKeys(clubId);
     const billingKeyIds = billingKeys
@@ -663,6 +695,7 @@ export const deleteBillingKey = async (
     const activeSubQuery = query(
       subscriptionsRef,
       where('clubId', '==', clubId),
+      where('userId', '==', userId),
       where('status', '==', 'active'),
     );
     const activeSubSnapshot = await getDocs(activeSubQuery);
@@ -774,11 +807,14 @@ export const setDefaultBillingKey = async (
   clubId: number,
 ): Promise<void> => {
   try {
+    const userId = getCurrentUserId();
+
     // 1. 트랜잭션 외부에서 기존 기본 카드 문서 ID 목록 조회
     const billingKeysRef = collection(firebaseDb, BILLING_KEYS_COLLECTION);
     const q = query(
       billingKeysRef,
       where('clubId', '==', clubId),
+      where('userId', '==', userId),
       where('isDefault', '==', true),
     );
     const snapshot = await getDocs(q);
