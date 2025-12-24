@@ -1,8 +1,4 @@
-import {
-  BUSINESS_INFO,
-  GITHUB_URL,
-  SERVICE_NAME,
-} from '@/app/_helpers/constants/service';
+import { GITHUB_URL, SERVICE_NAME } from '@/app/_helpers/constants/service';
 import { Button } from '@workspace/ui/components/button';
 import { Separator } from '@workspace/ui/components/separator';
 import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
@@ -10,6 +6,7 @@ import { MailIcon } from 'lucide-react';
 import Image from 'next/image';
 
 import { PreRegistrationDialogClient } from '../../_clientBoundary/PreRegistrationDialogClient';
+import { BusinessInfo } from '../BusinessInfo';
 
 export const ContactSection = () => {
   return (
@@ -80,15 +77,7 @@ export const ContactSection = () => {
           </div>
         </div>
         <Separator className="my-6" />
-        <div className="text-muted-foreground text-center text-xs leading-relaxed md:text-left">
-          <p>
-            상호명: {BUSINESS_INFO.companyName} | 대표자:{' '}
-            {BUSINESS_INFO.ceoName} | 사업자등록번호:{' '}
-            {BUSINESS_INFO.registrationNumber}
-          </p>
-          <p className="mt-1">주소: {BUSINESS_INFO.address}</p>
-          <p className="mt-1">고객문의: {EXTERNAL_LINKS.SUPPORT_EMAIL}</p>
-        </div>
+        <BusinessInfo />
       </div>
     </section>
   );
