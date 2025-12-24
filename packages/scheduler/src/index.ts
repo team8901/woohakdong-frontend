@@ -1051,7 +1051,13 @@ export default {
       // API 키가 설정된 경우 인증 필요
       if (env.SCHEDULER_API_KEY) {
         const authHeader = request.headers.get('Authorization');
-        const providedKey = authHeader?.replace('Bearer ', '');
+
+        // Bearer 토큰 형식 검증 및 추출
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return new Response('Unauthorized', { status: 401 });
+        }
+
+        const providedKey = authHeader.slice(7); // 'Bearer '.length === 7
 
         if (providedKey !== env.SCHEDULER_API_KEY) {
           return new Response('Unauthorized', { status: 401 });
