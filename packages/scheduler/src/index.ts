@@ -353,6 +353,30 @@ function parseFirestoreValue(value: Record<string, unknown>): unknown {
     return { _seconds: Math.floor(date.getTime() / 1000) };
   }
 
+  // 중첩 객체 (mapValue) 재귀 처리
+  if ('mapValue' in value) {
+    const mapValue = value.mapValue as { fields?: Record<string, unknown> };
+
+    if (mapValue.fields) {
+      return parseFirestoreDocument(mapValue.fields);
+    }
+
+    return {};
+  }
+
+  // 배열 (arrayValue) 재귀 처리
+  if ('arrayValue' in value) {
+    const arrayValue = value.arrayValue as {
+      values?: Array<Record<string, unknown>>;
+    };
+
+    if (arrayValue.values) {
+      return arrayValue.values.map((v) => parseFirestoreValue(v));
+    }
+
+    return [];
+  }
+
   return value;
 }
 
