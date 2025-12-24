@@ -386,6 +386,10 @@ export const cancelSubscription = async (
 
     await updateDoc(subscriptionRef, {
       canceledAt: serverTimestamp(),
+      // 예약된 플랜 변경 정보 초기화 (취소 시 모든 예정된 변경 무효화)
+      nextPlanId: deleteField(),
+      nextPlanName: deleteField(),
+      nextPlanPrice: deleteField(),
       updatedAt: serverTimestamp(),
     });
   } catch (error) {
