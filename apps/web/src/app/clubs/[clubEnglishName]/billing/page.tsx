@@ -31,7 +31,7 @@ const BillingPage = async ({ params }: BillingPageProps) => {
           구독 정보를 확인하고 플랜을 변경할 수 있습니다.
         </p>
       </div>
-      <BillingClient clubId={clubId} clubEnglishName={clubEnglishName} />
+      <BillingClient clubId={clubId} />
     </div>
   );
 };

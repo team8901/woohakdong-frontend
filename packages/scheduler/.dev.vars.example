@@ -1,0 +1,21 @@
+# 포트원 API 시크릿
+# 포트원 관리자 콘솔 > 결제 연동 > API 키에서 발급
+PORTONE_API_SECRET=
+
+# Firebase 프로젝트 ID
+FIREBASE_PROJECT_ID=
+
+# Firebase 서비스 계정 키 (JSON 문자열, 한 줄로 작성)
+# Firebase 콘솔 > 프로젝트 설정 > 서비스 계정 > 새 비공개 키 생성
+FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"..."}
+
+# 환경 (development | production)
+ENVIRONMENT=development
+
+# 테스트용 빌링 주기 (분 단위, 선택)
+# 설정 시 구독 갱신 주기가 해당 분으로 단축됨 (예: 3 = 3분)
+# 주의: 웹 앱의 NEXT_PUBLIC_TEST_BILLING_CYCLE_MINUTES와 동일하게 설정해야 함
+# TEST_BILLING_CYCLE_MINUTES=3
+
+# API 키 인증 (선택)
+# SCHEDULER_API_KEY=

@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@workspace/ui/components/select';
+import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 
 type Props = {
   trackingEventName?: string;
@@ -83,7 +84,7 @@ export const PreRegistrationDialogClient = ({
                       <Input
                         type="email"
                         inputMode="email"
-                        placeholder="8901.dev@gmail.com"
+                        placeholder={EXTERNAL_LINKS.SUPPORT_EMAIL}
                         autoComplete="on"
                         {...field}
                       />

@@ -3,9 +3,8 @@
 import { logoutUser } from '@/_shared/helpers/utils/auth';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent } from '@workspace/ui/components/card';
+import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 import { HomeIcon, RefreshCcwIcon, SirenIcon } from 'lucide-react';
-
-const SUPPORT_MAIL = '8901.dev@gmail.com';
 
 /**
  * global error 를 핸들링하는 Error boundary
@@ -51,7 +50,9 @@ const GlobalError = ({ error }: { error: Error & { digest?: string } }) => {
               드릴게요!
             </p>
             <Button variant="link" className="text-muted-foreground" asChild>
-              <a href={`mailto:${SUPPORT_MAIL}`}>{SUPPORT_MAIL}</a>
+              <a href={`mailto:${EXTERNAL_LINKS.SUPPORT_EMAIL}`}>
+                {EXTERNAL_LINKS.SUPPORT_EMAIL}
+              </a>
             </Button>
           </div>
 

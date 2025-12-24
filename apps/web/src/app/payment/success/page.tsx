@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 type PaymentSuccessPageProps = {
   searchParams: Promise<{
     orderId?: string;
-    paymentKey?: string;
+    transactionId?: string; // 포트원 트랜잭션 ID
     amount?: string;
     plan?: string;
     planName?: string;
@@ -19,13 +19,15 @@ type PaymentSuccessPageProps = {
   }>;
 };
 
-const PaymentSuccessPage = async ({ searchParams }: PaymentSuccessPageProps) => {
+const PaymentSuccessPage = async ({
+  searchParams,
+}: PaymentSuccessPageProps) => {
   const params = await searchParams;
 
   return (
     <PaymentSuccessClient
       orderId={params.orderId}
-      paymentKey={params.paymentKey}
+      transactionId={params.transactionId}
       amount={params.amount}
       plan={params.plan}
       planName={params.planName}

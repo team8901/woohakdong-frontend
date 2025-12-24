@@ -44,11 +44,11 @@ export const PlanCardClient = ({
       <CardContent>
         <div className="mb-4 text-center">
           <span className="text-foreground text-2xl font-bold">
-            {plan.basePrice === 0
+            {plan.monthlyPrice === 0
               ? '무료'
-              : `${plan.basePrice.toLocaleString()}원`}
+              : `${plan.monthlyPrice.toLocaleString()}원`}
           </span>
-          {plan.basePrice > 0 && (
+          {plan.monthlyPrice > 0 && (
             <span className="text-muted-foreground text-sm">/월</span>
           )}
         </div>

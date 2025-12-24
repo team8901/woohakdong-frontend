@@ -1,3 +1,7 @@
+/**
+ * 결제 성공 페이지 클라이언트 컴포넌트
+ * @see https://developers.portone.io/
+ */
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -16,7 +20,7 @@ import Link from 'next/link';
 
 type PaymentSuccessClientProps = {
   orderId?: string;
-  paymentKey?: string;
+  transactionId?: string; // 포트원 트랜잭션 ID
   amount?: string;
   plan?: string;
   planName?: string;
@@ -26,7 +30,7 @@ type PaymentSuccessClientProps = {
 
 export const PaymentSuccessClient = ({
   orderId,
-  paymentKey,
+  transactionId,
   amount,
   plan,
   planName,
@@ -54,7 +58,7 @@ export const PaymentSuccessClient = ({
           return;
         }
 
-        if (!orderId || !paymentKey || !amount || !clubId) {
+        if (!orderId || !amount || !clubId) {
           setError('결제 정보가 올바르지 않습니다.');
           setIsProcessing(false);
 
@@ -69,7 +73,7 @@ export const PaymentSuccessClient = ({
           planName: planName ?? 'Standard',
           price: Number(amount),
           orderId,
-          paymentKey,
+          transactionId: transactionId ?? '',
         });
 
         setSubscriptionId(subId);
@@ -82,7 +86,7 @@ export const PaymentSuccessClient = ({
     });
 
     return () => unsubscribe();
-  }, [orderId, paymentKey, amount, plan, planName, clubId]);
+  }, [orderId, transactionId, amount, plan, planName, clubId]);
 
   if (isProcessing) {
     return (
