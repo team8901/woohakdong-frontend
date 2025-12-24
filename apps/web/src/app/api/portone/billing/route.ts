@@ -32,6 +32,34 @@ type PortoneBillingResponse = {
   };
 };
 
+type PortoneErrorResponse = {
+  type?: string;
+  message?: string;
+  code?: string;
+};
+
+/**
+ * PortOne 에러 응답인지 확인하는 타입 가드
+ */
+function isPortoneErrorResponse(data: unknown): data is PortoneErrorResponse {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    ('message' in data || 'code' in data || 'type' in data)
+  );
+}
+
+/**
+ * 에러 응답에서 메시지 추출
+ */
+function getErrorMessage(data: unknown, defaultMessage: string): string {
+  if (isPortoneErrorResponse(data) && data.message) {
+    return data.message;
+  }
+
+  return defaultMessage;
+}
+
 /**
  * 빌링키로 결제 요청
  */
@@ -126,11 +154,7 @@ export async function POST(request: Request) {
       console.error('[PortOne Billing] Payment failed:', data);
 
       return NextResponse.json(
-        {
-          message:
-            (data as unknown as { message?: string }).message ??
-            '결제 승인에 실패했습니다.',
-        },
+        { message: getErrorMessage(data, '결제 승인에 실패했습니다.') },
         { status: response.status },
       );
     }
