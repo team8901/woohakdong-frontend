@@ -2,6 +2,8 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // ===== 공통 헬퍼 함수 =====
+
     // 인증된 사용자인지 확인
     function isAuthenticated() {
       return request.auth != null;
@@ -10,6 +12,181 @@ service cloud.firestore {
     // 본인 데이터인지 확인
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ===== 구독 (subscriptions) 검증 함수 =====
+
+    // 구독 필수 필드
+    function subscriptionRequiredFields() {
+      return ['id', 'clubId', 'userId', 'userEmail', 'planId', 'planName',
+              'price', 'status', 'startDate', 'createdAt', 'updatedAt'];
+    }
+
+    // 구독 선택적 필드 (endDate는 무료 플랜에서 null 가능)
+    function subscriptionOptionalFields() {
+      return ['endDate', 'billingCycle', 'billingKeyId', 'canceledAt',
+              'nextPlanId', 'nextPlanName', 'nextPlanPrice', 'credit'];
+    }
+
+    // 구독 허용 상태값
+    function validSubscriptionStatus() {
+      return ['active', 'canceled', 'expired', 'pending'];
+    }
+
+    // 구독 허용 빌링 주기
+    function validBillingCycle() {
+      return ['monthly', 'yearly'];
+    }
+
+    // 구독 생성 검증
+    function isValidSubscriptionCreate() {
+      let data = request.resource.data;
+      let requiredFields = subscriptionRequiredFields();
+      let optionalFields = subscriptionOptionalFields();
+
+      return data.keys().hasAll(requiredFields)
+        && data.keys().hasOnly(requiredFields.concat(optionalFields))
+        // 타입 검증
+        && data.id is string
+        && data.clubId is int
+        && data.clubId > 0
+        && data.userId is string
+        && data.userEmail is string
+        && data.planId is string
+        && data.planName is string
+        && data.price is number
+        && data.price >= 0
+        && data.status is string
+        && data.status in validSubscriptionStatus()
+        // 선택적 필드 타입 검증
+        && (!('billingCycle' in data.keys()) || data.billingCycle in validBillingCycle())
+        && (!('billingKeyId' in data.keys()) || data.billingKeyId is string)
+        && (!('credit' in data.keys()) || (data.credit is number && data.credit >= 0))
+        && (!('nextPlanPrice' in data.keys()) || (data.nextPlanPrice is number && data.nextPlanPrice >= 0));
+    }
+
+    // 구독 수정 검증 (허용된 필드만 변경 가능)
+    function isValidSubscriptionUpdate() {
+      let data = request.resource.data;
+      let requiredFields = subscriptionRequiredFields();
+      let optionalFields = subscriptionOptionalFields();
+
+      return data.keys().hasAll(requiredFields)
+        && data.keys().hasOnly(requiredFields.concat(optionalFields))
+        // 변경 불가 필드 검증 (id, clubId, userId, userEmail, createdAt은 변경 불가)
+        && data.id == resource.data.id
+        && data.clubId == resource.data.clubId
+        && data.userId == resource.data.userId
+        && data.userEmail == resource.data.userEmail
+        && data.createdAt == resource.data.createdAt
+        // 타입 및 값 검증
+        && data.status in validSubscriptionStatus()
+        && data.price >= 0
+        && (!('billingCycle' in data.keys()) || data.billingCycle in validBillingCycle())
+        && (!('credit' in data.keys()) || (data.credit is number && data.credit >= 0))
+        && (!('nextPlanPrice' in data.keys()) || (data.nextPlanPrice is number && data.nextPlanPrice >= 0));
+    }
+
+    // ===== 결제 기록 (payments) 검증 함수 =====
+
+    // 결제 필수 필드
+    function paymentRequiredFields() {
+      return ['id', 'subscriptionId', 'clubId', 'userId', 'userEmail',
+              'orderId', 'transactionId', 'amount', 'planId', 'planName',
+              'status', 'createdAt'];
+    }
+
+    // 결제 선택적 필드
+    function paymentOptionalFields() {
+      return ['type'];
+    }
+
+    // 결제 허용 상태값
+    function validPaymentStatus() {
+      return ['success', 'failed', 'pending'];
+    }
+
+    // 결제 허용 타입
+    function validPaymentType() {
+      return ['upgrade', 'billing_cycle_change', 'renewal'];
+    }
+
+    // 결제 생성 검증
+    function isValidPaymentCreate() {
+      let data = request.resource.data;
+      let requiredFields = paymentRequiredFields();
+      let optionalFields = paymentOptionalFields();
+
+      return data.keys().hasAll(requiredFields)
+        && data.keys().hasOnly(requiredFields.concat(optionalFields))
+        // 타입 검증
+        && data.id is string
+        && data.subscriptionId is string
+        && data.clubId is int
+        && data.clubId > 0
+        && data.userId is string
+        && data.userEmail is string
+        && data.orderId is string
+        && data.transactionId is string
+        && data.amount is number
+        && data.amount >= 0
+        && data.planId is string
+        && data.planName is string
+        && data.status is string
+        && data.status in validPaymentStatus()
+        // 선택적 필드 타입 검증
+        && (!('type' in data.keys()) || data.type in validPaymentType());
+    }
+
+    // ===== 빌링키 (billingKeys) 검증 함수 =====
+
+    // 빌링키 필수 필드
+    function billingKeyRequiredFields() {
+      return ['id', 'clubId', 'userId', 'userEmail', 'billingKey',
+              'customerKey', 'cardCompany', 'cardNumber', 'isDefault',
+              'createdAt', 'updatedAt'];
+    }
+
+    // 빌링키 생성 검증
+    function isValidBillingKeyCreate() {
+      let data = request.resource.data;
+      let requiredFields = billingKeyRequiredFields();
+
+      return data.keys().hasAll(requiredFields)
+        && data.keys().hasOnly(requiredFields)
+        // 타입 검증
+        && data.id is string
+        && data.clubId is int
+        && data.clubId > 0
+        && data.userId is string
+        && data.userEmail is string
+        && data.billingKey is string
+        && data.billingKey.size() > 0
+        && data.customerKey is string
+        && data.cardCompany is string
+        && data.cardNumber is string
+        && data.isDefault is bool;
+    }
+
+    // 빌링키 수정 검증 (isDefault, billingKey만 변경 가능)
+    function isValidBillingKeyUpdate() {
+      let data = request.resource.data;
+      let requiredFields = billingKeyRequiredFields();
+
+      return data.keys().hasAll(requiredFields)
+        && data.keys().hasOnly(requiredFields)
+        // 변경 불가 필드 검증
+        && data.id == resource.data.id
+        && data.clubId == resource.data.clubId
+        && data.userId == resource.data.userId
+        && data.userEmail == resource.data.userEmail
+        && data.customerKey == resource.data.customerKey
+        && data.cardCompany == resource.data.cardCompany
+        && data.cardNumber == resource.data.cardNumber
+        && data.createdAt == resource.data.createdAt
+        // 타입 검증
+        && data.isDefault is bool
+        && data.billingKey is string;
     }
 
     // ===== 사전 등록 (preRegistrations) =====
@@ -29,12 +206,14 @@ service cloud.firestore {
       // 읽기: 인증된 사용자 (동아리 멤버십은 백엔드 API에서 검증)
       allow read: if isAuthenticated();
 
-      // 생성: 인증된 사용자가 본인 명의로 생성 가능
+      // 생성: 인증된 사용자가 본인 명의로 + 유효한 구조
       allow create: if isAuthenticated()
-        && request.resource.data.userId == request.auth.uid;
+        && request.resource.data.userId == request.auth.uid
+        && isValidSubscriptionCreate();
 
-      // 수정: 본인이 생성한 구독만 수정 가능
-      allow update: if isOwner(resource.data.userId);
+      // 수정: 본인이 생성한 구독 + 유효한 구조
+      allow update: if isOwner(resource.data.userId)
+        && isValidSubscriptionUpdate();
 
       // 삭제: 불허
       allow delete: if false;
@@ -45,9 +224,10 @@ service cloud.firestore {
       // 읽기: 인증된 사용자
       allow read: if isAuthenticated();
 
-      // 생성: 인증된 사용자가 본인 명의로 생성 가능
+      // 생성: 인증된 사용자가 본인 명의로 + 유효한 구조
       allow create: if isAuthenticated()
-        && request.resource.data.userId == request.auth.uid;
+        && request.resource.data.userId == request.auth.uid
+        && isValidPaymentCreate();
 
       // 수정/삭제: 불허 (결제 기록은 변경 불가)
       allow update, delete: if false;
@@ -58,12 +238,14 @@ service cloud.firestore {
       // 읽기: 인증된 사용자
       allow read: if isAuthenticated();
 
-      // 생성: 인증된 사용자가 본인 명의로 생성 가능
+      // 생성: 인증된 사용자가 본인 명의로 + 유효한 구조
       allow create: if isAuthenticated()
-        && request.resource.data.userId == request.auth.uid;
+        && request.resource.data.userId == request.auth.uid
+        && isValidBillingKeyCreate();
 
-      // 수정: 본인이 생성한 빌링키만 수정 가능
-      allow update: if isOwner(resource.data.userId);
+      // 수정: 본인이 생성한 빌링키 + 유효한 구조
+      allow update: if isOwner(resource.data.userId)
+        && isValidBillingKeyUpdate();
 
       // 삭제: 불허
       allow delete: if false;
