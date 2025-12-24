@@ -333,9 +333,7 @@ const parseFirestoreValue = (value: Record<string, unknown>): unknown => {
   if ('nullValue' in value) return null;
 
   if ('timestampValue' in value) {
-    const date = new Date(value.timestampValue as string);
-
-    return { _seconds: Math.floor(date.getTime() / 1000) };
+    return new Date(value.timestampValue as string);
   }
 
   if ('mapValue' in value) {

@@ -44,12 +44,12 @@ export interface Subscription {
   billingCycle: BillingCycle;
   billingKeyId: string;
   status: SubscriptionStatus;
-  startDate: { _seconds: number };
-  endDate: { _seconds: number };
+  startDate: Date;
+  endDate: Date;
   retryCount?: number;
   lastPaymentError?: string;
   /** 구독 취소 시점 (취소했지만 endDate까지 이용 가능) */
-  canceledAt?: { _seconds: number };
+  canceledAt?: Date;
   /** 예약된 플랜 변경 */
   nextPlanId?: string;
   nextPlanName?: string;

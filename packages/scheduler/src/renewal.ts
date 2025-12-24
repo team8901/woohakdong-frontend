@@ -210,7 +210,7 @@ export const renewSubscription = async (
       );
     } else {
       // 유료 플랜: 구독 기간 연장
-      const currentEndDate = new Date(subscription.endDate._seconds * 1000);
+      const currentEndDate = subscription.endDate;
       const newEndDate = calculateNewEndDate(
         currentEndDate,
         subscription.billingCycle,
