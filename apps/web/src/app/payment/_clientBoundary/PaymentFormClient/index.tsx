@@ -55,6 +55,18 @@ export const PaymentFormClient = ({
   // Mock 환경이 아니고 포트원 설정이 없으면 결제 비활성화
   const isPaymentDisabled = !isMockMode && !isPortoneEnabled && isPaidPlan;
 
+  const getPaymentButtonText = (isMock: boolean) => {
+    if (isLoggingIn) return '로그인 중...';
+
+    if (!isMock && isProcessing) return '결제 처리 중...';
+
+    if (!isLoggedIn) return '로그인하고 결제하기';
+
+    const priceText = `${plan.monthlyPrice.toLocaleString()}원 결제하기`;
+
+    return isMock ? `${priceText} (Mock)` : priceText;
+  };
+
   useEffect(() => {
     const user = getCurrentUser();
 
@@ -239,11 +251,7 @@ export const PaymentFormClient = ({
             className="w-full"
             size="lg"
             disabled={isLoggingIn}>
-            {isLoggingIn
-              ? '로그인 중...'
-              : isLoggedIn
-                ? `${plan.monthlyPrice.toLocaleString()}원 결제하기 (Mock)`
-                : '로그인하고 결제하기'}
+            {getPaymentButtonText(true)}
           </Button>
         ) : (
           <Button
@@ -251,13 +259,7 @@ export const PaymentFormClient = ({
             className="w-full"
             size="lg"
             disabled={isLoggingIn || isProcessing || (isLoggedIn && !isReady)}>
-            {isLoggingIn
-              ? '로그인 중...'
-              : isProcessing
-                ? '결제 처리 중...'
-                : isLoggedIn
-                  ? `${plan.monthlyPrice.toLocaleString()}원 결제하기`
-                  : '로그인하고 결제하기'}
+            {getPaymentButtonText(false)}
           </Button>
         )
       ) : (
