@@ -548,6 +548,7 @@ export const getDefaultBillingKey = async (
  * 빌링키 삭제 (카드 삭제)
  * - 활성 유료 구독이 있고 마지막 결제수단인 경우 삭제 불가
  * - 기본 결제수단 삭제 시 다른 결제수단을 기본으로 자동 설정
+ * - 트랜잭션 내에서 모든 검증 수행하여 race condition 방지
  * @param billingKeyId - 빌링키 문서 ID
  * @param clubId - 동아리 ID (마지막 결제수단 검증용)
  */
@@ -556,51 +557,76 @@ export const deleteBillingKey = async (
   clubId: number,
 ): Promise<void> => {
   try {
-    // 유효한 빌링키 목록 조회 (billingKey가 비어있지 않은 것만)
+    // 빌링키 ID 목록만 먼저 조회 (트랜잭션 내에서 재검증)
     const billingKeys = await getBillingKeys(clubId);
-    const validBillingKeys = billingKeys.filter(
-      (key) => key.billingKey && key.billingKey.length > 0,
-    );
-
-    // 삭제하려는 빌링키 찾기
-    const targetKey = validBillingKeys.find((key) => key.id === billingKeyId);
-
-    if (!targetKey) {
-      throw new SubscriptionError('결제수단을 찾을 수 없습니다.');
-    }
-
-    // 활성 유료 구독 확인
-    const activeSubscription = await getActiveSubscription(clubId);
-    const hasPaidSubscription =
-      activeSubscription && activeSubscription.price > 0;
-
-    if (hasPaidSubscription && validBillingKeys.length <= 1) {
-      throw new SubscriptionError(
-        '활성 구독이 있어 마지막 결제수단을 삭제할 수 없습니다. 구독을 취소하거나 다른 결제수단을 먼저 등록해주세요.',
-      );
-    }
-
-    // 기본 결제수단인 경우, 다른 결제수단을 기본으로 설정
-    const isDefaultKey = targetKey.isDefault;
-    const otherValidKeys = validBillingKeys.filter(
-      (key) => key.id !== billingKeyId,
-    );
+    const billingKeyIds = billingKeys
+      .filter((key) => key.billingKey && key.billingKey.length > 0)
+      .map((key) => key.id);
 
     await runTransaction(firebaseDb, async (transaction) => {
-      // 1. 삭제 대상 빌링키 soft delete
-      const billingKeyRef = doc(
-        firebaseDb,
-        BILLING_KEYS_COLLECTION,
-        billingKeyId,
+      // 1. 트랜잭션 내에서 모든 빌링키 문서 읽기 (최신 데이터 보장)
+      const billingKeyRefs = billingKeyIds.map((id) =>
+        doc(firebaseDb, BILLING_KEYS_COLLECTION, id),
+      );
+      const billingKeySnapshots = await Promise.all(
+        billingKeyRefs.map((ref) => transaction.get(ref)),
       );
 
-      transaction.update(billingKeyRef, {
+      // 유효한 빌링키만 필터링 (삭제되지 않은 것)
+      const validBillingKeys = billingKeySnapshots
+        .filter((snap) => {
+          if (!snap.exists()) return false;
+
+          const data = snap.data();
+
+          return data.billingKey && data.billingKey.length > 0;
+        })
+        .map((snap) => ({ id: snap.id, ...snap.data() })) as BillingKey[];
+
+      // 삭제하려는 빌링키 찾기
+      const targetKey = validBillingKeys.find((key) => key.id === billingKeyId);
+
+      if (!targetKey) {
+        throw new SubscriptionError('결제수단을 찾을 수 없습니다.');
+      }
+
+      // 2. 활성 유료 구독 확인 (트랜잭션 내에서)
+      const subscriptionsRef = collection(firebaseDb, SUBSCRIPTIONS_COLLECTION);
+      const activeSubQuery = query(
+        subscriptionsRef,
+        where('clubId', '==', clubId),
+        where('status', '==', 'active'),
+      );
+      const activeSubSnapshot = await getDocs(activeSubQuery);
+      const activeSubscription = activeSubSnapshot.docs.find((d) => {
+        const data = d.data();
+
+        return data.price > 0;
+      });
+
+      const hasPaidSubscription = !!activeSubscription;
+
+      if (hasPaidSubscription && validBillingKeys.length <= 1) {
+        throw new SubscriptionError(
+          '활성 구독이 있어 마지막 결제수단을 삭제할 수 없습니다. 구독을 취소하거나 다른 결제수단을 먼저 등록해주세요.',
+        );
+      }
+
+      // 3. 삭제 대상 빌링키 soft delete
+      const targetRef = doc(firebaseDb, BILLING_KEYS_COLLECTION, billingKeyId);
+
+      transaction.update(targetRef, {
         billingKey: '',
         isDefault: false,
         updatedAt: serverTimestamp(),
       });
 
-      // 2. 기본 결제수단이었고 다른 결제수단이 있으면 첫 번째를 기본으로 설정
+      // 4. 기본 결제수단이었고 다른 결제수단이 있으면 첫 번째를 기본으로 설정
+      const isDefaultKey = targetKey.isDefault;
+      const otherValidKeys = validBillingKeys.filter(
+        (key) => key.id !== billingKeyId,
+      );
+
       if (isDefaultKey && otherValidKeys.length > 0) {
         const newDefaultKey = otherValidKeys[0];
 
