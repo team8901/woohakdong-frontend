@@ -42,6 +42,10 @@ PORTONE_API_SECRET=your_portone_api_secret
 FIREBASE_PROJECT_ID=your_firebase_project_id
 FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"...","private_key":"..."}
 ENVIRONMENT=development
+
+# 테스트용 빌링 주기 (분 단위, 선택)
+# 설정 시 구독 갱신 주기가 해당 분으로 단축됨
+# TEST_BILLING_CYCLE_MINUTES=3
 ```
 
 > **주의**: `.dev.vars` 파일은 `.gitignore`에 포함되어 있어 커밋되지 않습니다.
@@ -90,6 +94,69 @@ https://woohakdong-scheduler.<subdomain>.workers.dev
 ```
 
 > **참고**: Cloudflare 계정이 없다면 [dash.cloudflare.com](https://dash.cloudflare.com)에서 무료로 생성할 수 있습니다. Workers 무료 플랜은 일 10만 요청까지 지원합니다.
+
+## 테스트 빌링 주기
+
+환경변수로 빌링 주기를 설정하여 테스트할 수 있습니다.
+
+### 환경변수 설정
+
+| 환경변수                              | 설명                              | 예시   |
+| ------------------------------------- | --------------------------------- | ------ |
+| `NEXT_PUBLIC_TEST_BILLING_CYCLE_MINUTES` | 웹 앱에서 구독 생성 시 적용       | `3`    |
+| `TEST_BILLING_CYCLE_MINUTES`          | 스케줄러에서 구독 갱신 시 적용    | `3`    |
+
+### 빌링 주기 비교
+
+| 환경                          | 빌링 주기            |
+| ----------------------------- | -------------------- |
+| 환경변수 미설정 (월간)        | 1개월                |
+| 환경변수 미설정 (연간)        | 1년                  |
+| `TEST_BILLING_CYCLE_MINUTES=3` | **3분**              |
+| `TEST_BILLING_CYCLE_MINUTES=5` | **5분**              |
+
+### 웹 앱 설정
+
+`apps/web/.env.local`에 추가:
+
+```bash
+# 웹 앱에서 구독 생성 시 3분 빌링 주기 적용
+NEXT_PUBLIC_TEST_BILLING_CYCLE_MINUTES=3
+```
+
+> **주의**: 환경변수 추가 후 웹 앱 재시작 필요
+
+### 스케줄러 설정
+
+`.dev.vars`에 추가:
+
+```bash
+# packages/scheduler/.dev.vars
+PORTONE_API_SECRET=your_portone_api_secret
+FIREBASE_PROJECT_ID=your_firebase_project_id
+FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}
+ENVIRONMENT=development
+TEST_BILLING_CYCLE_MINUTES=3
+```
+
+### 동작 방식
+
+1. 웹 앱에서 구독 생성 → `endDate: 3분 후` (환경변수가 설정된 경우)
+2. 3분 후 스케줄러가 만료된 구독 감지
+3. 결제 처리 후 `endDate`를 3분 연장 (환경변수가 설정된 경우)
+
+### 수동 테스트
+
+Firestore에서 구독 문서의 `endDate`를 현재 시간 이전으로 수정한 후:
+
+```bash
+# 스케줄러 테스트 엔드포인트 호출
+curl http://localhost:8787/test/renewals
+```
+
+> **참고**: 테스트 빌링 주기는 구독 생성 시점과 갱신 시점 모두에 적용됩니다. 웹 앱과 스케줄러 양쪽에 환경변수를 설정해야 일관된 동작을 보장합니다.
+
+---
 
 ## 테스트 방법
 
@@ -154,20 +221,36 @@ pnpm wrangler dev --test-scheduled --port 8787
 curl "http://localhost:8787/__scheduled?cron=0+0+*+*+*"
 ```
 
-#### 개발용 설정으로 배포 테스트
+#### 테스트용 스케줄러 배포
 
-개발용 설정 파일(`wrangler.dev.toml`)은 1분 간격 Cron으로 설정되어 있어, 배포 후 빠르게 테스트할 수 있습니다.
+프로덕션과 별도로 테스트용 스케줄러를 배포하여 Cron 자동 실행을 테스트할 수 있습니다.
+
+`wrangler.dev.toml` 설정:
+- 워커 이름: `woohakdong-scheduler-dev` (프로덕션과 별도)
+- Cron: 1분마다 실행
+- 빌링 주기: 3분 (`TEST_BILLING_CYCLE_MINUTES=3`)
 
 ```bash
 cd packages/scheduler
 
-# 개발용 설정으로 배포 (Cloudflare에서 1분마다 실행)
+# 1. 시크릿 등록 (최초 1회)
+pnpm wrangler secret put PORTONE_API_SECRET --config wrangler.dev.toml
+pnpm wrangler secret put FIREBASE_PROJECT_ID --config wrangler.dev.toml
+pnpm wrangler secret put FIREBASE_SERVICE_ACCOUNT_KEY --config wrangler.dev.toml
+
+# 2. 배포
 pnpm wrangler deploy --config wrangler.dev.toml
+
+# 3. 로그 확인 (1분마다 Cron 실행 확인)
+pnpm wrangler tail --config wrangler.dev.toml
+
+# 4. 테스트 완료 후 삭제
+pnpm wrangler delete --config wrangler.dev.toml
 ```
 
-> **주의**: 로컬에서는 Cron이 자동 실행되지 않습니다. 배포 후 Cloudflare에서만 자동 실행됩니다.
+> **주의**: 로컬에서는 Cron이 자동 실행되지 않습니다. Cloudflare에 배포해야 Cron이 동작합니다.
 >
-> **주의**: 개발용 배포는 실제 결제가 발생할 수 있으므로 테스트 데이터로만 사용하세요.
+> **주의**: 테스트용 배포는 실제 결제가 발생할 수 있으므로 테스트 데이터로만 사용하세요.
 
 ## 아키텍처
 

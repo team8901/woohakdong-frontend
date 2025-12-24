@@ -1,16 +1,28 @@
-# 개발/테스트용 설정 (짧은 Cron 간격)
-# 사용법: pnpm wrangler dev --config wrangler.dev.toml --port 8787
+# 테스트용 Cloudflare Workers 스케줄러
+# 프로덕션과 별도 워커로 배포하여 Cron 자동 실행 테스트 가능
+#
+# 시크릿 등록 (최초 1회):
+#   pnpm wrangler secret put PORTONE_API_SECRET --config wrangler.dev.toml
+#   pnpm wrangler secret put FIREBASE_PROJECT_ID --config wrangler.dev.toml
+#   pnpm wrangler secret put FIREBASE_SERVICE_ACCOUNT_KEY --config wrangler.dev.toml
+#
+# 배포: pnpm wrangler deploy --config wrangler.dev.toml
+# 로그: pnpm wrangler tail --config wrangler.dev.toml
+# 삭제: pnpm wrangler delete --config wrangler.dev.toml
 
 name = "woohakdong-scheduler-dev"
 main = "src/index.ts"
 compatibility_date = "2024-12-18"
 
-# 테스트용 Cron Triggers (1분 간격)
+# 테스트용 Cron - 1분마다 실행
 [triggers]
 crons = [
-  # 매분 실행 (테스트용)
+  # 매분 실행 - 구독 갱신 + 취소 처리
   "* * * * *"
 ]
 
 [vars]
 ENVIRONMENT = "development"
+# 테스트 빌링 주기 (분) - 구독 갱신 시 연장되는 주기
+# 주의: 웹 앱의 NEXT_PUBLIC_TEST_BILLING_CYCLE_MINUTES와 동일하게 설정해야 함
+TEST_BILLING_CYCLE_MINUTES = "3"
