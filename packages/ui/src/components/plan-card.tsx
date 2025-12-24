@@ -49,12 +49,12 @@ export const PlanCard = ({
   const plan = SUBSCRIPTION_PLANS[planId];
   const isComingSoon = isComingSoonProp ?? plan.comingSoon;
 
-  const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+  const price = isYearly ? plan.monthlyPriceYearly : plan.monthlyPrice;
   const showDiscount =
-    isYearly && plan.monthlyPrice > 0 && plan.yearlyPrice < plan.monthlyPrice;
+    isYearly && plan.monthlyPrice > 0 && plan.monthlyPriceYearly < plan.monthlyPrice;
   const discountPercent = showDiscount
     ? Math.round(
-        ((plan.monthlyPrice - plan.yearlyPrice) / plan.monthlyPrice) * 100,
+        ((plan.monthlyPrice - plan.monthlyPriceYearly) / plan.monthlyPrice) * 100,
       )
     : 0;
 

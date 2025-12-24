@@ -59,7 +59,7 @@ export const ConfirmStep = ({
 
   const plan = SUBSCRIPTION_PLANS[selectedPlan];
   const currentPlan = currentPlanId ? SUBSCRIPTION_PLANS[currentPlanId] : null;
-  const billingPrice = isYearly ? plan.yearlyPrice * 12 : plan.monthlyPrice;
+  const billingPrice = isYearly ? plan.monthlyPriceYearly * 12 : plan.monthlyPrice;
   const billingCycle = isYearly ? '연' : '월';
   const isFree = plan.monthlyPrice === 0;
   const hasMultipleCards = billingKeys.length > 1;
@@ -153,7 +153,7 @@ export const ConfirmStep = ({
               </div>
               {isYearly && (
                 <p className="text-muted-foreground text-right text-xs">
-                  월 {plan.yearlyPrice.toLocaleString()}원 ×12개월
+                  월 {plan.monthlyPriceYearly.toLocaleString()}원 ×12개월
                 </p>
               )}
               <p className="text-muted-foreground text-sm">
@@ -225,7 +225,7 @@ export const ConfirmStep = ({
               </div>
               {isYearly && !isFree && (
                 <p className="text-muted-foreground mt-1 text-right text-xs">
-                  월 {plan.yearlyPrice.toLocaleString()}원 ×12개월
+                  월 {plan.monthlyPriceYearly.toLocaleString()}원 ×12개월
                 </p>
               )}
             </>

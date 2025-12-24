@@ -139,7 +139,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     ) {
       // 새 플랜 가격 (빌링 주기에 따라)
       const newPrice = isYearly
-        ? targetPlan.yearlyPrice * 12
+        ? targetPlan.monthlyPriceYearly * 12
         : targetPlan.monthlyPrice;
 
       // 현재 구독의 실제 결제 금액 사용 (플랜 상수가 아닌 실제 저장된 값)
@@ -512,7 +512,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
 
       const plan = SUBSCRIPTION_PLANS[selectedPlan];
       const billingPrice = isYearlyBilling
-        ? plan.yearlyPrice * 12
+        ? plan.monthlyPriceYearly * 12
         : plan.monthlyPrice;
       const billingCycle = isYearlyBilling ? '연간' : '월간';
 

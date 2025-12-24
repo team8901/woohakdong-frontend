@@ -3,7 +3,7 @@ export const SUBSCRIPTION_PLANS = {
     id: 'free',
     name: 'Free',
     monthlyPrice: 0,
-    yearlyPrice: 0,
+    monthlyPriceYearly: 0,
     description: '동아리를 시작하는 분들을 위한 플랜',
     features: [
       '최대 30명 회원 관리',
@@ -20,7 +20,7 @@ export const SUBSCRIPTION_PLANS = {
     id: 'standard',
     name: 'Standard',
     monthlyPrice: 29000,
-    yearlyPrice: 24000,
+    monthlyPriceYearly: 24000,
     description: '활발하게 운영되는 동아리를 위한 플랜',
     features: [
       '무제한 회원 관리',
@@ -39,7 +39,7 @@ export const SUBSCRIPTION_PLANS = {
     id: 'pro',
     name: 'Pro',
     monthlyPrice: 49000,
-    yearlyPrice: 35000,
+    monthlyPriceYearly: 35000,
     description: '체계적인 관리가 필요한 동아리를 위한 플랜',
     features: [
       'Standard의 모든 기능',
@@ -59,7 +59,7 @@ export const SUBSCRIPTION_PLANS = {
     id: 'enterprise',
     name: 'Enterprise',
     monthlyPrice: 0,
-    yearlyPrice: 0,
+    monthlyPriceYearly: 0,
     description: '학교 공식 또는 대규모 단체를 위한 플랜',
     features: [
       'Pro의 모든 기능',
