@@ -252,6 +252,33 @@ pnpm wrangler delete --config wrangler.dev.toml
 >
 > **주의**: 테스트용 배포는 실제 결제가 발생할 수 있으므로 테스트 데이터로만 사용하세요.
 
+## 파일 구조
+
+```
+src/
+├── index.ts          # Worker 진입점 (Cron/HTTP 핸들러)
+├── types.ts          # 타입 정의 및 상수
+├── utils.ts          # 유틸리티 함수
+├── firebase.ts       # Firebase 인증 + Firestore REST API
+├── portone.ts        # PortOne 빌링키 결제
+├── subscription.ts   # 구독 처리 로직 (통합 export)
+├── renewal.ts        # 구독 갱신 및 결제 재시도
+├── cancellation.ts   # 취소 예정 구독 만료 처리
+└── cleanup.ts        # 만료 구독 정리
+```
+
+| 파일               | 역할                                        |
+| ------------------ | ------------------------------------------- |
+| `index.ts`         | Cron 트리거, HTTP 엔드포인트 핸들러         |
+| `types.ts`         | Env, Subscription, BillingKey 등 타입 정의  |
+| `utils.ts`         | 빌링 주기 계산, 종료일 계산 유틸리티        |
+| `firebase.ts`      | Service Account JWT 인증, Firestore CRUD    |
+| `portone.ts`       | 빌링키 결제 API 호출, 기본 결제수단 조회    |
+| `subscription.ts`  | 구독 처리 함수들의 통합 export              |
+| `renewal.ts`       | 정기결제 갱신, 결제 실패 재시도             |
+| `cancellation.ts`  | 취소 예정 구독의 만료 및 플랜 전환 처리     |
+| `cleanup.ts`       | 30일 이상 만료된 구독의 무료 다운그레이드   |
+
 ## 아키텍처
 
 ```
@@ -285,10 +312,13 @@ pnpm wrangler delete --config wrangler.dev.toml
 ### 구독 갱신 (processSubscriptionRenewals)
 
 1. 오늘 만료되는 `active` 상태 구독 조회
-2. 무료 플랜(`price === 0`)은 스킵
-3. 등록된 빌링키로 포트원 결제 API 호출
-4. 성공 시: 구독 기간 1개월 연장, 결제 기록 생성
-5. 실패 시: `payment_failed` 상태로 변경, 재시도 카운트 증가
+2. 무료 플랜(`price === 0`) 및 취소 예정 구독은 스킵
+3. **크레딧 처리**: 보유 크레딧이 있으면 결제 금액에서 차감
+   - 크레딧 >= 결제금액: 결제 없이 갱신
+   - 크레딧 < 결제금액: 차액만 빌링키로 결제
+4. 등록된 빌링키로 포트원 결제 API 호출
+5. 성공 시: 구독 기간 연장, 남은 크레딧 저장, 결제 기록 생성
+6. 실패 시: `payment_failed` 상태로 변경, 재시도 카운트 증가
 
 ### 결제 재시도 (retryFailedPayments)
 
@@ -299,10 +329,12 @@ pnpm wrangler delete --config wrangler.dev.toml
 
 ### 취소된 구독 만료 처리 (processCanceledSubscriptions)
 
-1. `canceled` 상태이고 `endDate <= 오늘`인 구독 조회
+1. `canceledAt`이 있고 `endDate <= 오늘`인 `active` 구독 조회
 2. `nextPlanId`가 있으면 해당 플랜으로 변경
-3. 없으면 `FREE` 플랜으로 다운그레이드
-4. `status`를 `active`로 변경
+   - **유료 플랜으로 전환 시**: 크레딧 차감 후 차액 결제
+   - 결제 실패 시: 무료 플랜으로 전환, 크레딧 유지
+3. 없으면 `FREE` 플랜으로 다운그레이드 (크레딧 소멸)
+4. `canceledAt` 제거, 새 빌링 주기 시작
 
 ### 만료 정리 (cleanupExpiredSubscriptions)
 
