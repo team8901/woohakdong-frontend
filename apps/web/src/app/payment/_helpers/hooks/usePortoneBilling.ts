@@ -32,6 +32,31 @@ export type BillingKeyResult = {
   };
 };
 
+/**
+ * 응답에서 카드 정보 안전하게 추출
+ * PortOne SDK 응답에 card 정보가 포함될 수 있으나 타입에 정의되어 있지 않음
+ */
+function extractCardInfo(response: unknown): { name: string; number: string } {
+  if (
+    typeof response === 'object' &&
+    response !== null &&
+    'card' in response
+  ) {
+    const card = (response as { card?: unknown }).card;
+
+    if (typeof card === 'object' && card !== null) {
+      const cardObj = card as { name?: unknown; number?: unknown };
+
+      return {
+        name: typeof cardObj.name === 'string' ? cardObj.name : '',
+        number: typeof cardObj.number === 'string' ? cardObj.number : '',
+      };
+    }
+  }
+
+  return { name: '', number: '' };
+}
+
 type UsePortoneBillingReturn = {
   requestBillingKey: (options: BillingKeyOptions) => Promise<BillingKeyResult>;
   isLoading: boolean;
@@ -105,15 +130,14 @@ export const usePortoneBilling = (): UsePortoneBillingReturn => {
           throw new Error('빌링키가 발급되지 않았습니다.');
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const responseAny = response as any;
+        const cardInfo = extractCardInfo(response);
 
         return {
           billingKey: response.billingKey,
           billingKeyId: options.billingKeyId,
           cardInfo: {
-            cardName: responseAny.card?.name ?? '',
-            cardNumber: responseAny.card?.number ?? '',
+            cardName: cardInfo.name,
+            cardNumber: cardInfo.number,
           },
         };
       } catch (err) {
