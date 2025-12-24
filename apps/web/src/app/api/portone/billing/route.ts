@@ -121,7 +121,7 @@ export async function POST(request: Request) {
           customer: customer
             ? {
                 id: customer.id,
-                ...(customer.name && { name: { full: customer.name } }),
+                ...(customer.name && { name: customer.name }),
                 email: customer.email,
                 phoneNumber: customer.phoneNumber,
               }
