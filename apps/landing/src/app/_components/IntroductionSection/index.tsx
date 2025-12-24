@@ -1,39 +1,5 @@
+import { FEATURES_OVERVIEW } from '@/app/_helpers/constants/features';
 import { SERVICE_NAME } from '@/app/_helpers/constants/service';
-import {
-  Calendar,
-  MessageSquare,
-  Package,
-  UserPlus,
-  Users,
-} from 'lucide-react';
-
-const FEATURES_OVERVIEW = [
-  {
-    icon: UserPlus,
-    title: '등록',
-    description: '5분 만에 동아리 등록',
-  },
-  {
-    icon: Users,
-    title: '회원',
-    description: '엑셀 없는 회원 관리',
-  },
-  {
-    icon: Package,
-    title: '물품',
-    description: '대여 현황 실시간 추적',
-  },
-  {
-    icon: Calendar,
-    title: '일정',
-    description: '공유 캘린더로 일정 관리',
-  },
-  {
-    icon: MessageSquare,
-    title: '소통',
-    description: '공지사항 한 곳에서',
-  },
-];
 
 export const IntroductionSection = () => {
   return (
