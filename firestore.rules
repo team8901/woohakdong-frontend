@@ -25,12 +25,13 @@ service cloud.firestore {
     // 구독 선택적 필드 (endDate는 무료 플랜에서 null 가능)
     function subscriptionOptionalFields() {
       return ['endDate', 'billingCycle', 'billingKeyId', 'canceledAt',
-              'nextPlanId', 'nextPlanName', 'nextPlanPrice', 'credit'];
+              'nextPlanId', 'nextPlanName', 'nextPlanPrice', 'credit',
+              'retryCount', 'lastPaymentError'];
     }
 
     // 구독 허용 상태값
     function validSubscriptionStatus() {
-      return ['active', 'canceled', 'expired', 'pending'];
+      return ['active', 'canceled', 'expired', 'pending', 'payment_failed'];
     }
 
     // 구독 허용 빌링 주기
@@ -84,7 +85,9 @@ service cloud.firestore {
         && data.price >= 0
         && (!('billingCycle' in data.keys()) || data.billingCycle in validBillingCycle())
         && (!('credit' in data.keys()) || (data.credit is number && data.credit >= 0))
-        && (!('nextPlanPrice' in data.keys()) || (data.nextPlanPrice is number && data.nextPlanPrice >= 0));
+        && (!('nextPlanPrice' in data.keys()) || (data.nextPlanPrice is number && data.nextPlanPrice >= 0))
+        && (!('retryCount' in data.keys()) || (data.retryCount is int && data.retryCount >= 0))
+        && (!('lastPaymentError' in data.keys()) || data.lastPaymentError is string);
     }
 
     // ===== 결제 기록 (payments) 검증 함수 =====
