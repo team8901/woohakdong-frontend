@@ -97,21 +97,42 @@ export function calculateProration({
   const endTime = billingEndDate.getTime();
   const nowTime = now.getTime();
 
-  // 총 결제 주기 일수
-  const totalDays = Math.ceil((endTime - startTime) / (1000 * 60 * 60 * 24));
+  const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-  // 남은 일수 (오늘 포함)
-  const remainingDays = Math.max(
-    0,
-    Math.ceil((endTime - nowTime) / (1000 * 60 * 60 * 24)),
-  );
+  // 일수 계산 (일 단위로 안정적인 계산)
+  const totalPeriodMs = endTime - startTime;
+  const totalDays = Math.max(1, Math.ceil(totalPeriodMs / MS_PER_DAY));
+
+  // 사용한 일수 (floor: 당일은 0일로 계산)
+  const usedMs = Math.max(0, nowTime - startTime);
+  const usedDays = Math.floor(usedMs / MS_PER_DAY);
+
+  // 남은 일수 (당일 변경이면 전체 일수)
+  const remainingDays = Math.max(0, totalDays - usedDays);
 
   // 빌링 주기 변경 여부
   const isBillingCycleChange = currentBillingCycle !== newBillingCycle;
 
-  // 현재 플랜 미사용 크레딧 (남은 기간에 대한 환불)
-  const currentDailyRate = currentPlanPrice / totalDays;
-  const currentPlanCredit = Math.round(currentDailyRate * remainingDays);
+  // 남은 비율 계산 (일 단위)
+  // 당일 변경(usedDays === 0)이면 전액 크레딧
+  let remainingRatio: number;
+
+  if (totalDays <= 0) {
+    // 비정상 케이스
+    remainingRatio = 1;
+  } else if (usedDays === 0) {
+    // 당일 변경: 전액 크레딧
+    remainingRatio = 1;
+  } else if (remainingDays <= 0) {
+    // endDate가 지났지만 active 구독인 경우 (스케줄러 지연 등)
+    // 최소 10% 보장
+    remainingRatio = 0.1;
+  } else {
+    remainingRatio = remainingDays / totalDays;
+  }
+
+  // 현재 플랜 미사용 크레딧 (남은 비율에 대한 환불)
+  const currentPlanCredit = Math.round(currentPlanPrice * remainingRatio);
 
   let newPlanCost: number;
   let nextBillingDate: Date;
@@ -127,10 +148,8 @@ export function calculateProration({
       nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
     }
   } else {
-    // 같은 빌링 주기: 남은 기간에 대한 비례 정산
-    const newDailyRate = newPlanPrice / totalDays;
-
-    newPlanCost = Math.round(newDailyRate * remainingDays);
+    // 같은 빌링 주기: 남은 비율에 대한 비례 정산
+    newPlanCost = Math.round(newPlanPrice * remainingRatio);
     nextBillingDate = billingEndDate;
   }
 

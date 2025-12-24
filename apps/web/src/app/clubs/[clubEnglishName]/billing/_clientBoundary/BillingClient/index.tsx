@@ -21,6 +21,7 @@ import {
   type BillingKey,
   cancelScheduledPlanChange,
   cancelSubscription,
+  completeRetryPayment,
   createFreeSubscription,
   createMockSubscription,
   createSubscriptionWithBillingKey,
@@ -96,6 +97,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
   const [isReactivating, setIsReactivating] = useState(false);
   const [isCancelingScheduledChange, setIsCancelingScheduledChange] =
     useState(false);
+  const [isRetryingPayment, setIsRetryingPayment] = useState(false);
   const [isYearlyBilling, setIsYearlyBilling] = useState(false);
   const [isScheduledChange, setIsScheduledChange] = useState(false);
   const [proration, setProration] = useState<ProrationResult | null>(null);
@@ -287,6 +289,97 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     }
   };
 
+  const handleRetryPayment = async () => {
+    if (!subscription || !defaultBillingKey) {
+      showToast({
+        message: '등록된 결제수단이 없습니다. 결제수단을 먼저 등록해주세요.',
+        type: 'error',
+      });
+
+      return;
+    }
+
+    setIsRetryingPayment(true);
+
+    try {
+      const user = getCurrentUser();
+
+      if (!user) {
+        throw new Error('로그인이 필요합니다.');
+      }
+
+      // 전화번호 필수 체크 (PortOne 요구사항)
+      if (!isMockMode && !myProfile?.phoneNumber) {
+        throw new Error(
+          '결제를 위해 전화번호가 필요합니다. 프로필에서 전화번호를 등록해주세요.',
+        );
+      }
+
+      const paymentId = `retry_${subscription.clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
+      const orderName = `${subscription.planName} 플랜 결제 재시도`;
+
+      if (!isMockMode) {
+        const paymentResponse = await fetch('/api/portone/billing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            billingKey: defaultBillingKey.billingKey,
+            paymentId,
+            orderName,
+            amount: subscription.price,
+            customer: {
+              id: user.uid,
+              name: myProfile?.nickname ?? user.displayName,
+              email: myProfile?.email ?? user.email,
+              phoneNumber: myProfile?.phoneNumber,
+            },
+          }),
+        });
+
+        if (!paymentResponse.ok) {
+          const errorData = await paymentResponse.json();
+
+          throw new Error(errorData.message ?? '결제에 실패했습니다.');
+        }
+
+        const { transactionId } = await paymentResponse.json();
+
+        await completeRetryPayment({
+          subscriptionId: subscription.id,
+          clubId: subscription.clubId,
+          userId: user.uid,
+          userEmail: user.email ?? '',
+          orderId: paymentId,
+          transactionId: transactionId ?? paymentId,
+          amount: subscription.price,
+        });
+      } else {
+        // Mock 모드에서는 바로 성공 처리
+        await completeRetryPayment({
+          subscriptionId: subscription.id,
+          clubId: subscription.clubId,
+          userId: user.uid,
+          userEmail: user.email ?? '',
+          orderId: paymentId,
+          transactionId: `mock_${paymentId}`,
+          amount: subscription.price,
+        });
+      }
+
+      await refetch();
+      showToast({ message: '결제가 완료되었습니다.', type: 'success' });
+    } catch (err) {
+      console.error('Failed to retry payment:', err);
+      showToast({
+        message:
+          err instanceof Error ? err.message : '결제 재시도에 실패했습니다.',
+        type: 'error',
+      });
+    } finally {
+      setIsRetryingPayment(false);
+    }
+  };
+
   const handleRegisterMockCard = async (standalone = false) => {
     setIsProcessing(true);
 
@@ -464,6 +557,7 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
 
       if (hasExistingPaidSubscription) {
         const isCanceled = !!subscription.canceledAt;
+        const currentPlan = SUBSCRIPTION_PLANS[currentPlanId];
         const isSamePlan = plan.id.toUpperCase() === currentPlanId;
 
         // 같은 플랜 재구독 (취소 예정 → 취소 철회)
@@ -540,6 +634,9 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
                 ? newBillingCycle
                 : undefined,
               remainingCredit: proration.remainingCredit,
+              previousPlanId: currentPlanId,
+              previousPlanName: currentPlan.name,
+              creditApplied: proration.totalCredit,
             });
           } else {
             // Mock 모드이거나 결제 금액이 0인 경우 플랜만 변경
@@ -559,6 +656,9 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
                 ? newBillingCycle
                 : undefined,
               remainingCredit: proration.remainingCredit,
+              previousPlanId: currentPlanId,
+              previousPlanName: currentPlan.name,
+              creditApplied: proration.totalCredit,
             });
           }
 
@@ -712,6 +812,8 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             isReactivating={isReactivating}
             onCancelScheduledChange={handleCancelScheduledChange}
             isCancelingScheduledChange={isCancelingScheduledChange}
+            onRetryPayment={handleRetryPayment}
+            isRetryingPayment={isRetryingPayment}
           />
         </TabsContent>
 
@@ -738,6 +840,11 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
             isPaidPlanDisabled={isPaidPlanDisabled}
             isCanceledAndPendingFree={
               !!subscription?.canceledAt && !subscription?.nextPlanId
+            }
+            scheduledPlanId={
+              subscription?.nextPlanId?.toUpperCase() as
+                | SubscriptionPlanId
+                | undefined
             }
             onReactivate={handleReactivateSubscription}
             isReactivating={isReactivating}

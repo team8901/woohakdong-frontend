@@ -25,4 +25,4 @@ crons = [
 ENVIRONMENT = "development"
 # 테스트 빌링 주기 (분) - 구독 갱신 시 연장되는 주기
 # 주의: 웹 앱의 NEXT_PUBLIC_TEST_BILLING_CYCLE_MINUTES와 동일하게 설정해야 함
-TEST_BILLING_CYCLE_MINUTES = "3"
+TEST_BILLING_CYCLE_MINUTES = "1"

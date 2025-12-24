@@ -19,6 +19,8 @@ type PlansTabProps = {
   isPaidPlanDisabled: boolean;
   /** 구독이 취소되어 만료 후 무료 플랜으로 전환 예정인지 */
   isCanceledAndPendingFree?: boolean;
+  /** 예약된 플랜 ID (다음 결제일에 변경 예정) */
+  scheduledPlanId?: SubscriptionPlanId;
   /** 구독 유지하기 (취소 철회) */
   onReactivate?: () => void;
   isReactivating?: boolean;
@@ -34,6 +36,7 @@ export const PlansTab = ({
   currentPlanId,
   isPaidPlanDisabled,
   isCanceledAndPendingFree,
+  scheduledPlanId,
   onReactivate,
   isReactivating,
   onOpenModal,
@@ -77,6 +80,10 @@ export const PlansTab = ({
           // 무료 플랜이고 취소된 구독이 만료 후 무료로 전환 예정
           const isPendingFree = isFreePlan && isCanceledAndPendingFree;
 
+          // 이 플랜으로 변경이 예약되어 있는지
+          const isScheduledPlan =
+            scheduledPlanId?.toUpperCase() === planId.toUpperCase();
+
           // 취소된 현재 플랜은 재구독 가능
           const canReactivate = isCurrentPlan && isCanceledAndPendingFree;
 
@@ -87,8 +94,10 @@ export const PlansTab = ({
           // 버튼 표시 조건:
           // - 현재 플랜이 아니고 무료 플랜 버튼 숨김이 아니면 표시
           // - 취소된 현재 플랜이면 표시 (재구독)
+          // - 예약된 플랜이면 버튼 숨김
           const showButton =
-            (!isCurrentPlan && !hideFreePlanButton) || canReactivate;
+            ((!isCurrentPlan && !hideFreePlanButton) || canReactivate) &&
+            !isScheduledPlan;
 
           return (
             <PlanCard
@@ -97,7 +106,7 @@ export const PlansTab = ({
               isYearly={isYearly}
               isCurrentPlan={isCurrentPlan}
               isComingSoon={isComingSoon || isDisabled || isReactivating}
-              isPendingPlan={isPendingFree}
+              isPendingPlan={isPendingFree || isScheduledPlan}
               canReactivate={canReactivate}
               actionLabel={canReactivate ? '구독 유지하기' : undefined}
               showActionButton={showButton}

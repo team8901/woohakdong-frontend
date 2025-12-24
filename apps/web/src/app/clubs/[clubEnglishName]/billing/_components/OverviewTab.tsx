@@ -25,6 +25,8 @@ type OverviewTabProps = {
   isReactivating?: boolean;
   onCancelScheduledChange?: () => void;
   isCancelingScheduledChange?: boolean;
+  onRetryPayment?: () => void;
+  isRetryingPayment?: boolean;
 };
 
 export const OverviewTab = ({
@@ -35,11 +37,15 @@ export const OverviewTab = ({
   isReactivating,
   onCancelScheduledChange,
   isCancelingScheduledChange,
+  onRetryPayment,
+  isRetryingPayment,
 }: OverviewTabProps) => {
   const currentPlan = SUBSCRIPTION_PLANS[currentPlanId] ?? SUBSCRIPTION_PLANS.FREE;
   const isPaidPlan = currentPlan.monthlyPrice > 0;
   // canceledAt이 있으면 취소 예정 (endDate까지 이용 가능)
   const isCanceled = !!subscription?.canceledAt;
+  // 결제 실패 상태
+  const isPaymentFailed = subscription?.status === 'payment_failed';
 
   // endDate 처리: Firestore Timestamp 또는 일반 객체 모두 지원
   const getTimestampSeconds = (
@@ -77,7 +83,9 @@ export const OverviewTab = ({
               {currentPlan.name} 플랜을 이용 중입니다.
             </CardDescription>
           </div>
-          {isCanceled ? (
+          {isPaymentFailed ? (
+            <Badge variant="destructive">결제 실패</Badge>
+          ) : isCanceled ? (
             <Badge variant="outline" className="border-orange-500 text-orange-600">
               취소 예정
             </Badge>
@@ -87,8 +95,39 @@ export const OverviewTab = ({
         </div>
       </CardHeader>
       <CardContent>
+        {/* 결제 실패 안내 */}
+        {isPaymentFailed && (
+          <Alert className="mb-4 border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950">
+            <AlertCircle className="size-4 text-red-600" />
+            <AlertDescription className="flex flex-col gap-2 text-red-800 dark:text-red-200">
+              <span>
+                <strong>결제에 실패했습니다.</strong>
+                {subscription?.lastPaymentError && (
+                  <span className="ml-1">({subscription.lastPaymentError})</span>
+                )}
+              </span>
+              <span className="text-sm">
+                결제수단을 확인하고 다시 시도해주세요. 재시도 횟수:{' '}
+                {subscription?.retryCount ?? 0}/3
+              </span>
+              <div className="flex gap-2">
+                {onRetryPayment && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="w-fit bg-red-600 hover:bg-red-700"
+                    onClick={onRetryPayment}
+                    disabled={isRetryingPayment}>
+                    {isRetryingPayment ? '결제 중...' : '결제 재시도'}
+                  </Button>
+                )}
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* 구독 취소 예정 안내 */}
-        {isCanceled && endDate && (
+        {isCanceled && endDate && !isPaymentFailed && (
           <Alert className="mb-4 border-orange-200 bg-orange-50 dark:border-orange-900 dark:bg-orange-950">
             <AlertCircle className="size-4 text-orange-600" />
             <AlertDescription className="flex flex-col gap-2 text-orange-800 dark:text-orange-200">
@@ -111,7 +150,7 @@ export const OverviewTab = ({
         )}
 
         {/* 예약된 플랜 변경 안내 */}
-        {hasScheduledChange && nextPlan && endDate && !isCanceled && (
+        {hasScheduledChange && nextPlan && endDate && !isCanceled && !isPaymentFailed && (
           <Alert className="mb-4">
             <ArrowRight className="size-4" />
             <AlertDescription className="flex flex-col gap-2">
@@ -134,7 +173,7 @@ export const OverviewTab = ({
         )}
 
         {/* 남은 크레딧 안내 */}
-        {hasCredit && !isCanceled && (
+        {hasCredit && !isCanceled && !isPaymentFailed && (
           <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
             <Wallet className="size-4 text-green-600" />
             <AlertDescription className="text-green-800 dark:text-green-200">
@@ -147,7 +186,7 @@ export const OverviewTab = ({
         )}
 
         {/* 취소 예정 + 크레딧 있을 때 환불 안내 */}
-        {hasCredit && isCanceled && (
+        {hasCredit && isCanceled && !isPaymentFailed && (
           <Alert className="mb-4 border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
             <Wallet className="size-4 text-amber-600" />
             <AlertDescription className="flex flex-col gap-2 text-amber-800 dark:text-amber-200">
@@ -198,8 +237,8 @@ export const OverviewTab = ({
           )}
         </div>
 
-        {/* 구독 취소 버튼 (유료 플랜 & 취소 안 된 경우만 표시) */}
-        {isPaidPlan && !isCanceled && (
+        {/* 구독 취소 버튼 (유료 플랜 & 취소/예약 변경 없고 & 결제 실패 아닌 경우만 표시) */}
+        {isPaidPlan && !isCanceled && !isPaymentFailed && !hasScheduledChange && (
           <>
             <Separator className="my-4" />
             <Button

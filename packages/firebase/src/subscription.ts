@@ -20,7 +20,12 @@ const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 const PAYMENTS_COLLECTION = 'payments';
 const BILLING_KEYS_COLLECTION = 'billingKeys';
 
-export type SubscriptionStatus = 'active' | 'canceled' | 'expired' | 'pending';
+export type SubscriptionStatus =
+  | 'active'
+  | 'canceled'
+  | 'expired'
+  | 'pending'
+  | 'payment_failed';
 
 export type BillingKey = {
   id: string;
@@ -70,7 +75,19 @@ export type Subscription = {
   nextPlanPrice?: number;
   // 빌링 주기 변경 시 남은 크레딧 (다음 결제에서 차감)
   credit?: number;
+  // 결제 실패 시 재시도 정보 (스케줄러에서 설정)
+  retryCount?: number;
+  lastPaymentError?: string;
 };
+
+export type PaymentRecordType =
+  | 'renewal' // 정기 결제 갱신
+  | 'plan_change' // 플랜 변경 (다운그레이드)
+  | 'upgrade' // 플랜 업그레이드
+  | 'billing_cycle_change' // 빌링 주기 변경
+  | 'downgrade_to_free' // 무료 플랜 다운그레이드
+  | 'subscription_canceled' // 구독 취소 만료
+  | 'credit_applied'; // 크레딧 적용
 
 export type PaymentRecord = {
   id: string;
@@ -85,6 +102,18 @@ export type PaymentRecord = {
   planName: string;
   status: 'success' | 'failed' | 'pending';
   createdAt: Timestamp;
+  // 결제 유형
+  type?: PaymentRecordType;
+  // 플랜 변경 시 이전 플랜 정보
+  previousPlanId?: string;
+  previousPlanName?: string;
+  // 크레딧 적용 금액
+  creditApplied?: number;
+  // 결제 완료 시간
+  paidAt?: string;
+  // 실패 시 에러 정보
+  errorCode?: string;
+  errorMessage?: string;
 };
 
 export type CreateSubscriptionInput = {
@@ -106,6 +135,42 @@ class SubscriptionError extends Error {
 }
 
 /**
+ * 테스트 빌링 주기 (분)
+ * - 환경변수 NEXT_PUBLIC_TEST_BILLING_CYCLE_MINUTES로 설정
+ * - 설정하지 않으면 null (일반 빌링 주기 사용)
+ */
+const getTestBillingCycleMinutes = (): number | null => {
+  const envValue = process.env.NEXT_PUBLIC_TEST_BILLING_CYCLE_MINUTES;
+
+  if (!envValue) return null;
+
+  const minutes = parseInt(envValue, 10);
+
+  return isNaN(minutes) ? null : minutes;
+};
+
+/**
+ * 구독 종료일 계산
+ * - 테스트 빌링 주기 환경변수가 설정되어 있으면 해당 분 후
+ * - 연간 결제: 1년 후
+ * - 월간 결제: 1개월 후
+ */
+const calculateEndDate = (isYearly: boolean): Date => {
+  const endDate = new Date();
+  const testCycleMinutes = getTestBillingCycleMinutes();
+
+  if (testCycleMinutes !== null) {
+    endDate.setTime(endDate.getTime() + testCycleMinutes * 60 * 1000);
+  } else if (isYearly) {
+    endDate.setFullYear(endDate.getFullYear() + 1);
+  } else {
+    endDate.setMonth(endDate.getMonth() + 1);
+  }
+
+  return endDate;
+};
+
+/**
  * 동아리 구독 정보 저장 및 결제 기록 생성 (유료 플랜 전용)
  * @param input - 구독 생성에 필요한 정보
  * @returns 생성된 구독 ID
@@ -115,10 +180,7 @@ export const createSubscription = async (
 ): Promise<string> => {
   try {
     const subscriptionId = `sub_${Date.now()}_${input.clubId}`;
-    const now = new Date();
-    const endDate = new Date(now);
-
-    endDate.setMonth(endDate.getMonth() + 1);
+    const endDate = calculateEndDate(false);
 
     // 구독 문서 생성
     const subscriptionRef = doc(
@@ -204,11 +266,12 @@ export const getActiveSubscription = async (
 
 /**
  * 동아리의 현재 구독 조회
- * - status가 'active'인 구독만 조회
+ * - status가 'active' 또는 'payment_failed'인 구독 조회
  * - canceledAt이 있으면 취소 예정이지만 endDate까지 이용 가능
  * 우선순위:
- * 1. 활성 유료 구독 (canceledAt 유무와 관계없이)
- * 2. 활성 무료 구독
+ * 1. 결제 실패 구독 (사용자에게 알림 표시 필요)
+ * 2. 활성 유료 구독 (canceledAt 유무와 관계없이)
+ * 3. 활성 무료 구독
  * @param clubId - 동아리 ID
  * @returns 구독 정보 또는 null
  */
@@ -218,29 +281,50 @@ export const getCurrentSubscription = async (
   try {
     const subscriptionsRef = collection(firebaseDb, SUBSCRIPTIONS_COLLECTION);
 
-    // 활성 구독만 조회
+    // 활성 구독 조회
     const activeQuery = query(
       subscriptionsRef,
       where('clubId', '==', clubId),
       where('status', '==', 'active'),
     );
 
-    const snapshot = await getDocs(activeQuery);
+    // 결제 실패 구독 조회
+    const failedQuery = query(
+      subscriptionsRef,
+      where('clubId', '==', clubId),
+      where('status', '==', 'payment_failed'),
+    );
 
-    if (snapshot.empty) {
+    const [activeSnapshot, failedSnapshot] = await Promise.all([
+      getDocs(activeQuery),
+      getDocs(failedQuery),
+    ]);
+
+    // 1. 결제 실패 구독 우선 (사용자에게 알림 표시 필요)
+    if (!failedSnapshot.empty) {
+      const failedDoc = failedSnapshot.docs[0];
+
+      if (failedDoc) {
+        return failedDoc.data() as Subscription;
+      }
+    }
+
+    if (activeSnapshot.empty) {
       return null;
     }
 
-    const subscriptions = snapshot.docs.map((doc) => doc.data() as Subscription);
+    const subscriptions = activeSnapshot.docs.map(
+      (doc) => doc.data() as Subscription,
+    );
 
-    // 1. 활성 유료 구독 우선 (canceledAt 유무와 관계없이 endDate까지 이용 가능)
+    // 2. 활성 유료 구독 (canceledAt 유무와 관계없이 endDate까지 이용 가능)
     const activePaid = subscriptions.find((sub) => sub.price > 0);
 
     if (activePaid) {
       return activePaid;
     }
 
-    // 2. 활성 무료 구독
+    // 3. 활성 무료 구독
     const activeFree = subscriptions.find((sub) => sub.price === 0);
 
     if (activeFree) {
@@ -771,16 +855,7 @@ export const createSubscriptionWithBillingKey = async (
 ): Promise<string> => {
   try {
     const subscriptionId = `sub_${Date.now()}_${input.clubId}`;
-    const now = new Date();
-    const endDate = new Date(now);
-
-    // 연간 결제면 12개월 후, 월간 결제면 1개월 후
-    if (input.isYearly) {
-      endDate.setFullYear(endDate.getFullYear() + 1);
-    } else {
-      endDate.setMonth(endDate.getMonth() + 1);
-    }
-
+    const endDate = calculateEndDate(input.isYearly);
     const billingCycle: BillingCycle = input.isYearly ? 'yearly' : 'monthly';
 
     // 구독 문서 생성
@@ -907,6 +982,11 @@ export type UpgradePlanInput = {
   newBillingCycle?: BillingCycle;
   /** 남은 크레딧 (다음 결제 시 적용) */
   remainingCredit?: number;
+  /** 이전 플랜 정보 (결제 기록용) */
+  previousPlanId?: string;
+  previousPlanName?: string;
+  /** 적용된 크레딧 금액 (결제 기록용) */
+  creditApplied?: number;
 };
 
 /**
@@ -914,6 +994,7 @@ export type UpgradePlanInput = {
  * - 구독 플랜을 즉시 변경
  * - 비례 정산된 금액으로 결제 기록 생성
  * - 빌링 주기 변경 시 새로운 주기로 startDate/endDate 갱신
+ * - 남은 크레딧은 다음 결제에서 자동 차감
  * @param input - 업그레이드에 필요한 정보
  */
 export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
@@ -941,25 +1022,19 @@ export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
 
     // 빌링 주기 변경 시 새로운 주기로 startDate/endDate 갱신
     if (input.newBillingCycle) {
-      const now = new Date();
-      const newEndDate = new Date(now);
-
-      if (input.newBillingCycle === 'yearly') {
-        newEndDate.setFullYear(newEndDate.getFullYear() + 1);
-      } else {
-        newEndDate.setMonth(newEndDate.getMonth() + 1);
-      }
+      const newEndDate = calculateEndDate(input.newBillingCycle === 'yearly');
 
       updateData.billingCycle = input.newBillingCycle;
       updateData.startDate = serverTimestamp();
       updateData.endDate = newEndDate;
+    }
 
-      // 남은 크레딧이 있으면 저장 (다음 결제 시 적용)
-      if (input.remainingCredit && input.remainingCredit > 0) {
-        updateData.credit = input.remainingCredit;
-      } else {
-        updateData.credit = deleteField();
-      }
+    // 남은 크레딧 처리 (빌링 주기 변경 여부와 관계없이)
+    if (input.remainingCredit && input.remainingCredit > 0) {
+      updateData.credit = input.remainingCredit;
+    } else {
+      // 크레딧이 사용되었거나 없으면 제거
+      updateData.credit = deleteField();
     }
 
     await updateDoc(subscriptionRef, updateData);
@@ -968,7 +1043,7 @@ export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
     const paymentId = `pay_${Date.now()}_${input.orderId.slice(-8)}`;
     const paymentRef = doc(firebaseDb, PAYMENTS_COLLECTION, paymentId);
 
-    await setDoc(paymentRef, {
+    const paymentRecord: Record<string, unknown> = {
       id: paymentId,
       subscriptionId: input.subscriptionId,
       clubId: input.clubId,
@@ -982,7 +1057,23 @@ export const upgradePlan = async (input: UpgradePlanInput): Promise<void> => {
       status: 'success',
       type: input.newBillingCycle ? 'billing_cycle_change' : 'upgrade',
       createdAt: serverTimestamp(),
-    });
+    };
+
+    // 이전 플랜 정보 추가
+    if (input.previousPlanId) {
+      paymentRecord.previousPlanId = input.previousPlanId;
+    }
+
+    if (input.previousPlanName) {
+      paymentRecord.previousPlanName = input.previousPlanName;
+    }
+
+    // 적용된 크레딧 정보 추가
+    if (input.creditApplied && input.creditApplied > 0) {
+      paymentRecord.creditApplied = input.creditApplied;
+    }
+
+    await setDoc(paymentRef, paymentRecord);
   } catch (error) {
     console.error('Failed to upgrade plan:', error);
 
@@ -1004,16 +1095,7 @@ export const createMockSubscription = async (
 ): Promise<string> => {
   try {
     const subscriptionId = `sub_${Date.now()}_${input.clubId}`;
-    const now = new Date();
-    const endDate = new Date(now);
-
-    // 연간 결제면 12개월 후, 월간 결제면 1개월 후
-    if (isYearly) {
-      endDate.setFullYear(endDate.getFullYear() + 1);
-    } else {
-      endDate.setMonth(endDate.getMonth() + 1);
-    }
-
+    const endDate = calculateEndDate(isYearly);
     const billingCycle: BillingCycle = isYearly ? 'yearly' : 'monthly';
 
     const subscriptionRef = doc(
@@ -1044,5 +1126,86 @@ export const createMockSubscription = async (
     console.error('Failed to create mock subscription:', error);
 
     throw new SubscriptionError('구독 생성 중 오류가 발생했습니다.');
+  }
+};
+
+export type RetryPaymentInput = {
+  subscriptionId: string;
+  clubId: number;
+  userId: string;
+  userEmail: string;
+  orderId: string;
+  transactionId: string;
+  amount: number;
+};
+
+/**
+ * 결제 실패 후 수동 재시도 성공 시 구독 상태 업데이트
+ * - 구독 상태를 'active'로 변경
+ * - retryCount 초기화
+ * - lastPaymentError 제거
+ * - 새로운 endDate 설정
+ * - 결제 기록 생성
+ * @param input - 재시도 결제 정보
+ */
+export const completeRetryPayment = async (
+  input: RetryPaymentInput,
+): Promise<void> => {
+  try {
+    const subscriptionRef = doc(
+      firebaseDb,
+      SUBSCRIPTIONS_COLLECTION,
+      input.subscriptionId,
+    );
+
+    // 현재 구독 정보 조회
+    const subscriptionSnap = await getDoc(subscriptionRef);
+
+    if (!subscriptionSnap.exists()) {
+      throw new SubscriptionError('구독을 찾을 수 없습니다.');
+    }
+
+    const subscription = subscriptionSnap.data() as Subscription;
+
+    // 새로운 endDate 계산
+    const isYearly = subscription.billingCycle === 'yearly';
+    const newEndDate = calculateEndDate(isYearly);
+
+    // 구독 상태 업데이트
+    await updateDoc(subscriptionRef, {
+      status: 'active',
+      retryCount: deleteField(),
+      lastPaymentError: deleteField(),
+      endDate: newEndDate,
+      updatedAt: serverTimestamp(),
+    });
+
+    // 결제 기록 생성
+    const paymentId = `pay_${Date.now()}_${input.orderId.slice(-8)}`;
+    const paymentRef = doc(firebaseDb, PAYMENTS_COLLECTION, paymentId);
+
+    await setDoc(paymentRef, {
+      id: paymentId,
+      subscriptionId: input.subscriptionId,
+      clubId: input.clubId,
+      userId: input.userId,
+      userEmail: input.userEmail,
+      orderId: input.orderId,
+      transactionId: input.transactionId,
+      amount: input.amount,
+      planId: subscription.planId,
+      planName: subscription.planName,
+      status: 'success',
+      type: 'renewal',
+      createdAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Failed to complete retry payment:', error);
+
+    if (error instanceof SubscriptionError) {
+      throw error;
+    }
+
+    throw new SubscriptionError('결제 재시도 처리 중 오류가 발생했습니다.');
   }
 };

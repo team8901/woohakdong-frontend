@@ -1,4 +1,7 @@
-import type { PaymentRecord } from '@workspace/firebase/subscription';
+import type {
+  PaymentRecord,
+  PaymentRecordType,
+} from '@workspace/firebase/subscription';
 import { Badge } from '@workspace/ui/components/badge';
 import {
   Card,
@@ -15,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@workspace/ui/components/table';
-import { Receipt } from 'lucide-react';
+import { ArrowRight, Receipt } from 'lucide-react';
 
 type PaymentHistoryTabProps = {
   paymentHistory: PaymentRecord[];
@@ -53,6 +56,28 @@ const getStatusBadge = (status: PaymentRecord['status']) => {
   }
 };
 
+const getTypeLabel = (type?: PaymentRecordType): string => {
+  switch (type) {
+    case 'renewal':
+      return '정기 결제';
+    case 'plan_change':
+      return '플랜 변경';
+    case 'upgrade':
+      return '업그레이드';
+    case 'billing_cycle_change':
+      return '결제 주기 변경';
+    case 'downgrade_to_free':
+      return '무료 전환';
+    case 'subscription_canceled':
+      return '구독 종료';
+    case 'credit_applied':
+      return '크레딧 적용';
+
+    default:
+      return '결제';
+  }
+};
+
 export const PaymentHistoryTab = ({
   paymentHistory,
 }: PaymentHistoryTabProps) => {
@@ -78,6 +103,7 @@ export const PaymentHistoryTab = ({
             <TableHeader>
               <TableRow>
                 <TableHead>결제일</TableHead>
+                <TableHead>유형</TableHead>
                 <TableHead>플랜</TableHead>
                 <TableHead className="text-right">금액</TableHead>
                 <TableHead className="text-center">상태</TableHead>
@@ -97,11 +123,33 @@ export const PaymentHistoryTab = ({
                         })
                       : '-'}
                   </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {getTypeLabel(record.type)}
+                  </TableCell>
                   <TableCell className="font-medium">
-                    {record.planName}
+                    {record.previousPlanName ? (
+                      <span className="flex items-center gap-1">
+                        <span className="text-muted-foreground">
+                          {record.previousPlanName}
+                        </span>
+                        <ArrowRight className="text-muted-foreground size-3" />
+                        <span>{record.planName}</span>
+                      </span>
+                    ) : (
+                      record.planName
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
-                    {record.amount.toLocaleString()}원
+                    {record.amount === 0 ? (
+                      <span className="text-muted-foreground">-</span>
+                    ) : (
+                      `${record.amount.toLocaleString()}원`
+                    )}
+                    {record.creditApplied && record.creditApplied > 0 && (
+                      <div className="text-muted-foreground text-xs">
+                        (크레딧 {record.creditApplied.toLocaleString()}원 적용)
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="text-center">
                     {getStatusBadge(record.status)}
