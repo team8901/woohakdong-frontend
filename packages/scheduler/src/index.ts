@@ -265,8 +265,15 @@ async function updateFirestoreDocument(
     Object.entries(data).map(([k, v]) => [k, convertToFirestoreValue(v)]),
   );
 
+  // URLSearchParams로 updateMask 쿼리 파라미터 올바르게 구성
+  const params = new URLSearchParams();
+
+  for (const field of Object.keys(data)) {
+    params.append('updateMask.fieldPaths', field);
+  }
+
   await fetch(
-    `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collection}/${docId}?updateMask.fieldPaths=${Object.keys(data).join('&updateMask.fieldPaths=')}`,
+    `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collection}/${docId}?${params.toString()}`,
     {
       method: 'PATCH',
       headers: {
