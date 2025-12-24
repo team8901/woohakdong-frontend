@@ -60,7 +60,7 @@ export const PaymentMethodsTab = ({
                   <div className="flex items-center gap-3">
                     <PaymentMethodIcon
                       cardCompany={billingKey.cardCompany}
-                      className="size-8"
+                      size={32}
                     />
                     <div>
                       <p className="font-medium">{billingKey.cardCompany}</p>

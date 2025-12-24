@@ -259,7 +259,7 @@ export const ConfirmStep = ({
                 <div className="flex items-center gap-3">
                   <PaymentMethodIcon
                     cardCompany={selectedBillingKey.cardCompany}
-                    className="size-4"
+                    size={16}
                   />
                   <div>
                     <p className="font-medium">
@@ -291,7 +291,7 @@ export const ConfirmStep = ({
                         }}>
                         <PaymentMethodIcon
                           cardCompany={key.cardCompany}
-                          className="size-4"
+                          size={16}
                         />
                         <div className="flex-1">
                           <p className="text-sm font-medium">

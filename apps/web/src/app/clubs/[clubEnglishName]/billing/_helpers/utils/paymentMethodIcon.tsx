@@ -3,7 +3,9 @@ import Image from 'next/image';
 
 type PaymentMethodIconProps = {
   cardCompany: string;
-  /** Tailwind size class (e.g., 'size-4', 'size-6') */
+  /** Icon size in pixels */
+  size?: number;
+  /** Additional CSS classes */
   className?: string;
 };
 
@@ -14,15 +16,12 @@ type PaymentMethodIconProps = {
  */
 export const PaymentMethodIcon = ({
   cardCompany,
-  className = 'size-3',
+  size = 16,
+  className,
 }: PaymentMethodIconProps) => {
   const lowerName = cardCompany.toLowerCase();
 
   if (lowerName.includes('카카오') || lowerName.includes('kakao')) {
-    // className에서 size 값 추출 (예: 'size-4' -> 16, 'size-6' -> 24)
-    const sizeMatch = className?.match(/size-(\d+)/);
-    const size = sizeMatch?.[1] ? parseInt(sizeMatch[1], 10) * 4 : 12;
-
     return (
       <Image
         src="/icons/kakaopay.svg"
@@ -34,5 +33,10 @@ export const PaymentMethodIcon = ({
     );
   }
 
-  return <CreditCard className={`text-blue-500 ${className}`} />;
+  return (
+    <CreditCard
+      size={size}
+      className={className ? `text-blue-500 ${className}` : 'text-blue-500'}
+    />
+  );
 };

@@ -46,7 +46,8 @@ export const SelectCardStep = ({
             disabled={isProcessing}>
             <PaymentMethodIcon
               cardCompany={method.icon}
-              className="mr-3 size-5"
+              size={20}
+              className="mr-3"
             />
             <div className="text-left">
               <p className="font-medium">{method.label}</p>
