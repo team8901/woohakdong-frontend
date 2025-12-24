@@ -8,7 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@workspace/ui/components/card';
-import { CreditCard, Loader2, ShoppingBag, Star, Trash2 } from 'lucide-react';
+import { CreditCard, Loader2, Star, Trash2 } from 'lucide-react';
+
+import { PaymentMethodIcon } from '../_helpers/utils/paymentMethodIcon';
 
 type PaymentMethodsTabProps = {
   billingKeys: BillingKey[];
@@ -19,20 +21,6 @@ type PaymentMethodsTabProps = {
   onOpenRegisterModal: () => void;
   onDeleteCard: (billingKeyId: string) => void;
   onSetDefaultCard: (billingKeyId: string) => void;
-};
-
-const getPaymentMethodIcon = (cardCompany: string) => {
-  const lowerName = cardCompany.toLowerCase();
-
-  if (lowerName.includes('카카오')) {
-    return <CreditCard className="text-muted-foreground size-8" />;
-  }
-
-  if (lowerName.includes('네이버')) {
-    return <ShoppingBag className="text-muted-foreground size-8" />;
-  }
-
-  return <CreditCard className="text-muted-foreground size-8" />;
 };
 
 export const PaymentMethodsTab = ({
@@ -70,7 +58,10 @@ export const PaymentMethodsTab = ({
                     isDefault ? 'border-primary bg-primary/5' : ''
                   }`}>
                   <div className="flex items-center gap-3">
-                    {getPaymentMethodIcon(billingKey.cardCompany)}
+                    <PaymentMethodIcon
+                      cardCompany={billingKey.cardCompany}
+                      className="size-8"
+                    />
                     <div>
                       <p className="font-medium">{billingKey.cardCompany}</p>
                       <p className="text-muted-foreground text-sm">

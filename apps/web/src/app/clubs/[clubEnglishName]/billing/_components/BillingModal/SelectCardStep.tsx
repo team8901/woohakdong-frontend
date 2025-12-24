@@ -9,7 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@workspace/ui/components/dialog';
-import { CreditCard, MessageCircle, Wallet } from 'lucide-react';
+import { Wallet } from 'lucide-react';
+
+import { PaymentMethodIcon } from '../../_helpers/utils/paymentMethodIcon';
 
 type SelectCardStepProps = {
   isMockMode: boolean;
@@ -17,18 +19,6 @@ type SelectCardStepProps = {
   onRegisterPaymentMethod: (methodId: PaymentMethodId) => void;
   onRegisterMockCard: () => void;
   onClose: () => void;
-};
-
-const getPaymentMethodIcon = (icon: string) => {
-  switch (icon) {
-    case 'kakaopay':
-      return <MessageCircle className="mr-3 size-5 text-yellow-500" />;
-    case 'credit-card':
-      return <CreditCard className="mr-3 size-5 text-blue-500" />;
-
-    default:
-      return <CreditCard className="mr-3 size-5" />;
-  }
 };
 
 export const SelectCardStep = ({
@@ -54,7 +44,10 @@ export const SelectCardStep = ({
             className="hover:border-primary h-auto w-full justify-start p-4 transition-colors"
             onClick={() => onRegisterPaymentMethod(method.id)}
             disabled={isProcessing}>
-            {getPaymentMethodIcon(method.icon)}
+            <PaymentMethodIcon
+              cardCompany={method.icon}
+              className="mr-3 size-5"
+            />
             <div className="text-left">
               <p className="font-medium">{method.label}</p>
               <p className="text-muted-foreground text-sm">

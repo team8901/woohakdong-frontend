@@ -21,11 +21,10 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
-  CreditCard,
-  MessageCircle,
   Plus,
-  ShoppingBag,
 } from 'lucide-react';
+
+import { PaymentMethodIcon } from '../../_helpers/utils/paymentMethodIcon';
 
 type ConfirmStepProps = {
   selectedPlan: SubscriptionPlanId;
@@ -41,20 +40,6 @@ type ConfirmStepProps = {
   onPayment: () => void;
   onRegisterCard: () => void;
   onClose: () => void;
-};
-
-const getPaymentMethodIcon = (cardCompany: string) => {
-  const lowerName = cardCompany.toLowerCase();
-
-  if (lowerName.includes('카카오')) {
-    return <MessageCircle className="size-4 text-yellow-500" />;
-  }
-
-  if (lowerName.includes('네이버')) {
-    return <ShoppingBag className="size-4 text-green-500" />;
-  }
-
-  return <CreditCard className="size-4 text-blue-500" />;
 };
 
 export const ConfirmStep = ({
@@ -272,7 +257,10 @@ export const ConfirmStep = ({
               <>
                 {/* 선택된 카드 표시 */}
                 <div className="flex items-center gap-3">
-                  {getPaymentMethodIcon(selectedBillingKey.cardCompany)}
+                  <PaymentMethodIcon
+                    cardCompany={selectedBillingKey.cardCompany}
+                    className="size-4"
+                  />
                   <div>
                     <p className="font-medium">
                       {selectedBillingKey.cardCompany}
@@ -301,7 +289,10 @@ export const ConfirmStep = ({
                           onSelectBillingKey(key);
                           setIsCardListOpen(false);
                         }}>
-                        {getPaymentMethodIcon(key.cardCompany)}
+                        <PaymentMethodIcon
+                          cardCompany={key.cardCompany}
+                          className="size-4"
+                        />
                         <div className="flex-1">
                           <p className="text-sm font-medium">
                             {key.cardCompany}
