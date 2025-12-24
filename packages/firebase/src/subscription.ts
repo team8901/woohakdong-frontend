@@ -546,10 +546,34 @@ export const getDefaultBillingKey = async (
 
 /**
  * 빌링키 삭제 (카드 삭제)
+ * - 활성 유료 구독이 있고 마지막 결제수단인 경우 삭제 불가
  * @param billingKeyId - 빌링키 문서 ID
+ * @param clubId - 동아리 ID (마지막 결제수단 검증용)
  */
-export const deleteBillingKey = async (billingKeyId: string): Promise<void> => {
+export const deleteBillingKey = async (
+  billingKeyId: string,
+  clubId: number,
+): Promise<void> => {
   try {
+    // 활성 유료 구독 확인
+    const activeSubscription = await getActiveSubscription(clubId);
+    const hasPaidSubscription =
+      activeSubscription && activeSubscription.price > 0;
+
+    if (hasPaidSubscription) {
+      // 유효한 빌링키 개수 확인 (billingKey가 비어있지 않은 것만)
+      const billingKeys = await getBillingKeys(clubId);
+      const validBillingKeys = billingKeys.filter(
+        (key) => key.billingKey && key.billingKey.length > 0,
+      );
+
+      if (validBillingKeys.length <= 1) {
+        throw new SubscriptionError(
+          '활성 구독이 있어 마지막 결제수단을 삭제할 수 없습니다. 구독을 취소하거나 다른 결제수단을 먼저 등록해주세요.',
+        );
+      }
+    }
+
     const billingKeyRef = doc(
       firebaseDb,
       BILLING_KEYS_COLLECTION,
@@ -564,6 +588,10 @@ export const deleteBillingKey = async (billingKeyId: string): Promise<void> => {
     });
   } catch (error) {
     console.error('Failed to delete billing key:', error);
+
+    if (error instanceof SubscriptionError) {
+      throw error;
+    }
 
     throw new SubscriptionError('카드 삭제 중 오류가 발생했습니다.');
   }

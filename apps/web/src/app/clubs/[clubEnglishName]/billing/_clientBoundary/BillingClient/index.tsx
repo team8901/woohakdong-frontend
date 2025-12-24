@@ -196,12 +196,16 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     setDeletingCardId(billingKeyId);
 
     try {
-      await deleteBillingKey(billingKeyId);
+      await deleteBillingKey(billingKeyId, clubId);
       await refetch();
       showToast({ message: '결제수단이 삭제되었습니다.', type: 'success' });
     } catch (err) {
       console.error('Failed to delete card:', err);
-      showToast({ message: '결제수단 삭제에 실패했습니다.', type: 'error' });
+
+      const message =
+        err instanceof Error ? err.message : '결제수단 삭제에 실패했습니다.';
+
+      showToast({ message, type: 'error' });
     } finally {
       setDeletingCardId(null);
     }
