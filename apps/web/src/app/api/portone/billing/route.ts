@@ -41,13 +41,6 @@ export async function POST(request: Request) {
     const { billingKey, paymentId, orderName, amount, currency, customer } =
       body;
 
-    console.log('[PortOne Billing] Request received:', {
-      billingKey: billingKey ? `${billingKey.slice(0, 15)}...` : 'missing',
-      paymentId,
-      orderName,
-      amount,
-    });
-
     if (!billingKey || !paymentId || !orderName || !amount) {
       console.error('[PortOne Billing] Missing required parameters');
 
@@ -80,8 +73,6 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
-
-    console.log('[PortOne Billing] Requesting billing payment...');
 
     // 포트원 빌링키 결제 API 호출
     const response = await fetch(
@@ -131,11 +122,6 @@ export async function POST(request: Request) {
 
     const data: PortoneBillingResponse = JSON.parse(responseText);
 
-    console.log('[PortOne Billing] Response:', {
-      paymentId: data.paymentId,
-      status: data.status,
-    });
-
     if (!response.ok) {
       console.error('[PortOne Billing] Payment failed:', data);
 
@@ -148,8 +134,6 @@ export async function POST(request: Request) {
         { status: response.status },
       );
     }
-
-    console.log('[PortOne Billing] Payment successful:', data.paymentId);
 
     return NextResponse.json({
       paymentId: data.paymentId,

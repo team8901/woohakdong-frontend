@@ -87,11 +87,7 @@ export const usePortoneBilling = (): UsePortoneBillingReturn => {
             : undefined,
         };
 
-        console.log('[PortOne] requestIssueBillingKey params:', requestParams);
-
         const response = await PortOne.requestIssueBillingKey(requestParams);
-
-        console.log('[PortOne] requestIssueBillingKey response:', response);
 
         if (!response) {
           throw new Error('빌링키 발급 응답이 없습니다.');
