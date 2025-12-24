@@ -110,17 +110,6 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
     setIsMockMode(process.env.NEXT_PUBLIC_IS_MOCK === 'true');
   }, []);
 
-  // 카드 등록 후 selectedBillingKeyForPayment 동기화
-  useEffect(() => {
-    if (
-      isModalOpen &&
-      selectedBillingKeyForPayment === null &&
-      defaultBillingKey
-    ) {
-      setSelectedBillingKeyForPayment(defaultBillingKey);
-    }
-  }, [isModalOpen, defaultBillingKey, selectedBillingKeyForPayment]);
-
   const rawPlanId = subscription?.planId?.toUpperCase() as
     | SubscriptionPlanId
     | undefined;
