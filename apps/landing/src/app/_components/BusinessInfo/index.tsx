@@ -6,7 +6,8 @@ export const BusinessInfo = () => {
     <div className="text-muted-foreground text-center text-xs leading-relaxed md:text-left">
       <p>
         상호명: {BUSINESS_INFO.companyName} | 대표자: {BUSINESS_INFO.ceoName} |
-        사업자등록번호: {BUSINESS_INFO.registrationNumber}
+        사업자등록번호: {BUSINESS_INFO.registrationNumber} | 통신판매업신고번호:{' '}
+        {BUSINESS_INFO.ecommerceRegistration}
       </p>
       <p className="mt-1">주소: {BUSINESS_INFO.address}</p>
       <p className="mt-1">고객문의: {EXTERNAL_LINKS.SUPPORT_EMAIL}</p>
