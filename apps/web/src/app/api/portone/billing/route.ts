@@ -1,7 +1,7 @@
 /**
  * 포트원 빌링키 결제 API
  * 빌링키를 사용하여 정기결제를 승인합니다.
- * @see https://developers.portone.io/
+ * @see https://developers.portone.io/api/rest-v2/billingKey.payWithBillingKey
  */
 import { NextResponse } from 'next/server';
 
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
           customer: customer
             ? {
                 id: customer.id,
-                ...(customer.name && { name: customer.name }),
+                ...(customer.name && { name: { full: customer.name } }),
                 email: customer.email,
                 phoneNumber: customer.phoneNumber,
               }
