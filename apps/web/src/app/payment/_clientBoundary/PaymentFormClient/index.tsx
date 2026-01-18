@@ -1,3 +1,8 @@
+/**
+ * 결제 폼 클라이언트 컴포넌트
+ * 포트원을 사용한 일회성 결제
+ * @see https://developers.portone.io/
+ */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -19,7 +24,8 @@ import {
 import { AlertCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
-import { usePaymentWidget } from '../../_helpers/hooks/usePaymentWidget';
+import { DEFAULT_BILLING_CHANNEL } from '../../_helpers/constants/portone';
+import { usePortone } from '../../_helpers/hooks/usePortone';
 import { PlanCardClient } from '../PlanCardClient';
 
 type PaymentFormClientProps = {
@@ -28,8 +34,8 @@ type PaymentFormClientProps = {
   clubEnglishName: string;
 };
 
-// TODO: [사업자등록 후] 토스페이먼츠 키 발급 후 isMockMode 조건 제거
 const isMockMode = process.env.NEXT_PUBLIC_IS_MOCK === 'true';
+const isPortoneEnabled = !!process.env.NEXT_PUBLIC_PORTONE_STORE_ID;
 
 export const PaymentFormClient = ({
   initialPlan = 'STANDARD',
@@ -38,40 +44,34 @@ export const PaymentFormClient = ({
 }: PaymentFormClientProps) => {
   const [selectedPlan, setSelectedPlan] =
     useState<SubscriptionPlanId>(initialPlan);
-  const [customerKey] = useState(() => uuidv4());
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const { renderPaymentMethods, requestPayment, isReady } =
-    usePaymentWidget(customerKey);
+  const { requestPayment, isReady } = usePortone();
 
   const plan = SUBSCRIPTION_PLANS[selectedPlan];
-  const isPaidPlan = plan.basePrice > 0;
-  // Mock 환경에서만 결제 플로우 테스트 가능, 그 외 환경은 "준비 중"
-  const isPaymentDisabled = !isMockMode && isPaidPlan;
+  const isPaidPlan = plan.monthlyPrice > 0;
+  // Mock 환경이 아니고 포트원 설정이 없으면 결제 비활성화
+  const isPaymentDisabled = !isMockMode && !isPortoneEnabled && isPaidPlan;
+
+  const getPaymentButtonText = (isMock: boolean) => {
+    if (isLoggingIn) return '로그인 중...';
+
+    if (!isMock && isProcessing) return '결제 처리 중...';
+
+    if (!isLoggedIn) return '로그인하고 결제하기';
+
+    const priceText = `${plan.monthlyPrice.toLocaleString()}원 결제하기`;
+
+    return isMock ? `${priceText} (Mock)` : priceText;
+  };
 
   useEffect(() => {
     const user = getCurrentUser();
 
     setIsLoggedIn(!!user);
   }, []);
-
-  useEffect(() => {
-    if (isReady && isPaidPlan && isLoggedIn && !isPaymentDisabled) {
-      renderPaymentMethods('#payment-methods', {
-        value: plan.basePrice,
-        currency: 'KRW',
-      });
-    }
-  }, [
-    isReady,
-    selectedPlan,
-    renderPaymentMethods,
-    isPaidPlan,
-    isLoggedIn,
-    plan.basePrice,
-    isPaymentDisabled,
-  ]);
 
   const handleLogin = async () => {
     setIsLoggingIn(true);
@@ -97,24 +97,43 @@ export const PaymentFormClient = ({
       return;
     }
 
-    const orderId = `ORDER_${Date.now()}_${uuidv4().slice(0, 8)}`;
-
-    const successParams = new URLSearchParams({
-      plan: plan.id,
-      planName: plan.name,
-      clubId: String(clubId),
-      clubEnglishName,
-    });
+    setIsProcessing(true);
 
     try {
-      await requestPayment({
+      const user = getCurrentUser();
+      const orderId = `ORDER_${Date.now()}_${uuidv4().slice(0, 8)}`;
+
+      const result = await requestPayment({
+        channelKey: DEFAULT_BILLING_CHANNEL,
         orderId,
         orderName: `우학동 ${plan.name} 플랜 구독`,
-        successUrl: `${window.location.origin}/payment/success?${successParams.toString()}`,
-        failUrl: `${window.location.origin}/payment/fail`,
+        amount: plan.monthlyPrice,
+        customer: user
+          ? {
+              customerId: user.uid,
+              fullName: user.displayName ?? undefined,
+              email: user.email ?? undefined,
+            }
+          : undefined,
       });
+
+      // 결제 성공 시 success 페이지로 이동
+      const successParams = new URLSearchParams({
+        orderId: result.paymentId,
+        transactionId: result.txId ?? '',
+        amount: String(plan.monthlyPrice),
+        plan: plan.id,
+        planName: plan.name,
+        clubId: String(clubId),
+        clubEnglishName,
+      });
+
+      window.location.href = `/payment/success?${successParams.toString()}`;
     } catch (error) {
       console.error('Payment request failed:', error);
+      // 사용자 취소는 에러 메시지 표시하지 않음
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -125,14 +144,14 @@ export const PaymentFormClient = ({
       return;
     }
 
-    // Mock 결제: 실제 토스페이먼츠 호출 없이 success 페이지로 이동
+    // Mock 결제: 실제 포트원 호출 없이 success 페이지로 이동
     const orderId = `MOCK_ORDER_${Date.now()}_${uuidv4().slice(0, 8)}`;
-    const paymentKey = `MOCK_PAYMENT_KEY_${uuidv4()}`;
+    const transactionId = `MOCK_TX_${uuidv4()}`;
 
     const successParams = new URLSearchParams({
       orderId,
-      paymentKey,
-      amount: String(plan.basePrice),
+      transactionId,
+      amount: String(plan.monthlyPrice),
       plan: plan.id,
       planName: plan.name,
       clubId: String(clubId),
@@ -175,14 +194,14 @@ export const PaymentFormClient = ({
               {plan.name} 플랜 기본금
             </span>
             <span className="font-medium">
-              {plan.basePrice.toLocaleString()}원
+              {plan.monthlyPrice.toLocaleString()}원
             </span>
           </div>
           <Separator />
           <div className="flex justify-between">
             <span className="text-lg font-semibold">총 결제 금액</span>
             <span className="text-primary text-lg font-bold">
-              {plan.basePrice.toLocaleString()}원
+              {plan.monthlyPrice.toLocaleString()}원
             </span>
           </div>
         </CardContent>
@@ -215,15 +234,6 @@ export const PaymentFormClient = ({
         </Card>
       )}
 
-      {isPaidPlan && isLoggedIn && !isPaymentDisabled && !isMockMode && (
-        <div>
-          <h2 className="text-foreground mb-4 text-lg font-semibold">
-            결제 수단
-          </h2>
-          <div id="payment-methods" className="min-h-[300px]" />
-        </div>
-      )}
-
       {isMockMode && (
         <Badge variant="outline" className="w-fit">
           Mock 환경
@@ -241,23 +251,15 @@ export const PaymentFormClient = ({
             className="w-full"
             size="lg"
             disabled={isLoggingIn}>
-            {isLoggingIn
-              ? '로그인 중...'
-              : isLoggedIn
-                ? `${plan.basePrice.toLocaleString()}원 결제하기 (Mock)`
-                : '로그인하고 결제하기'}
+            {getPaymentButtonText(true)}
           </Button>
         ) : (
           <Button
             onClick={isLoggedIn ? handlePayment : handleLogin}
             className="w-full"
             size="lg"
-            disabled={isLoggingIn || (isLoggedIn && !isReady)}>
-            {isLoggingIn
-              ? '로그인 중...'
-              : isLoggedIn
-                ? `${plan.basePrice.toLocaleString()}원 결제하기`
-                : '로그인하고 결제하기'}
+            disabled={isLoggingIn || isProcessing || (isLoggedIn && !isReady)}>
+            {getPaymentButtonText(false)}
           </Button>
         )
       ) : (

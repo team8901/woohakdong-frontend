@@ -1,5 +1,5 @@
-import { SUPPORT_MAIL } from '@/app/_helpers/constants/service';
 import { FAQ_ITEMS } from '@workspace/ui/constants/faq';
+import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 
 export const FaqSection = () => {
   return (
@@ -24,9 +24,9 @@ export const FaqSection = () => {
           <p className="text-muted-foreground text-sm">
             더 궁금한 점이 있으신가요?{' '}
             <a
-              href={`mailto:${SUPPORT_MAIL}`}
+              href={`mailto:${EXTERNAL_LINKS.SUPPORT_EMAIL}`}
               className="text-primary hover:underline">
-              {SUPPORT_MAIL}
+              {EXTERNAL_LINKS.SUPPORT_EMAIL}
             </a>
             으로 문의해 주세요.
           </p>

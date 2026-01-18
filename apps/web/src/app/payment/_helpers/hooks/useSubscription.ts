@@ -5,8 +5,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { onAuthStateChange } from '@workspace/firebase/auth';
 import {
   type BillingKey,
-  getActiveSubscription,
-  getDefaultBillingKey,
+  getBillingKeys,
+  getCurrentSubscription,
   getPaymentHistory,
   type PaymentRecord,
   type Subscription,
@@ -16,13 +16,20 @@ type UseSubscriptionProps = {
   clubId: number;
 };
 
+type SubscriptionData = {
+  subscription: Subscription | null;
+  paymentHistory: PaymentRecord[];
+  billingKeys: BillingKey[];
+};
+
 type UseSubscriptionReturn = {
   subscription: Subscription | null;
   paymentHistory: PaymentRecord[];
+  billingKeys: BillingKey[];
   defaultBillingKey: BillingKey | null;
   isLoading: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
+  refetch: () => Promise<SubscriptionData | null>;
 };
 
 /**
@@ -35,38 +42,51 @@ export const useSubscription = ({
 }: UseSubscriptionProps): UseSubscriptionReturn => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [paymentHistory, setPaymentHistory] = useState<PaymentRecord[]>([]);
-  const [defaultBillingKey, setDefaultBillingKey] = useState<BillingKey | null>(
-    null,
-  );
+  const [billingKeys, setBillingKeys] = useState<BillingKey[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isFetchedRef = useRef(false);
 
-  const fetchSubscriptionData = useCallback(async (id: number) => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const fetchSubscriptionData = useCallback(
+    async (id: number): Promise<SubscriptionData | null> => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      const [subscriptionData, payments, billingKey] = await Promise.all([
-        getActiveSubscription(id),
-        getPaymentHistory(id),
-        getDefaultBillingKey(id),
-      ]);
+        const [subscriptionData, payments, keys] = await Promise.all([
+          getCurrentSubscription(id),
+          getPaymentHistory(id),
+          getBillingKeys(id),
+        ]);
 
-      setSubscription(subscriptionData);
-      setPaymentHistory(payments);
-      setDefaultBillingKey(billingKey);
-    } catch (err) {
-      console.error('Failed to fetch subscription data:', err);
-      setError('구독 정보를 불러오는데 실패했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        // 삭제된 카드(billingKey가 비어있는) 필터링
+        const activeKeys = keys.filter((key) => key.billingKey);
+
+        setSubscription(subscriptionData);
+        setPaymentHistory(payments);
+        setBillingKeys(activeKeys);
+
+        return {
+          subscription: subscriptionData,
+          paymentHistory: payments,
+          billingKeys: activeKeys,
+        };
+      } catch (err) {
+        console.error('Failed to fetch subscription data:', err);
+        setError('구독 정보를 불러오는데 실패했습니다.');
+
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
   const refetch = useCallback(async () => {
     isFetchedRef.current = false;
-    await fetchSubscriptionData(clubId);
+
+    return await fetchSubscriptionData(clubId);
   }, [fetchSubscriptionData, clubId]);
 
   useEffect(() => {
@@ -84,7 +104,7 @@ export const useSubscription = ({
         // 로그인되지 않은 경우 구독 없음으로 처리
         setSubscription(null);
         setPaymentHistory([]);
-        setDefaultBillingKey(null);
+        setBillingKeys([]);
         setIsLoading(false);
       }
     });
@@ -95,9 +115,13 @@ export const useSubscription = ({
     };
   }, [clubId, fetchSubscriptionData]);
 
+  // 기본 결제수단 계산
+  const defaultBillingKey = billingKeys.find((key) => key.isDefault) ?? null;
+
   return {
     subscription,
     paymentHistory,
+    billingKeys,
     defaultBillingKey,
     isLoading,
     error,

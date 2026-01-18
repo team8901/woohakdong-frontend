@@ -17,12 +17,11 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@portone/browser-sdk": "^0.0.11",
     "@hookform/resolvers": "^5.2.1",
     "@tanstack/react-query": "^5.84.2",
     "@tanstack/react-query-devtools": "^5.84.2",
     "@tanstack/react-table": "^8.21.3",
-    "@tosspayments/payment-sdk": "^1.9.2",
-    "@tosspayments/payment-widget-sdk": "^0.12.1",
     "@workspace/amplitude": "workspace:*",
     "@workspace/api": "workspace:*",
     "@workspace/firebase": "workspace:*",

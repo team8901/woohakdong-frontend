@@ -1,3 +1,5 @@
+import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
+
 import { GoogleLoginButtonClient } from '../../_clientBoundary/GoogleLoginButtonClient';
 
 export const LoginPanel = () => {
@@ -18,8 +20,21 @@ export const LoginPanel = () => {
       </div>
       <div className="after:border-border relative after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t"></div>
       <div className="text-muted-foreground *:[a]:underline *:[a]:underline-offset-4 text-balance text-center text-xs">
-        로그인 시 <a href="#">이용약관</a>과 <a href="#">개인정보 처리방침</a>에
-        동의한 것으로 간주됩니다.
+        로그인 시{' '}
+        <a
+          href={EXTERNAL_LINKS.TERMS_OF_SERVICE}
+          target="_blank"
+          rel="noopener noreferrer">
+          이용약관
+        </a>
+        과{' '}
+        <a
+          href={EXTERNAL_LINKS.PRIVACY_POLICY}
+          target="_blank"
+          rel="noopener noreferrer">
+          개인정보 처리방침
+        </a>
+        에 동의한 것으로 간주됩니다.
       </div>
     </div>
   );

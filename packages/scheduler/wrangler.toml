@@ -1,0 +1,26 @@
+# Cloudflare Workers 정기결제 스케줄러
+# @see https://developers.cloudflare.com/workers/
+
+name = "woohakdong-scheduler"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+
+# Cron Triggers (KST = UTC+9)
+# @see https://developers.cloudflare.com/workers/configuration/cron-triggers/
+[triggers]
+crons = [
+  # 매일 오전 9시 (KST) = 자정 (UTC) - 구독 갱신 결제
+  "0 0 * * *",
+  # 매일 오후 2시 (KST) = 오전 5시 (UTC) - 결제 실패 재시도
+  "0 5 * * *",
+  # 매주 월요일 오전 3시 (KST) = 일요일 오후 6시 (UTC) - 만료 구독 정리
+  "0 18 * * SUN"
+]
+
+# 환경 변수 설정 방법 (README.md 참고)
+# pnpm wrangler secret put PORTONE_API_SECRET
+# pnpm wrangler secret put FIREBASE_SERVICE_ACCOUNT_KEY
+# pnpm wrangler secret put FIREBASE_PROJECT_ID
+
+[vars]
+ENVIRONMENT = "production"

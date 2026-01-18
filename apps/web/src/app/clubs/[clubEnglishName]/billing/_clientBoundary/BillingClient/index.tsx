@@ -2,30 +2,51 @@
 
 import { useEffect, useState } from 'react';
 
+import { showToast } from '@/_shared/helpers/utils/showToast';
+import {
+  BILLING_PAYMENT_METHODS,
+  DEFAULT_BILLING_CHANNEL,
+  type PaymentMethodId,
+  PORTONE_STORE_ID,
+} from '@/app/payment/_helpers/constants/portone';
+import { usePortoneBilling } from '@/app/payment/_helpers/hooks/usePortoneBilling';
 import { useSubscription } from '@/app/payment/_helpers/hooks/useSubscription';
+import {
+  calculateProration,
+  type ProrationResult,
+} from '@/app/payment/_helpers/utils/proration';
+import { useGetMyProfile } from '@workspace/api';
 import { getCurrentUser } from '@workspace/firebase/auth';
 import {
+  type BillingKey,
+  cancelScheduledPlanChange,
+  cancelSubscription,
+  completeRetryPayment,
+  createFreeSubscription,
   createMockSubscription,
   createSubscriptionWithBillingKey,
+  deleteBillingKey,
+  reactivateSubscription,
   saveBillingKey,
+  schedulePlanChange,
+  setDefaultBillingKey,
+  upgradePlan,
 } from '@workspace/firebase/subscription';
 import { Badge } from '@workspace/ui/components/badge';
-import { Button } from '@workspace/ui/components/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@workspace/ui/components/card';
+import { Card, CardContent } from '@workspace/ui/components/card';
 import { Dialog, DialogContent } from '@workspace/ui/components/dialog';
-import { Separator } from '@workspace/ui/components/separator';
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@workspace/ui/components/tabs';
 import {
   SUBSCRIPTION_PLANS,
   type SubscriptionPlanId,
 } from '@workspace/ui/constants/plans';
-import { AlertCircle, Check, CreditCard } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -35,45 +56,119 @@ import {
   SelectCardStep,
   SuccessStep,
 } from '../../_components/BillingModal';
+import { CancelSubscriptionModal } from '../../_components/CancelSubscriptionModal';
+import { OverviewTab } from '../../_components/OverviewTab';
+import { PaymentHistoryTab } from '../../_components/PaymentHistoryTab';
+import { PaymentMethodsTab } from '../../_components/PaymentMethodsTab';
+import { PlansTab } from '../../_components/PlansTab';
 
 type BillingClientProps = {
   clubId: number;
-  clubEnglishName: string;
 };
 
 type ModalStep = 'select-card' | 'confirm' | 'processing' | 'success' | 'error';
 
-export const BillingClient = ({
-  clubId,
-  clubEnglishName,
-}: BillingClientProps) => {
-  const { subscription, defaultBillingKey, isLoading, error, refetch } =
-    useSubscription({ clubId });
+export const BillingClient = ({ clubId }: BillingClientProps) => {
+  const {
+    subscription,
+    paymentHistory,
+    billingKeys,
+    defaultBillingKey,
+    isLoading,
+    error,
+    refetch,
+  } = useSubscription({ clubId });
+  const { data: myProfile } = useGetMyProfile();
+  const { requestBillingKey } = usePortoneBilling();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanId | null>(
     null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStep, setModalStep] = useState<ModalStep>('select-card');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
+  const [settingDefaultCardId, setSettingDefaultCardId] = useState<
+    string | null
+  >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isMockMode, setIsMockMode] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [isCancelingScheduledChange, setIsCancelingScheduledChange] =
+    useState(false);
+  const [isRetryingPayment, setIsRetryingPayment] = useState(false);
+  const [isYearlyBilling, setIsYearlyBilling] = useState(false);
+  const [isScheduledChange, setIsScheduledChange] = useState(false);
+  const [proration, setProration] = useState<ProrationResult | null>(null);
+  const [isCardRegistrationModalOpen, setIsCardRegistrationModalOpen] =
+    useState(false);
+  const [selectedBillingKeyForPayment, setSelectedBillingKeyForPayment] =
+    useState<BillingKey | null>(null);
 
   useEffect(() => {
     setIsMockMode(process.env.NEXT_PUBLIC_IS_MOCK === 'true');
   }, []);
 
-  const currentPlanId: SubscriptionPlanId = subscription?.planId
-    ? (subscription.planId.toUpperCase() as SubscriptionPlanId)
-    : 'FREE';
-  const currentPlan = SUBSCRIPTION_PLANS[currentPlanId];
+  const rawPlanId = subscription?.planId?.toUpperCase() as
+    | SubscriptionPlanId
+    | undefined;
+  const currentPlanId: SubscriptionPlanId =
+    rawPlanId && SUBSCRIPTION_PLANS[rawPlanId] ? rawPlanId : 'FREE';
 
-  const isTossPaymentsEnabled =
-    !!process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY;
-  const isPaidPlanDisabled = !isMockMode && !isTossPaymentsEnabled;
+  const isPortoneEnabled = !!PORTONE_STORE_ID;
+  const isPaidPlanDisabled = !isMockMode && !isPortoneEnabled;
 
-  const handleOpenModal = (plan: SubscriptionPlanId) => {
+  const handleOpenModal = (plan: SubscriptionPlanId, isYearly = false) => {
     setSelectedPlan(plan);
-    setModalStep(defaultBillingKey ? 'confirm' : 'select-card');
+    setIsYearlyBilling(isYearly);
+    setSelectedBillingKeyForPayment(defaultBillingKey);
+
+    const targetPlan = SUBSCRIPTION_PLANS[plan];
+    const isFreeDowngrade = targetPlan.monthlyPrice === 0;
+
+    // 비례 정산 계산 (유료 플랜에서 다른 유료 플랜으로 변경 시)
+    // 취소 예정(canceledAt)인 구독도 endDate 전이면 다른 플랜으로 변경 가능
+    if (
+      subscription &&
+      subscription.status === 'active' &&
+      currentPlanId !== 'FREE' &&
+      !isFreeDowngrade &&
+      subscription.startDate &&
+      subscription.endDate
+    ) {
+      // 새 플랜 가격 (빌링 주기에 따라)
+      const newPrice = isYearly
+        ? targetPlan.monthlyPriceYearly * 12
+        : targetPlan.monthlyPrice;
+
+      // 현재 구독의 실제 결제 금액 사용 (플랜 상수가 아닌 실제 저장된 값)
+      const currentPrice = subscription.price;
+      const currentBillingCycle = subscription.billingCycle ?? 'monthly';
+      const newBillingCycle = isYearly ? 'yearly' : 'monthly';
+
+      const prorationResult = calculateProration({
+        currentPlanPrice: currentPrice,
+        currentBillingCycle,
+        newPlanPrice: newPrice,
+        newBillingCycle,
+        billingStartDate: new Date(subscription.startDate.seconds * 1000),
+        billingEndDate: new Date(subscription.endDate.seconds * 1000),
+        existingCredit: subscription.credit ?? 0,
+      });
+
+      setProration(prorationResult);
+    } else {
+      setProration(null);
+    }
+
+    setModalStep(
+      isFreeDowngrade
+        ? 'confirm'
+        : defaultBillingKey
+          ? 'confirm'
+          : 'select-card',
+    );
     setErrorMessage(null);
     setIsModalOpen(true);
   };
@@ -83,11 +178,203 @@ export const BillingClient = ({
     setSelectedPlan(null);
     setModalStep('select-card');
     setErrorMessage(null);
+    setSelectedBillingKeyForPayment(null);
+    setIsScheduledChange(false);
+    setProration(null);
   };
 
-  const handleRegisterMockCard = async () => {
+  const handleDeleteCard = async (billingKeyId: string) => {
+    setDeletingCardId(billingKeyId);
+
+    try {
+      await deleteBillingKey(billingKeyId, clubId);
+      await refetch();
+      showToast({ message: '결제수단이 삭제되었습니다.', type: 'success' });
+    } catch (err) {
+      console.error('Failed to delete card:', err);
+
+      const message =
+        err instanceof Error ? err.message : '결제수단 삭제에 실패했습니다.';
+
+      showToast({ message, type: 'error' });
+    } finally {
+      setDeletingCardId(null);
+    }
+  };
+
+  const handleSetDefaultCard = async (billingKeyId: string) => {
+    setSettingDefaultCardId(billingKeyId);
+
+    try {
+      await setDefaultBillingKey(billingKeyId, clubId);
+      await refetch();
+      showToast({
+        message: '기본 결제수단이 변경되었습니다.',
+        type: 'success',
+      });
+    } catch (err) {
+      console.error('Failed to set default card:', err);
+      showToast({
+        message: '기본 결제수단 변경에 실패했습니다.',
+        type: 'error',
+      });
+    } finally {
+      setSettingDefaultCardId(null);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!subscription) return;
+
+    setIsCanceling(true);
+
+    try {
+      await cancelSubscription(subscription.id);
+      await refetch();
+      setIsCancelModalOpen(false);
+      showToast({ message: '구독 취소가 예약되었습니다.', type: 'success' });
+    } catch (err) {
+      console.error('Failed to cancel subscription:', err);
+      showToast({ message: '구독 취소에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
+  const handleReactivateSubscription = async () => {
+    if (!subscription) return;
+
+    setIsReactivating(true);
+
+    try {
+      await reactivateSubscription(subscription.id);
+      await refetch();
+      showToast({ message: '구독이 유지됩니다.', type: 'success' });
+    } catch (err) {
+      console.error('Failed to reactivate subscription:', err);
+      showToast({ message: '구독 유지에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsReactivating(false);
+    }
+  };
+
+  const handleCancelScheduledChange = async () => {
+    if (!subscription) return;
+
+    setIsCancelingScheduledChange(true);
+
+    try {
+      await cancelScheduledPlanChange(subscription.id);
+      await refetch();
+      showToast({
+        message: '플랜 변경 예약이 취소되었습니다.',
+        type: 'success',
+      });
+    } catch (err) {
+      console.error('Failed to cancel scheduled change:', err);
+      showToast({ message: '예약 취소에 실패했습니다.', type: 'error' });
+    } finally {
+      setIsCancelingScheduledChange(false);
+    }
+  };
+
+  const handleRetryPayment = async () => {
+    if (!subscription || !defaultBillingKey) {
+      showToast({
+        message: '등록된 결제수단이 없습니다. 결제수단을 먼저 등록해주세요.',
+        type: 'error',
+      });
+
+      return;
+    }
+
+    setIsRetryingPayment(true);
+
+    try {
+      const user = getCurrentUser();
+
+      if (!user) {
+        throw new Error('로그인이 필요합니다.');
+      }
+
+      // 전화번호 필수 체크 (PortOne 요구사항)
+      if (!isMockMode && !myProfile?.phoneNumber) {
+        throw new Error(
+          '결제를 위해 전화번호가 필요합니다. 프로필에서 전화번호를 등록해주세요.',
+        );
+      }
+
+      const paymentId = `retry_${subscription.clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
+      const orderName = `${subscription.planName} 플랜 결제 재시도`;
+
+      if (!isMockMode) {
+        const paymentResponse = await fetch('/api/portone/billing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            billingKey: defaultBillingKey.billingKey,
+            paymentId,
+            orderName,
+            amount: subscription.price,
+            customer: {
+              id: user.uid,
+              name: myProfile?.nickname ?? user.displayName,
+              email: myProfile?.email ?? user.email,
+              phoneNumber: myProfile?.phoneNumber,
+            },
+          }),
+        });
+
+        if (!paymentResponse.ok) {
+          const errorData = await paymentResponse.json();
+
+          throw new Error(errorData.message ?? '결제에 실패했습니다.');
+        }
+
+        const { transactionId } = await paymentResponse.json();
+
+        await completeRetryPayment({
+          subscriptionId: subscription.id,
+          clubId: subscription.clubId,
+          userId: user.uid,
+          userEmail: user.email ?? '',
+          orderId: paymentId,
+          transactionId: transactionId ?? paymentId,
+          amount: subscription.price,
+        });
+      } else {
+        // Mock 모드에서는 바로 성공 처리
+        await completeRetryPayment({
+          subscriptionId: subscription.id,
+          clubId: subscription.clubId,
+          userId: user.uid,
+          userEmail: user.email ?? '',
+          orderId: paymentId,
+          transactionId: `mock_${paymentId}`,
+          amount: subscription.price,
+        });
+      }
+
+      await refetch();
+      showToast({ message: '결제가 완료되었습니다.', type: 'success' });
+    } catch (err) {
+      console.error('Failed to retry payment:', err);
+      showToast({
+        message:
+          err instanceof Error ? err.message : '결제 재시도에 실패했습니다.',
+        type: 'error',
+      });
+    } finally {
+      setIsRetryingPayment(false);
+    }
+  };
+
+  const handleRegisterMockCard = async (standalone = false) => {
     setIsProcessing(true);
-    setModalStep('processing');
+
+    if (!standalone) {
+      setModalStep('processing');
+    }
 
     try {
       const user = getCurrentUser();
@@ -105,58 +392,133 @@ export const BillingClient = ({
         userEmail: user.email ?? '',
         billingKey: mockBillingKey,
         customerKey: mockCustomerKey,
-        cardCompany: '모의카드',
-        cardNumber: '**** **** **** 1234',
+        cardCompany: '모의 결제수단',
+        cardNumber: '',
       });
 
-      await refetch();
-      setModalStep('confirm');
+      const data = await refetch();
+
+      if (standalone) {
+        showToast({ message: '결제수단이 등록되었습니다.', type: 'success' });
+      } else {
+        // 새로 등록한 카드를 결제수단으로 선택
+        if (data) {
+          const newDefaultKey =
+            data.billingKeys.find((key) => key.isDefault) ??
+            data.billingKeys[0] ??
+            null;
+
+          setSelectedBillingKeyForPayment(newDefaultKey);
+        }
+
+        setModalStep('confirm');
+      }
     } catch (err) {
-      console.error('Failed to register mock card:', err);
-      setErrorMessage('카드 등록 중 오류가 발생했습니다.');
-      setModalStep('error');
+      console.error('Failed to register mock payment method:', err);
+
+      if (standalone) {
+        showToast({ message: '결제수단 등록에 실패했습니다.', type: 'error' });
+      } else {
+        setErrorMessage('결제수단 등록 중 오류가 발생했습니다.');
+        setModalStep('error');
+      }
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleRegisterRealCard = async () => {
+  const handleRegisterRealCard = async (
+    methodId?: PaymentMethodId,
+    standalone = false,
+  ) => {
+    setIsProcessing(true);
+
+    if (!standalone) {
+      setModalStep('processing');
+    }
+
     try {
-      const { loadTossPayments } = await import('@tosspayments/payment-sdk');
-      const clientKey = process.env.NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY ?? '';
+      const user = getCurrentUser();
 
-      if (!clientKey) {
-        setErrorMessage('결제 시스템 설정이 완료되지 않았습니다.');
-        setModalStep('error');
-
-        return;
+      if (!user) {
+        throw new Error('로그인이 필요합니다.');
       }
 
-      const tossPayments = await loadTossPayments(clientKey);
-      const customerKey = `customer_${clubId}_${uuidv4().slice(0, 8)}`;
+      const methodInfo = BILLING_PAYMENT_METHODS.find((m) => m.id === methodId);
+      const channelKey = methodInfo?.channelKey ?? DEFAULT_BILLING_CHANNEL;
+      const billingKeyMethod = methodInfo?.billingKeyMethod ?? 'CARD';
+      const billingKeyId = `billing_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
 
-      const successUrl = `${window.location.origin}/billing/card-register/success?clubId=${clubId}&clubEnglishName=${clubEnglishName}`;
-      const failUrl = `${window.location.origin}/billing/card-register/fail?clubEnglishName=${clubEnglishName}`;
-
-      await tossPayments.requestBillingAuth('카드', {
-        customerKey,
-        successUrl,
-        failUrl,
+      const result = await requestBillingKey({
+        channelKey,
+        billingKeyId,
+        billingKeyMethod,
+        customer: {
+          customerId: user.uid,
+          fullName: myProfile?.nickname ?? user.displayName ?? undefined,
+          email: myProfile?.email ?? user.email ?? undefined,
+          phoneNumber: myProfile?.phoneNumber ?? undefined,
+        },
       });
-    } catch (err) {
-      console.error('Failed to open card registration:', err);
 
-      if (err instanceof Error && err.message.includes('USER_CANCEL')) {
+      await saveBillingKey({
+        clubId,
+        userId: user.uid,
+        userEmail: user.email ?? '',
+        billingKey: result.billingKey,
+        customerKey: result.billingKeyId,
+        cardCompany: result.cardInfo.cardName || methodInfo?.label || '카드',
+        cardNumber: result.cardInfo.cardNumber,
+      });
+
+      const data = await refetch();
+
+      if (standalone) {
+        showToast({ message: '결제수단이 등록되었습니다.', type: 'success' });
+      } else {
+        // 새로 등록한 카드를 결제수단으로 선택
+        if (data) {
+          const newDefaultKey =
+            data.billingKeys.find((key) => key.isDefault) ??
+            data.billingKeys[0] ??
+            null;
+
+          setSelectedBillingKeyForPayment(newDefaultKey);
+        }
+
+        setModalStep('confirm');
+      }
+    } catch (err) {
+      console.error('Failed to register payment method:', err);
+
+      // 사용자 취소는 에러로 처리하지 않음
+      if (err instanceof Error && err.message === 'USER_CANCEL') {
         return;
       }
 
-      setErrorMessage('카드 등록창을 열 수 없습니다.');
-      setModalStep('error');
+      if (standalone) {
+        showToast({
+          message:
+            err instanceof Error
+              ? err.message
+              : '결제수단 등록에 실패했습니다.',
+          type: 'error',
+        });
+      } else {
+        setErrorMessage(
+          err instanceof Error
+            ? err.message
+            : '결제수단 등록창을 열 수 없습니다.',
+        );
+        setModalStep('error');
+      }
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handlePayment = async () => {
-    if (!selectedPlan || !defaultBillingKey) return;
+    if (!selectedPlan) return;
 
     setIsProcessing(true);
     setModalStep('processing');
@@ -169,6 +531,173 @@ export const BillingClient = ({
       }
 
       const plan = SUBSCRIPTION_PLANS[selectedPlan];
+      const billingPrice = isYearlyBilling
+        ? plan.monthlyPriceYearly * 12
+        : plan.monthlyPrice;
+      const billingCycle = isYearlyBilling ? '연간' : '월간';
+
+      // 무료 플랜으로 변경하는 경우 (신규 무료 구독)
+      if (plan.monthlyPrice === 0) {
+        await createFreeSubscription({
+          clubId,
+          userId: user.uid,
+          userEmail: user.email ?? '',
+          planId: plan.id,
+          planName: plan.name,
+        });
+
+        await refetch();
+        setModalStep('success');
+
+        return;
+      }
+
+      if (!selectedBillingKeyForPayment) {
+        setModalStep('select-card');
+
+        return;
+      }
+
+      // 기존 유료 구독이 있는 경우
+      const hasExistingPaidSubscription =
+        subscription &&
+        subscription.status === 'active' &&
+        currentPlanId !== 'FREE';
+
+      if (hasExistingPaidSubscription) {
+        const isCanceled = !!subscription.canceledAt;
+        const currentPlan = SUBSCRIPTION_PLANS[currentPlanId];
+        const isSamePlan = plan.id.toUpperCase() === currentPlanId;
+
+        // 같은 플랜 재구독 (취소 예정 → 취소 철회)
+        if (isSamePlan && isCanceled) {
+          await reactivateSubscription(subscription.id);
+          await refetch();
+          setModalStep('success');
+
+          return;
+        }
+
+        // 업그레이드 또는 빌링 주기 변경: 즉시 적용 + 비례 정산 결제
+        // 빌링 주기가 변경되면 다운그레이드여도 즉시 처리 (새로운 빌링 주기 시작)
+        const shouldProcessImmediately =
+          proration && (proration.isUpgrade || proration.isBillingCycleChange);
+
+        if (shouldProcessImmediately) {
+          // 전화번호 필수 체크 (PortOne 요구사항)
+          if (!isMockMode && !myProfile?.phoneNumber) {
+            throw new Error(
+              '결제를 위해 전화번호가 필요합니다. 프로필에서 전화번호를 등록해주세요.',
+            );
+          }
+
+          const paymentId = `payment_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
+          const amountToPay = proration.amountDue;
+          const newBillingCycle = isYearlyBilling ? 'yearly' : 'monthly';
+
+          // 주문명 설정
+          const orderName = proration.isBillingCycleChange
+            ? `${plan.name} 플랜 (${isYearlyBilling ? '연간' : '월간'} 전환)`
+            : `${plan.name} 플랜 업그레이드 (비례 정산)`;
+
+          // 비례 정산 금액이 0보다 크면 결제 진행
+          if (amountToPay > 0 && !isMockMode) {
+            const paymentResponse = await fetch('/api/portone/billing', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                billingKey: selectedBillingKeyForPayment.billingKey,
+                paymentId,
+                orderName,
+                amount: amountToPay,
+                customer: {
+                  id: user.uid,
+                  name: myProfile?.nickname ?? user.displayName,
+                  email: myProfile?.email ?? user.email,
+                  phoneNumber: myProfile?.phoneNumber,
+                },
+              }),
+            });
+
+            if (!paymentResponse.ok) {
+              const errorData = await paymentResponse.json();
+
+              throw new Error(errorData.message ?? '결제에 실패했습니다.');
+            }
+
+            const { transactionId } = await paymentResponse.json();
+
+            await upgradePlan({
+              subscriptionId: subscription.id,
+              clubId,
+              userId: user.uid,
+              userEmail: user.email ?? '',
+              planId: plan.id,
+              planName: plan.name,
+              newPrice: billingPrice,
+              proratedAmount: amountToPay,
+              billingKeyId: selectedBillingKeyForPayment.id,
+              orderId: paymentId,
+              transactionId: transactionId ?? paymentId,
+              newBillingCycle: proration.isBillingCycleChange
+                ? newBillingCycle
+                : undefined,
+              remainingCredit: proration.remainingCredit,
+              previousPlanId: currentPlanId,
+              previousPlanName: currentPlan.name,
+              creditApplied: proration.totalCredit,
+            });
+          } else {
+            // Mock 모드이거나 결제 금액이 0인 경우 플랜만 변경
+            await upgradePlan({
+              subscriptionId: subscription.id,
+              clubId,
+              userId: user.uid,
+              userEmail: user.email ?? '',
+              planId: plan.id,
+              planName: plan.name,
+              newPrice: billingPrice,
+              proratedAmount: amountToPay,
+              billingKeyId: selectedBillingKeyForPayment.id,
+              orderId: paymentId,
+              transactionId: `mock_${paymentId}`,
+              newBillingCycle: proration.isBillingCycleChange
+                ? newBillingCycle
+                : undefined,
+              remainingCredit: proration.remainingCredit,
+              previousPlanId: currentPlanId,
+              previousPlanName: currentPlan.name,
+              creditApplied: proration.totalCredit,
+            });
+          }
+
+          await refetch();
+          setModalStep('success');
+
+          return;
+        }
+
+        // 다운그레이드 (빌링 주기 동일): 다음 결제일에 플랜 변경 예약
+        await schedulePlanChange(
+          subscription.id,
+          plan.id,
+          plan.name,
+          billingPrice,
+        );
+        await refetch();
+        setIsScheduledChange(true);
+        setModalStep('success');
+
+        return;
+      }
+
+      // 신규 유료 구독 (기존 구독 없거나 무료 플랜) → 즉시 결제
+      // 전화번호 필수 체크 (PortOne 요구사항)
+      if (!isMockMode && !myProfile?.phoneNumber) {
+        throw new Error(
+          '결제를 위해 전화번호가 필요합니다. 프로필에서 전화번호를 등록해주세요.',
+        );
+      }
 
       if (isMockMode) {
         await createMockSubscription(
@@ -178,22 +707,28 @@ export const BillingClient = ({
             userEmail: user.email ?? '',
             planId: plan.id,
             planName: plan.name,
-            price: plan.basePrice,
+            price: billingPrice,
           },
-          defaultBillingKey.id,
+          selectedBillingKeyForPayment.id,
+          isYearlyBilling,
         );
       } else {
-        const orderId = `order_${clubId}_${Date.now()}`;
+        const paymentId = `payment_${clubId}_${Date.now()}_${uuidv4().slice(0, 8)}`;
 
-        const paymentResponse = await fetch('/api/billing/payment', {
+        const paymentResponse = await fetch('/api/portone/billing', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            billingKey: defaultBillingKey.billingKey,
-            customerKey: defaultBillingKey.customerKey,
-            amount: plan.basePrice,
-            orderId,
-            orderName: `${plan.name} 플랜 구독`,
+            billingKey: selectedBillingKeyForPayment.billingKey,
+            paymentId,
+            orderName: `${plan.name} 플랜 ${billingCycle} 구독`,
+            amount: billingPrice,
+            customer: {
+              id: user.uid,
+              name: myProfile?.nickname ?? user.displayName,
+              email: myProfile?.email ?? user.email,
+              phoneNumber: myProfile?.phoneNumber,
+            },
           }),
         });
 
@@ -203,7 +738,7 @@ export const BillingClient = ({
           throw new Error(errorData.message ?? '결제에 실패했습니다.');
         }
 
-        const { paymentKey } = await paymentResponse.json();
+        const { transactionId } = await paymentResponse.json();
 
         await createSubscriptionWithBillingKey({
           clubId,
@@ -211,10 +746,11 @@ export const BillingClient = ({
           userEmail: user.email ?? '',
           planId: plan.id,
           planName: plan.name,
-          price: plan.basePrice,
-          billingKeyId: defaultBillingKey.id,
-          orderId,
-          paymentKey,
+          price: billingPrice,
+          isYearly: isYearlyBilling,
+          billingKeyId: selectedBillingKeyForPayment.id,
+          orderId: paymentId,
+          transactionId: transactionId ?? paymentId,
         });
       }
 
@@ -222,7 +758,11 @@ export const BillingClient = ({
       setModalStep('success');
     } catch (err) {
       console.error('Failed to process payment:', err);
-      setErrorMessage('결제 처리 중 오류가 발생했습니다.');
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : '결제 처리 중 오류가 발생했습니다.',
+      );
       setModalStep('error');
     } finally {
       setIsProcessing(false);
@@ -233,11 +773,9 @@ export const BillingClient = ({
     return (
       <div className="space-y-6">
         <Card>
-          <CardHeader>
+          <CardContent className="space-y-4 py-6">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="mt-2 h-4 w-48" />
-          </CardHeader>
-          <CardContent className="space-y-4">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
           </CardContent>
@@ -265,194 +803,64 @@ export const BillingClient = ({
   }
 
   return (
-    <div className="space-y-8">
-      {/* 현재 구독 정보 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="size-5" />
-                현재 구독
-              </CardTitle>
-              <CardDescription className="mt-1">
-                {currentPlan.name} 플랜을 이용 중입니다.
-              </CardDescription>
-            </div>
-            <Badge variant="default">활성</Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">플랜</span>
-              <span className="font-medium">{currentPlan.name}</span>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">월 결제 금액</span>
-              <span className="font-medium">
-                {currentPlan.basePrice === 0
-                  ? '무료'
-                  : `${currentPlan.basePrice.toLocaleString()}원`}
-              </span>
-            </div>
-            {subscription?.endDate && (
-              <>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">다음 결제일</span>
-                  <span className="font-medium">
-                    {new Date(
-                      subscription.endDate.seconds * 1000,
-                    ).toLocaleDateString('ko-KR')}
-                  </span>
-                </div>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      <Tabs defaultValue="overview">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">오버뷰</TabsTrigger>
+          <TabsTrigger value="payment-methods">결제수단</TabsTrigger>
+          <TabsTrigger value="payment-history">결제내역</TabsTrigger>
+          <TabsTrigger value="plans">요금제</TabsTrigger>
+        </TabsList>
 
-      {/* 등록된 카드 정보 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">결제 수단</CardTitle>
-          <CardDescription>
-            정기 결제에 사용할 카드를 관리합니다.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {defaultBillingKey ? (
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div className="flex items-center gap-3">
-                <CreditCard className="text-muted-foreground size-8" />
-                <div>
-                  <p className="font-medium">{defaultBillingKey.cardCompany}</p>
-                  <p className="text-muted-foreground text-sm">
-                    {defaultBillingKey.cardNumber}
-                  </p>
-                </div>
-              </div>
-              <Badge variant="outline">기본 카드</Badge>
-            </div>
-          ) : (
-            <div className="text-muted-foreground flex flex-col items-center justify-center py-8 text-center">
-              <CreditCard className="mb-2 size-12 opacity-50" />
-              <p>등록된 카드가 없습니다.</p>
-              <p className="text-sm">유료 플랜 구독 시 카드를 등록해주세요.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <TabsContent value="overview">
+          <OverviewTab
+            subscription={subscription}
+            currentPlanId={currentPlanId}
+            onCancelSubscription={() => setIsCancelModalOpen(true)}
+            onReactivateSubscription={handleReactivateSubscription}
+            isReactivating={isReactivating}
+            onCancelScheduledChange={handleCancelScheduledChange}
+            isCancelingScheduledChange={isCancelingScheduledChange}
+            onRetryPayment={handleRetryPayment}
+            isRetryingPayment={isRetryingPayment}
+          />
+        </TabsContent>
 
-      {/* 플랜 변경 */}
-      <div>
-        <h2 className="text-foreground mb-4 text-lg font-semibold">
-          플랜 변경
-        </h2>
-        {isPaidPlanDisabled && (
-          <Card className="mb-4 border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
-            <CardContent className="flex items-start gap-3 py-4">
-              <AlertCircle className="mt-0.5 size-5 shrink-0 text-blue-600 dark:text-blue-400" />
-              <div>
-                <p className="font-medium text-blue-800 dark:text-blue-200">
-                  유료 플랜 결제 준비 중
-                </p>
-                <p className="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                  현재 유료 플랜 결제 기능을 준비하고 있습니다. 빠른 시일 내에
-                  제공될 예정입니다.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        <div className="grid gap-4 md:grid-cols-3">
-          {(
-            Object.entries(SUBSCRIPTION_PLANS) as [
-              SubscriptionPlanId,
-              (typeof SUBSCRIPTION_PLANS)[SubscriptionPlanId],
-            ][]
-          ).map(([key, plan]) => {
-            const isCurrentPlan = currentPlanId === key;
-            const isPaidPlan = plan.basePrice > 0;
-            const isDisabled = isPaidPlanDisabled && isPaidPlan;
-            const isSelected = selectedPlan === key;
+        <TabsContent value="payment-methods">
+          <PaymentMethodsTab
+            billingKeys={billingKeys}
+            isPaidPlanDisabled={isPaidPlanDisabled}
+            isProcessing={isProcessing}
+            deletingCardId={deletingCardId}
+            settingDefaultCardId={settingDefaultCardId}
+            onOpenRegisterModal={() => setIsCardRegistrationModalOpen(true)}
+            onDeleteCard={handleDeleteCard}
+            onSetDefaultCard={handleSetDefaultCard}
+          />
+        </TabsContent>
 
-            return (
-              <Card
-                key={key}
-                className={`relative cursor-pointer transition-all ${
-                  isSelected && !isDisabled
-                    ? 'border-primary ring-primary/20 border-2 ring-2'
-                    : isCurrentPlan
-                      ? 'border-primary/50 border-2'
-                      : 'hover:border-primary/50'
-                } ${isDisabled ? 'cursor-not-allowed opacity-60' : ''}`}
-                onClick={() =>
-                  !isDisabled && !isCurrentPlan && setSelectedPlan(key)
-                }>
-                {plan.recommended && (
-                  <Badge className="bg-primary absolute -top-3 left-1/2 -translate-x-1/2">
-                    추천
-                  </Badge>
-                )}
-                {isCurrentPlan && (
-                  <Badge
-                    variant="outline"
-                    className="absolute -top-3 right-4 border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300">
-                    현재 플랜
-                  </Badge>
-                )}
-                {isDisabled && !isCurrentPlan && (
-                  <Badge
-                    variant="secondary"
-                    className="absolute -top-3 right-4 bg-blue-100 text-blue-700">
-                    준비 중
-                  </Badge>
-                )}
-                <CardHeader className="pb-2 text-center">
-                  <CardTitle className="text-lg">{plan.name}</CardTitle>
-                  <CardDescription className="text-sm">
-                    {plan.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4 text-center">
-                    <span className="text-foreground text-2xl font-bold">
-                      {plan.basePrice === 0
-                        ? '무료'
-                        : `${plan.basePrice.toLocaleString()}원`}
-                    </span>
-                    {plan.basePrice > 0 && (
-                      <span className="text-muted-foreground text-sm">/월</span>
-                    )}
-                  </div>
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <Check className="text-primary size-3 shrink-0" />
-                        <span className="text-foreground text-xs">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
+        <TabsContent value="payment-history">
+          <PaymentHistoryTab paymentHistory={paymentHistory} />
+        </TabsContent>
 
-      {/* 플랜 변경 버튼 */}
-      {selectedPlan && selectedPlan !== currentPlanId && (
-        <Button
-          className="w-full"
-          onClick={() => handleOpenModal(selectedPlan)}>
-          {SUBSCRIPTION_PLANS[selectedPlan].name} 플랜으로 변경하기
-        </Button>
-      )}
+        <TabsContent value="plans">
+          <PlansTab
+            currentPlanId={currentPlanId}
+            isPaidPlanDisabled={isPaidPlanDisabled}
+            isCanceledAndPendingFree={
+              !!subscription?.canceledAt && !subscription?.nextPlanId
+            }
+            scheduledPlanId={
+              subscription?.nextPlanId?.toUpperCase() as
+                | SubscriptionPlanId
+                | undefined
+            }
+            onReactivate={handleReactivateSubscription}
+            isReactivating={isReactivating}
+            onOpenModal={handleOpenModal}
+          />
+        </TabsContent>
+      </Tabs>
 
       {/* 플랜 변경 모달 */}
       <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
@@ -461,7 +869,7 @@ export const BillingClient = ({
             <SelectCardStep
               isMockMode={isMockMode}
               isProcessing={isProcessing}
-              onRegisterRealCard={handleRegisterRealCard}
+              onRegisterPaymentMethod={handleRegisterRealCard}
               onRegisterMockCard={handleRegisterMockCard}
               onClose={handleCloseModal}
             />
@@ -470,9 +878,21 @@ export const BillingClient = ({
           {modalStep === 'confirm' && selectedPlan && (
             <ConfirmStep
               selectedPlan={selectedPlan}
-              defaultBillingKey={defaultBillingKey}
+              currentPlanId={currentPlanId}
+              isYearly={isYearlyBilling}
+              billingKeys={billingKeys}
+              selectedBillingKey={selectedBillingKeyForPayment}
+              proration={proration}
+              scheduledDate={
+                subscription?.endDate
+                  ? new Date(
+                      subscription.endDate.seconds * 1000,
+                    ).toLocaleDateString('ko-KR')
+                  : undefined
+              }
+              onSelectBillingKey={setSelectedBillingKeyForPayment}
               onPayment={handlePayment}
-              onSelectCard={() => setModalStep('select-card')}
+              onRegisterCard={() => setModalStep('select-card')}
               onClose={handleCloseModal}
             />
           )}
@@ -482,6 +902,14 @@ export const BillingClient = ({
           {modalStep === 'success' && selectedPlan && (
             <SuccessStep
               selectedPlan={selectedPlan}
+              isScheduledChange={isScheduledChange}
+              scheduledDate={
+                subscription?.endDate
+                  ? new Date(
+                      subscription.endDate.seconds * 1000,
+                    ).toLocaleDateString('ko-KR')
+                  : undefined
+              }
               onClose={handleCloseModal}
             />
           )}
@@ -493,6 +921,36 @@ export const BillingClient = ({
               onClose={handleCloseModal}
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 구독 취소 확인 모달 */}
+      <CancelSubscriptionModal
+        isOpen={isCancelModalOpen}
+        isProcessing={isCanceling}
+        onConfirm={handleCancelSubscription}
+        onClose={() => setIsCancelModalOpen(false)}
+      />
+
+      {/* 결제수단 등록 모달 */}
+      <Dialog
+        open={isCardRegistrationModalOpen}
+        onOpenChange={setIsCardRegistrationModalOpen}>
+        <DialogContent>
+          <SelectCardStep
+            isMockMode={isMockMode}
+            isProcessing={isProcessing}
+            onRegisterPaymentMethod={(methodId) => {
+              // 모달을 먼저 닫고 PortOne SDK 호출
+              setIsCardRegistrationModalOpen(false);
+              handleRegisterRealCard(methodId, true);
+            }}
+            onRegisterMockCard={() => {
+              setIsCardRegistrationModalOpen(false);
+              handleRegisterMockCard(true);
+            }}
+            onClose={() => setIsCardRegistrationModalOpen(false)}
+          />
         </DialogContent>
       </Dialog>
 
