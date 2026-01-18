@@ -29,7 +29,28 @@ import type { Env } from './types';
  * @see https://datatracker.ietf.org/doc/html/rfc7523
  */
 export const getFirebaseAccessToken = async (env: Env): Promise<string> => {
-  const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
+  if (!env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+    throw new Error(
+      'FIREBASE_SERVICE_ACCOUNT_KEY is not set. Please check your .dev.vars or Cloudflare secrets.',
+    );
+  }
+
+  if (!env.FIREBASE_PROJECT_ID) {
+    throw new Error(
+      'FIREBASE_PROJECT_ID is not set. Please check your .dev.vars or Cloudflare secrets.',
+    );
+  }
+
+  let serviceAccount: { client_email: string; private_key: string };
+
+  try {
+    serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_KEY);
+  } catch {
+    throw new Error(
+      'FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON. Make sure it is a single-line JSON string.',
+    );
+  }
+
   const now = Math.floor(Date.now() / 1000);
 
   const header = {

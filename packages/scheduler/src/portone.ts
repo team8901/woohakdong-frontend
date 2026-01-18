@@ -23,6 +23,17 @@ export const processBillingPayment = async (
   paymentId: string,
   orderName: string,
 ): Promise<PaymentResponse> => {
+  if (!env.PORTONE_API_SECRET) {
+    return {
+      success: false,
+      error: {
+        code: 'MISSING_CONFIG',
+        message:
+          'PORTONE_API_SECRET is not set. Please check your .dev.vars or Cloudflare secrets.',
+      },
+    };
+  }
+
   const response = await fetch(
     `https://api.portone.io/payments/${encodeURIComponent(paymentId)}/billing-key`,
     {
