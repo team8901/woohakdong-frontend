@@ -1,9 +1,8 @@
-import { GITHUB_URL, SERVICE_NAME } from '@/app/_helpers/constants/service';
+import { SERVICE_NAME } from '@/app/_helpers/constants/service';
 import { Button } from '@workspace/ui/components/button';
 import { Separator } from '@workspace/ui/components/separator';
 import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 import { MailIcon } from 'lucide-react';
-import Image from 'next/image';
 
 import { PreRegistrationDialogClient } from '../../_clientBoundary/PreRegistrationDialogClient';
 import { BusinessInfo } from '../BusinessInfo';
@@ -32,23 +31,6 @@ export const ContactSection = () => {
                 <Button variant="link" className="text-foreground" asChild>
                   <a href={`mailto:${EXTERNAL_LINKS.SUPPORT_EMAIL}`}>
                     {EXTERNAL_LINKS.SUPPORT_EMAIL}
-                  </a>
-                </Button>
-              </div>
-              <div className="text-foreground flex items-center justify-center md:justify-start">
-                <Image
-                  src="/icons/github-mark.svg"
-                  alt="GitHub"
-                  width={20}
-                  height={20}
-                  className="size-5"
-                />
-                <Button variant="link" className="text-foreground" asChild>
-                  <a
-                    href={GITHUB_URL}
-                    target="_blank"
-                    rel="noopener noreferrer">
-                    {GITHUB_URL}
                   </a>
                 </Button>
               </div>
