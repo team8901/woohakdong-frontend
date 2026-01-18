@@ -16,6 +16,12 @@ type UseSubscriptionProps = {
   clubId: number;
 };
 
+type SubscriptionData = {
+  subscription: Subscription | null;
+  paymentHistory: PaymentRecord[];
+  billingKeys: BillingKey[];
+};
+
 type UseSubscriptionReturn = {
   subscription: Subscription | null;
   paymentHistory: PaymentRecord[];
@@ -23,7 +29,7 @@ type UseSubscriptionReturn = {
   defaultBillingKey: BillingKey | null;
   isLoading: boolean;
   error: string | null;
-  refetch: () => Promise<void>;
+  refetch: () => Promise<SubscriptionData | null>;
 };
 
 /**
@@ -41,34 +47,46 @@ export const useSubscription = ({
   const [error, setError] = useState<string | null>(null);
   const isFetchedRef = useRef(false);
 
-  const fetchSubscriptionData = useCallback(async (id: number) => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const fetchSubscriptionData = useCallback(
+    async (id: number): Promise<SubscriptionData | null> => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      const [subscriptionData, payments, keys] = await Promise.all([
-        getCurrentSubscription(id),
-        getPaymentHistory(id),
-        getBillingKeys(id),
-      ]);
+        const [subscriptionData, payments, keys] = await Promise.all([
+          getCurrentSubscription(id),
+          getPaymentHistory(id),
+          getBillingKeys(id),
+        ]);
 
-      // 삭제된 카드(billingKey가 비어있는) 필터링
-      const activeKeys = keys.filter((key) => key.billingKey);
+        // 삭제된 카드(billingKey가 비어있는) 필터링
+        const activeKeys = keys.filter((key) => key.billingKey);
 
-      setSubscription(subscriptionData);
-      setPaymentHistory(payments);
-      setBillingKeys(activeKeys);
-    } catch (err) {
-      console.error('Failed to fetch subscription data:', err);
-      setError('구독 정보를 불러오는데 실패했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+        setSubscription(subscriptionData);
+        setPaymentHistory(payments);
+        setBillingKeys(activeKeys);
+
+        return {
+          subscription: subscriptionData,
+          paymentHistory: payments,
+          billingKeys: activeKeys,
+        };
+      } catch (err) {
+        console.error('Failed to fetch subscription data:', err);
+        setError('구독 정보를 불러오는데 실패했습니다.');
+
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [],
+  );
 
   const refetch = useCallback(async () => {
     isFetchedRef.current = false;
-    await fetchSubscriptionData(clubId);
+
+    return await fetchSubscriptionData(clubId);
   }, [fetchSubscriptionData, clubId]);
 
   useEffect(() => {

@@ -396,11 +396,21 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
         cardNumber: '',
       });
 
-      await refetch();
+      const data = await refetch();
 
       if (standalone) {
         showToast({ message: '결제수단이 등록되었습니다.', type: 'success' });
       } else {
+        // 새로 등록한 카드를 결제수단으로 선택
+        if (data) {
+          const newDefaultKey =
+            data.billingKeys.find((key) => key.isDefault) ??
+            data.billingKeys[0] ??
+            null;
+
+          setSelectedBillingKeyForPayment(newDefaultKey);
+        }
+
         setModalStep('confirm');
       }
     } catch (err) {
@@ -461,11 +471,21 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
         cardNumber: result.cardInfo.cardNumber,
       });
 
-      await refetch();
+      const data = await refetch();
 
       if (standalone) {
         showToast({ message: '결제수단이 등록되었습니다.', type: 'success' });
       } else {
+        // 새로 등록한 카드를 결제수단으로 선택
+        if (data) {
+          const newDefaultKey =
+            data.billingKeys.find((key) => key.isDefault) ??
+            data.billingKeys[0] ??
+            null;
+
+          setSelectedBillingKeyForPayment(newDefaultKey);
+        }
+
         setModalStep('confirm');
       }
     } catch (err) {
