@@ -10,7 +10,9 @@ export const BusinessInfo = () => {
         {BUSINESS_INFO.ecommerceRegistration}
       </p>
       <p className="mt-1">주소: {BUSINESS_INFO.address}</p>
-      <p className="mt-1">고객문의: {EXTERNAL_LINKS.SUPPORT_EMAIL}</p>
+      <p className="mt-1">
+        전화번호: {BUSINESS_INFO.phoneNumber} | 고객문의: {EXTERNAL_LINKS.SUPPORT_EMAIL}
+      </p>
     </div>
   );
 };
