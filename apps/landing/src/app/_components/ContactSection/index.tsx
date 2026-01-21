@@ -54,7 +54,7 @@ export const ContactSection = () => {
               </a>
             </div>
             <div className="text-muted-foreground text-center text-sm md:text-right">
-              © 2025 {SERVICE_NAME}. All rights reserved.
+              © 2026 {SERVICE_NAME}. All rights reserved.
             </div>
           </div>
         </div>
