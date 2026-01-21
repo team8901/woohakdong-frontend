@@ -3,7 +3,6 @@
  * 빌링키 발급 로직을 추상화하여 재사용성을 높입니다.
  * @see https://developers.portone.io/
  */
-'use client';
 
 import { useCallback, useState } from 'react';
 
@@ -37,11 +36,7 @@ export type BillingKeyResult = {
  * PortOne SDK 응답에 card 정보가 포함될 수 있으나 타입에 정의되어 있지 않음
  */
 function extractCardInfo(response: unknown): { name: string; number: string } {
-  if (
-    typeof response === 'object' &&
-    response !== null &&
-    'card' in response
-  ) {
+  if (typeof response === 'object' && response !== null && 'card' in response) {
     const card = (response as { card?: unknown }).card;
 
     if (typeof card === 'object' && card !== null) {
