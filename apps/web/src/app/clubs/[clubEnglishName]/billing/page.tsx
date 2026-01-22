@@ -1,4 +1,5 @@
 import { ServerErrorFallback } from '@/_shared/components/ServerErrorFallback';
+import { ServiceFooter } from '@/_shared/components/ServiceFooter';
 import { getClubIdByEnglishName } from '@/_shared/helpers/utils/getClubIdByEnglishName';
 import { type Metadata } from 'next';
 
@@ -22,16 +23,19 @@ const BillingPage = async ({ params }: BillingPageProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="hidden flex-col md:flex">
-        <h1 className="text-xl font-bold tracking-tight md:text-2xl">
-          결제 관리
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">
-          구독 정보를 확인하고 플랜을 변경할 수 있습니다.
-        </p>
+    <div className="flex min-h-full flex-col">
+      <div className="flex-1 space-y-6">
+        <div className="hidden flex-col md:flex">
+          <h1 className="text-xl font-bold tracking-tight md:text-2xl">
+            결제 관리
+          </h1>
+          <p className="text-muted-foreground text-sm md:text-base">
+            구독 정보를 확인하고 플랜을 변경할 수 있습니다.
+          </p>
+        </div>
+        <BillingClient clubId={clubId} />
       </div>
-      <BillingClient clubId={clubId} />
+      <ServiceFooter />
     </div>
   );
 };

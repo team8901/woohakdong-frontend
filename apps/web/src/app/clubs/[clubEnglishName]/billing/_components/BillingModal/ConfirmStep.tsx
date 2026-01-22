@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import type { ProrationResult } from '@/app/payment/_helpers/utils/proration';
 import type { BillingKey } from '@workspace/firebase/subscription';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
@@ -25,6 +24,7 @@ import {
 } from 'lucide-react';
 
 import { PaymentMethodIcon } from '../../_helpers/utils/paymentMethodIcon';
+import type { ProrationResult } from '../../_helpers/utils/proration';
 
 type ConfirmStepProps = {
   selectedPlan: SubscriptionPlanId;
@@ -59,7 +59,9 @@ export const ConfirmStep = ({
 
   const plan = SUBSCRIPTION_PLANS[selectedPlan];
   const currentPlan = currentPlanId ? SUBSCRIPTION_PLANS[currentPlanId] : null;
-  const billingPrice = isYearly ? plan.monthlyPriceYearly * 12 : plan.monthlyPrice;
+  const billingPrice = isYearly
+    ? plan.monthlyPriceYearly * 12
+    : plan.monthlyPrice;
   const billingCycle = isYearly ? '연' : '월';
   const isFree = plan.monthlyPrice === 0;
   const hasMultipleCards = billingKeys.length > 1;
@@ -108,7 +110,11 @@ export const ConfirmStep = ({
               {currentPlan?.name ?? '현재 플랜'}
               {proration.isBillingCycleChange && !proration.isUpgrade && (
                 <span className="ml-1">
-                  ({proration.isBillingCycleChange && !isYearly ? '연간' : '월간'})
+                  (
+                  {proration.isBillingCycleChange && !isYearly
+                    ? '연간'
+                    : '월간'}
+                  )
                 </span>
               )}
             </span>
@@ -157,7 +163,8 @@ export const ConfirmStep = ({
                 </p>
               )}
               <p className="text-muted-foreground text-sm">
-                오늘 추가 결제는 없습니다. 현재 결제 주기가 끝나면 새로운 플랜으로 자동 결제됩니다.
+                오늘 추가 결제는 없습니다. 현재 결제 주기가 끝나면 새로운
+                플랜으로 자동 결제됩니다.
               </p>
             </div>
           ) : hasProration && proration ? (
@@ -172,9 +179,7 @@ export const ConfirmStep = ({
                 <span>{proration.newPlanCost.toLocaleString()}원</span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  기존 구독 크레딧
-                </span>
+                <span className="text-muted-foreground">기존 구독 크레딧</span>
                 <span className="text-green-600">
                   -{proration.currentPlanCredit.toLocaleString()}원
                 </span>
@@ -182,9 +187,7 @@ export const ConfirmStep = ({
               {/* 기존 보유 크레딧 표시 */}
               {proration.existingCredit > 0 && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    보유 크레딧
-                  </span>
+                  <span className="text-muted-foreground">보유 크레딧</span>
                   <span className="text-green-600">
                     -{proration.existingCredit.toLocaleString()}원
                   </span>
@@ -201,16 +204,18 @@ export const ConfirmStep = ({
               </div>
               {/* 남은 크레딧 표시 */}
               {proration.remainingCredit > 0 && (
-                <div className="bg-green-50 dark:bg-green-950 rounded-md p-2">
+                <div className="rounded-md bg-green-50 p-2 dark:bg-green-950">
                   <p className="text-sm text-green-700 dark:text-green-300">
-                    💰 남은 크레딧 {proration.remainingCredit.toLocaleString()}원은
-                    다음 결제에서 자동 차감됩니다.
+                    💰 남은 크레딧 {proration.remainingCredit.toLocaleString()}
+                    원은 다음 결제에서 자동 차감됩니다.
                   </p>
                 </div>
               )}
               <p className="text-muted-foreground text-right text-xs">
-                다음 결제일({proration.nextBillingDate.toLocaleDateString('ko-KR')})부터{' '}
-                {billingPrice.toLocaleString()}원/{billingCycle}
+                다음 결제일(
+                {proration.nextBillingDate.toLocaleDateString(
+                  'ko-KR',
+                )})부터 {billingPrice.toLocaleString()}원/{billingCycle}
               </p>
             </div>
           ) : (
@@ -335,7 +340,12 @@ export const ConfirmStep = ({
           className="w-full"
           size="lg"
           onClick={onPayment}
-          disabled={!isScheduledChange && !selectedBillingKey && !isFree && amountToPay > 0}>
+          disabled={
+            !isScheduledChange &&
+            !selectedBillingKey &&
+            !isFree &&
+            amountToPay > 0
+          }>
           {isScheduledChange
             ? '플랜 변경 예약하기'
             : isFree

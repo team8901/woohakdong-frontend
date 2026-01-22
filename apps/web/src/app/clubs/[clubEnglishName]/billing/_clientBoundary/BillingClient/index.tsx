@@ -3,18 +3,6 @@
 import { useEffect, useState } from 'react';
 
 import { showToast } from '@/_shared/helpers/utils/showToast';
-import {
-  BILLING_PAYMENT_METHODS,
-  DEFAULT_BILLING_CHANNEL,
-  type PaymentMethodId,
-  PORTONE_STORE_ID,
-} from '@/app/payment/_helpers/constants/portone';
-import { usePortoneBilling } from '@/app/payment/_helpers/hooks/usePortoneBilling';
-import { useSubscription } from '@/app/payment/_helpers/hooks/useSubscription';
-import {
-  calculateProration,
-  type ProrationResult,
-} from '@/app/payment/_helpers/utils/proration';
 import { useGetMyProfile } from '@workspace/api';
 import { getCurrentUser } from '@workspace/firebase/auth';
 import {
@@ -61,6 +49,17 @@ import { OverviewTab } from '../../_components/OverviewTab';
 import { PaymentHistoryTab } from '../../_components/PaymentHistoryTab';
 import { PaymentMethodsTab } from '../../_components/PaymentMethodsTab';
 import { PlansTab } from '../../_components/PlansTab';
+import {
+  BILLING_PAYMENT_METHODS,
+  DEFAULT_BILLING_CHANNEL,
+  type PaymentMethodId,
+} from '../../_helpers/constants/portone';
+import { usePortoneBilling } from '../../_helpers/hooks/usePortoneBilling';
+import { useSubscription } from '../../_helpers/hooks/useSubscription';
+import {
+  calculateProration,
+  type ProrationResult,
+} from '../../_helpers/utils/proration';
 
 type BillingClientProps = {
   clubId: number;
@@ -116,8 +115,10 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
   const currentPlanId: SubscriptionPlanId =
     rawPlanId && SUBSCRIPTION_PLANS[rawPlanId] ? rawPlanId : 'FREE';
 
-  const isPortoneEnabled = !!PORTONE_STORE_ID;
-  const isPaidPlanDisabled = !isMockMode && !isPortoneEnabled;
+  // NOTE: PG계약 심사신청 테스트를 위해 임시로 비활성화 (테스트 채널 연동됨)
+  // const isPortoneEnabled = !!PORTONE_STORE_ID;
+  // const isPaidPlanDisabled = !isMockMode && !isPortoneEnabled;
+  const isPaidPlanDisabled = false;
 
   const handleOpenModal = (plan: SubscriptionPlanId, isYearly = false) => {
     setSelectedPlan(plan);

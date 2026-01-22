@@ -1,7 +1,3 @@
-import {
-  BILLING_PAYMENT_METHODS,
-  type PaymentMethodId,
-} from '@/app/payment/_helpers/constants/portone';
 import { Button } from '@workspace/ui/components/button';
 import {
   DialogDescription,
@@ -11,6 +7,10 @@ import {
 } from '@workspace/ui/components/dialog';
 import { Wallet } from 'lucide-react';
 
+import {
+  BILLING_PAYMENT_METHODS,
+  type PaymentMethodId,
+} from '../../_helpers/constants/portone';
 import { PaymentMethodIcon } from '../../_helpers/utils/paymentMethodIcon';
 
 type SelectCardStepProps = {

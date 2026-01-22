@@ -2,7 +2,6 @@
  * 포트원 결제 훅
  * @see https://developers.portone.io/
  */
-'use client';
 
 import { useCallback, useEffect, useState } from 'react';
 

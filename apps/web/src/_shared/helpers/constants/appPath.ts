@@ -7,11 +7,6 @@ export const APP_PATH = {
     HOME: '/register-club',
     SUCCESS: '/register-club/success',
   },
-  PAYMENT: {
-    HOME: '/payment',
-    SUCCESS: '/payment/success',
-    FAIL: '/payment/fail',
-  },
   /** 동아리 전용 페이지 */
   CLUBS: {
     HOME: '/clubs/:clubEnglishName',
