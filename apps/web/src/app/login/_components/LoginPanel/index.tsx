@@ -1,5 +1,6 @@
 import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 
+import { AdminLoginFormClient } from '../../_clientBoundary/AdminLoginFormClient';
 import { GoogleLoginButtonClient } from '../../_clientBoundary/GoogleLoginButtonClient';
 
 export const LoginPanel = () => {
@@ -12,6 +13,12 @@ export const LoginPanel = () => {
         </p>
       </div>
       <GoogleLoginButtonClient />
+      <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+        <span className="bg-background text-muted-foreground relative z-10 px-2">
+          또는
+        </span>
+      </div>
+      <AdminLoginFormClient />
       <div className="text-center text-sm">
         도움이 필요하신가요?{' '}
         <a href="#" className="font-semibold">

@@ -2,6 +2,7 @@ import { firebaseAuth } from '@workspace/firebase/firebase-config';
 import {
   GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
   signInWithPopup,
   signOut,
   type User,
@@ -25,6 +26,25 @@ export const onAuthStateChange = (callback: (user: User | null) => void) => {
  */
 export const signInWithGoogle = async (): Promise<UserCredential> => {
   const result = await signInWithPopup(firebaseAuth, googleProvider);
+
+  return result;
+};
+
+/**
+ * 이메일/비밀번호 로그인
+ * @param email - 이메일 주소
+ * @param password - 비밀번호
+ * @returns Promise<UserCredential> - 로그인된 사용자 정보
+ */
+export const signInWithEmailAndPassword = async (
+  email: string,
+  password: string,
+): Promise<UserCredential> => {
+  const result = await firebaseSignInWithEmailAndPassword(
+    firebaseAuth,
+    email,
+    password,
+  );
 
   return result;
 };
