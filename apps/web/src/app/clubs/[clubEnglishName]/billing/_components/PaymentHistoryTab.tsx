@@ -58,6 +58,8 @@ const getStatusBadge = (status: PaymentRecord['status']) => {
 
 const getTypeLabel = (type?: PaymentRecordType): string => {
   switch (type) {
+    case 'initial':
+      return '신규 구독';
     case 'renewal':
       return '정기 결제';
     case 'plan_change':
