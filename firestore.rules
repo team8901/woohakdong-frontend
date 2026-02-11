@@ -110,7 +110,7 @@ service cloud.firestore {
 
     // 결제 허용 타입
     function validPaymentType() {
-      return ['renewal', 'plan_change', 'downgrade_to_free', 'subscription_canceled'];
+      return ['initial', 'renewal', 'plan_change', 'downgrade_to_free', 'subscription_canceled'];
     }
 
     // 결제 생성 검증

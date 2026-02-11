@@ -79,6 +79,7 @@ export type Subscription = {
 };
 
 export type PaymentRecordType =
+  | 'initial' // 신규 구독 첫 결제
   | 'renewal' // 정기 결제 갱신
   | 'plan_change' // 플랜 변경 (다운그레이드)
   | 'downgrade_to_free' // 무료 플랜 다운그레이드
@@ -923,7 +924,7 @@ export const createSubscriptionWithBillingKey = async (
       planId: input.planId,
       planName: input.planName,
       status: 'success',
-      type: 'renewal' as PaymentRecordType,
+      type: 'initial' as PaymentRecordType,
       createdAt: serverTimestamp(),
     });
 
