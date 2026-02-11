@@ -8,7 +8,7 @@ import {
 import { Wallet } from 'lucide-react';
 
 import {
-  BILLING_PAYMENT_METHODS,
+  PAYMENT_METHODS,
   type PaymentMethodId,
 } from '../../_helpers/constants/portone';
 import { PaymentMethodIcon } from '../../_helpers/utils/paymentMethodIcon';
@@ -37,7 +37,7 @@ export const SelectCardStep = ({
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-3">
-        {BILLING_PAYMENT_METHODS.map((method) => (
+        {PAYMENT_METHODS.map((method) => (
           <Button
             key={method.id}
             variant="outline"

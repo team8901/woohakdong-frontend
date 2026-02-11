@@ -19,16 +19,6 @@ export const FAQ_ITEMS = [
     answer:
       '네, 한 계정으로 여러 동아리를 등록하고 관리할 수 있어요. 동아리별로 독립적으로 운영됩니다.',
   },
-  {
-    question: '결제는 어떻게 하나요?',
-    answer:
-      '신용카드, 체크카드, 카카오페이로 월별 또는 연간 결제가 가능해요.',
-  },
-  {
-    question: '환불 정책은 어떻게 되나요?',
-    answer:
-      '결제일로부터 7일 이내 전액 환불이 가능합니다. 이후에는 남은 기간에 대해 일할 계산으로 환불해 드려요.',
-  },
 ] as const;
 
 export type FaqItem = (typeof FAQ_ITEMS)[number];

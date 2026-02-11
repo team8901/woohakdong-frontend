@@ -62,16 +62,10 @@ const getTypeLabel = (type?: PaymentRecordType): string => {
       return '정기 결제';
     case 'plan_change':
       return '플랜 변경';
-    case 'upgrade':
-      return '업그레이드';
-    case 'billing_cycle_change':
-      return '결제 주기 변경';
     case 'downgrade_to_free':
       return '무료 전환';
     case 'subscription_canceled':
       return '구독 종료';
-    case 'credit_applied':
-      return '크레딧 적용';
 
     default:
       return '결제';
@@ -144,11 +138,6 @@ export const PaymentHistoryTab = ({
                       <span className="text-muted-foreground">-</span>
                     ) : (
                       `${record.amount.toLocaleString()}원`
-                    )}
-                    {record.creditApplied && record.creditApplied > 0 && (
-                      <div className="text-muted-foreground text-xs">
-                        (크레딧 {record.creditApplied.toLocaleString()}원 적용)
-                      </div>
                     )}
                   </TableCell>
                   <TableCell className="text-center">

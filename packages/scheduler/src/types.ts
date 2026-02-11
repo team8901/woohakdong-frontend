@@ -31,7 +31,7 @@ export type SubscriptionStatus =
   | 'pending'
   | 'payment_failed';
 
-export type BillingCycle = 'monthly' | 'yearly';
+export type BillingCycle = 'monthly';
 
 export interface Subscription {
   id: string;
@@ -42,20 +42,20 @@ export interface Subscription {
   planName: string;
   price: number;
   billingCycle: BillingCycle;
-  billingKeyId: string;
+  /** 빌링키 ID */
+  billingKeyId?: string;
   status: SubscriptionStatus;
   startDate: Date;
   endDate: Date;
+  /** 결제 실패 재시도 횟수 */
   retryCount?: number;
   lastPaymentError?: string;
   /** 구독 취소 시점 (취소했지만 endDate까지 이용 가능) */
   canceledAt?: Date;
-  /** 예약된 플랜 변경 */
+  /** 예약된 플랜 변경 (다음 결제일 적용) */
   nextPlanId?: string;
   nextPlanName?: string;
   nextPlanPrice?: number;
-  /** 빌링 주기 변경 시 남은 크레딧 */
-  credit?: number;
 }
 
 // ===== 빌링키 관련 타입 =====
@@ -103,4 +103,3 @@ export interface PaymentError {
 }
 
 export type PaymentResponse = PaymentResult | PaymentError;
-
