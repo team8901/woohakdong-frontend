@@ -74,8 +74,8 @@ export const RegisterFeaturesSectionClient = () => {
                 <div className="space-y-2">
                   <Label className="text-xs">동아리 이름</Label>
                   <Input
-                    placeholder="우학동 개발팀"
-                    defaultValue="우학동 개발팀"
+                    placeholder="Do-iT 동아리"
+                    defaultValue="Do-iT 동아리"
                     className="h-9 text-sm"
                     readOnly
                   />
@@ -87,8 +87,8 @@ export const RegisterFeaturesSectionClient = () => {
                       woohakdong.com/
                     </span>
                     <Input
-                      placeholder="woohakdong-dev"
-                      defaultValue="woohakdong-dev"
+                      placeholder="doit"
+                      defaultValue="doit"
                       className="h-9 flex-1 text-sm"
                       readOnly
                     />
@@ -110,7 +110,7 @@ export const RegisterFeaturesSectionClient = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="text-foreground font-semibold">
-                      우학동 개발팀
+                      Do-iT 동아리
                     </p>
                     <Badge variant="secondary" className="text-xs">
                       <Globe className="mr-1 size-3" />
@@ -118,7 +118,7 @@ export const RegisterFeaturesSectionClient = () => {
                     </Badge>
                   </div>
                   <p className="text-muted-foreground text-xs">
-                    woohakdong.com/woohakdong-dev
+                    woohakdong.com/doit
                   </p>
                   <div className="text-muted-foreground mt-1 flex items-center gap-1 text-xs">
                     <Users className="size-3" />
