@@ -62,10 +62,10 @@ export const AdminLoginFormClient = () => {
         {isLoading ? (
           <>
             <Spinner />
-            <p>로그인 중...</p>
+            <span>로그인 중...</span>
           </>
         ) : (
-          <p>로그인</p>
+          <span>로그인</span>
         )}
       </Button>
     </form>

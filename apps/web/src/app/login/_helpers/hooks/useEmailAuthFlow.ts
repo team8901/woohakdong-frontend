@@ -23,8 +23,7 @@ export const useEmailAuthFlow = () => {
 
       await authorizationMutation({
         data: {
-          // TODO: update provider name
-          provider: 'firebase',
+          provider: 'email-password',
           providerAccessToken: firebaseIdToken,
         },
       });
