@@ -10,7 +10,11 @@ import {
 } from './firebase';
 import { getDefaultBillingKey, processBillingPayment } from './portone';
 import type { Env, Subscription } from './types';
-import { MAX_RETRY_COUNT, PAYMENTS_COLLECTION, SUBSCRIPTIONS_COLLECTION } from './types';
+import {
+  MAX_RETRY_COUNT,
+  PAYMENTS_COLLECTION,
+  SUBSCRIPTIONS_COLLECTION,
+} from './types';
 import { calculateNewEndDate } from './utils';
 
 /**
@@ -75,11 +79,6 @@ export const renewSubscription = async (
     ? `${effectivePlanName} 플랜 정기결제 (플랜 변경)`
     : `${effectivePlanName} 플랜 정기결제`;
 
-  // 크레딧이 있으면 결제 금액에서 차감
-  const existingCredit = subscription.credit ?? 0;
-  const actualPaymentAmount = Math.max(0, effectivePrice - existingCredit);
-  const remainingCredit = Math.max(0, existingCredit - effectivePrice);
-
   let paymentSuccess = false;
   let paymentData: {
     paymentId: string;
@@ -88,98 +87,87 @@ export const renewSubscription = async (
     paidAt: string;
   } | null = null;
 
-  // 결제 금액이 0보다 크면 실제 결제 진행
-  if (actualPaymentAmount > 0) {
-    const result = await processBillingPayment(
-      env,
-      billingKey.billingKey,
-      actualPaymentAmount,
-      paymentId,
-      existingCredit > 0
-        ? `${orderName} (크레딧 ${existingCredit.toLocaleString()}원 적용)`
-        : orderName,
-    );
+  // 결제 진행
+  const result = await processBillingPayment(
+    env,
+    billingKey.billingKey,
+    effectivePrice,
+    paymentId,
+    orderName,
+  );
 
-    paymentSuccess = result.success;
+  paymentSuccess = result.success;
 
-    if (result.success) {
-      paymentData = result.data;
-    } else {
-      // 결제 실패 처리
-      const currentRetryCount = subscription.retryCount ?? 0;
-      const newRetryCount = currentRetryCount + 1;
+  if (result.success) {
+    paymentData = result.data;
+  } else {
+    // 결제 실패 처리
+    const currentRetryCount = subscription.retryCount ?? 0;
+    const newRetryCount = currentRetryCount + 1;
 
-      if (newRetryCount >= MAX_RETRY_COUNT) {
-        await updateFirestoreDocument(
-          env,
-          firebaseToken,
-          SUBSCRIPTIONS_COLLECTION,
-          subscription.id,
-          {
-            status: 'expired',
-            retryCount: newRetryCount,
-            lastPaymentError: result.error.message,
-            updatedAt: new Date(),
-          },
-        );
-
-        console.error(
-          `Subscription expired after ${MAX_RETRY_COUNT} retries: ${subscription.id}`,
-        );
-      } else {
-        await updateFirestoreDocument(
-          env,
-          firebaseToken,
-          SUBSCRIPTIONS_COLLECTION,
-          subscription.id,
-          {
-            status: 'payment_failed',
-            retryCount: newRetryCount,
-            lastPaymentError: result.error.message,
-            updatedAt: new Date(),
-          },
-        );
-
-        console.warn(
-          `Payment failed for ${subscription.id}, retry ${newRetryCount}/${MAX_RETRY_COUNT}`,
-        );
-      }
-
-      // 실패한 결제 기록
-      const failedPaymentId = `failed_${subscription.clubId}_${Date.now()}`;
-
-      await createFirestoreDocument(
+    if (newRetryCount >= MAX_RETRY_COUNT) {
+      await updateFirestoreDocument(
         env,
         firebaseToken,
-        PAYMENTS_COLLECTION,
-        failedPaymentId,
+        SUBSCRIPTIONS_COLLECTION,
+        subscription.id,
         {
-          id: failedPaymentId,
-          subscriptionId: subscription.id,
-          clubId: subscription.clubId,
-          userId: subscription.userId,
-          userEmail: subscription.userEmail,
-          orderId: paymentId,
-          transactionId: '',
-          amount: actualPaymentAmount,
-          planId: effectivePlanId,
-          planName: effectivePlanName,
-          status: 'failed',
-          errorCode: result.error.code,
-          errorMessage: result.error.message,
-          createdAt: new Date(),
+          status: 'expired',
+          retryCount: newRetryCount,
+          lastPaymentError: result.error.message,
+          updatedAt: new Date(),
         },
       );
 
-      return false;
-    }
-  } else {
-    // 크레딧으로 전액 충당 - 결제 없이 성공 처리
-    paymentSuccess = true;
+      console.error(
+        `Subscription expired after ${MAX_RETRY_COUNT} retries: ${subscription.id}`,
+      );
+    } else {
+      await updateFirestoreDocument(
+        env,
+        firebaseToken,
+        SUBSCRIPTIONS_COLLECTION,
+        subscription.id,
+        {
+          status: 'payment_failed',
+          retryCount: newRetryCount,
+          lastPaymentError: result.error.message,
+          updatedAt: new Date(),
+        },
+      );
 
-    console.log(
-      `Subscription ${subscription.id} renewed with credit (no payment needed)`,
+      console.warn(
+        `Payment failed for ${subscription.id}, retry ${newRetryCount}/${MAX_RETRY_COUNT}`,
+      );
+    }
+
+    // 실패한 결제 기록
+    const failedPaymentId = `failed_${subscription.clubId}_${Date.now()}`;
+
+    await createFirestoreDocument(
+      env,
+      firebaseToken,
+      PAYMENTS_COLLECTION,
+      failedPaymentId,
+      {
+        id: failedPaymentId,
+        subscriptionId: subscription.id,
+        clubId: subscription.clubId,
+        userId: subscription.userId,
+        userEmail: subscription.userEmail,
+        orderId: paymentId,
+        transactionId: '',
+        amount: effectivePrice,
+        planId: effectivePlanId,
+        planName: effectivePlanName,
+        status: 'failed',
+        errorCode: result.error.code,
+        errorMessage: result.error.message,
+        createdAt: new Date(),
+      },
     );
+
+    return false;
   }
 
   if (paymentSuccess) {
@@ -194,9 +182,8 @@ export const renewSubscription = async (
     };
 
     if (isDowngradingToFree) {
-      // 무료 플랜: endDate 없음, 크레딧 소멸
+      // 무료 플랜: endDate 없음
       updateData.endDate = null;
-      updateData.credit = null;
       updateData.billingCycle = null;
       updateData.planId = effectivePlanId;
       updateData.planName = effectivePlanName;
@@ -218,7 +205,6 @@ export const renewSubscription = async (
       );
 
       updateData.endDate = newEndDate;
-      updateData.credit = remainingCredit > 0 ? remainingCredit : null;
 
       if (hasScheduledChange) {
         updateData.planId = effectivePlanId;
@@ -243,10 +229,6 @@ export const renewSubscription = async (
     );
 
     // 결제 기록 생성
-    console.log(
-      `Creating payment record for ${subscription.id}: paymentData=${!!paymentData}, isDowngradingToFree=${isDowngradingToFree}, existingCredit=${existingCredit}`,
-    );
-
     let paymentRecordCreated = false;
 
     if (paymentData) {
@@ -271,10 +253,6 @@ export const renewSubscription = async (
         paidAt: paymentData.paidAt,
         createdAt: new Date(),
       };
-
-      if (existingCredit > 0) {
-        paymentRecord.creditApplied = existingCredit;
-      }
 
       if (hasScheduledChange) {
         paymentRecord.previousPlanId = subscription.planId;
@@ -332,47 +310,6 @@ export const renewSubscription = async (
           recordError,
         );
       }
-    } else if (existingCredit > 0) {
-      const creditPaymentId = `credit_${subscription.clubId}_${Date.now()}`;
-
-      const creditRecord: Record<string, unknown> = {
-        id: creditPaymentId,
-        subscriptionId: subscription.id,
-        clubId: subscription.clubId,
-        userId: subscription.userId,
-        userEmail: subscription.userEmail,
-        orderId: creditPaymentId,
-        transactionId: '',
-        amount: 0,
-        creditApplied: existingCredit,
-        planId: effectivePlanId,
-        planName: effectivePlanName,
-        status: 'success',
-        type: hasScheduledChange ? 'plan_change' : 'credit_applied',
-        createdAt: new Date(),
-      };
-
-      if (hasScheduledChange) {
-        creditRecord.previousPlanId = subscription.planId;
-        creditRecord.previousPlanName = subscription.planName;
-      }
-
-      try {
-        await createFirestoreDocument(
-          env,
-          firebaseToken,
-          PAYMENTS_COLLECTION,
-          creditPaymentId,
-          creditRecord,
-        );
-        console.log(`Credit record created successfully: ${creditPaymentId}`);
-        paymentRecordCreated = true;
-      } catch (recordError) {
-        console.error(
-          `Failed to create credit record: ${creditPaymentId}`,
-          recordError,
-        );
-      }
     }
 
     // Catch-all fallback
@@ -391,7 +328,7 @@ export const renewSubscription = async (
         userEmail: subscription.userEmail,
         orderId: fallbackId,
         transactionId: '',
-        amount: actualPaymentAmount,
+        amount: effectivePrice,
         planId: effectivePlanId,
         planName: effectivePlanName,
         status: 'success',
@@ -452,10 +389,11 @@ export const processSubscriptionRenewals = async (env: Env): Promise<void> => {
     ],
   )) as Subscription[];
 
-  console.log(`Found ${subscriptions.length} subscriptions to renew`);
+  console.log(`Found ${subscriptions.length} subscriptions to process`);
 
   let success = 0;
   let failed = 0;
+  let skipped = 0;
 
   for (const subscription of subscriptions) {
     if (!subscription.id || !subscription.clubId) {
@@ -468,6 +406,7 @@ export const processSubscriptionRenewals = async (env: Env): Promise<void> => {
 
     if (subscription.price === 0) {
       console.log(`Skipping free plan: ${subscription.id}`);
+      skipped++;
 
       continue;
     }
@@ -475,6 +414,7 @@ export const processSubscriptionRenewals = async (env: Env): Promise<void> => {
     // 취소된 구독은 processCanceledSubscriptions에서 처리
     if (subscription.canceledAt) {
       console.log(`Skipping canceled subscription: ${subscription.id}`);
+      skipped++;
 
       continue;
     }
@@ -486,7 +426,7 @@ export const processSubscriptionRenewals = async (env: Env): Promise<void> => {
   }
 
   console.log(
-    `Subscription renewal complete: ${success} success, ${failed} failed`,
+    `Subscription renewal complete: ${success} success, ${failed} failed, ${skipped} skipped`,
   );
 };
 

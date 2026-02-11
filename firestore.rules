@@ -25,7 +25,7 @@ service cloud.firestore {
     // 구독 선택적 필드 (endDate는 무료 플랜에서 null 가능)
     function subscriptionOptionalFields() {
       return ['endDate', 'billingCycle', 'billingKeyId', 'canceledAt',
-              'nextPlanId', 'nextPlanName', 'nextPlanPrice', 'credit',
+              'nextPlanId', 'nextPlanName', 'nextPlanPrice',
               'retryCount', 'lastPaymentError'];
     }
 
@@ -36,7 +36,7 @@ service cloud.firestore {
 
     // 구독 허용 빌링 주기
     function validBillingCycle() {
-      return ['monthly', 'yearly'];
+      return ['monthly'];
     }
 
     // 구독 생성 검증
@@ -62,7 +62,6 @@ service cloud.firestore {
         // 선택적 필드 타입 검증
         && (!('billingCycle' in data.keys()) || data.billingCycle in validBillingCycle())
         && (!('billingKeyId' in data.keys()) || data.billingKeyId is string)
-        && (!('credit' in data.keys()) || (data.credit is number && data.credit >= 0))
         && (!('nextPlanPrice' in data.keys()) || (data.nextPlanPrice is number && data.nextPlanPrice >= 0));
     }
 
@@ -84,7 +83,6 @@ service cloud.firestore {
         && data.status in validSubscriptionStatus()
         && data.price >= 0
         && (!('billingCycle' in data.keys()) || data.billingCycle in validBillingCycle())
-        && (!('credit' in data.keys()) || (data.credit is number && data.credit >= 0))
         && (!('nextPlanPrice' in data.keys()) || (data.nextPlanPrice is number && data.nextPlanPrice >= 0))
         && (!('retryCount' in data.keys()) || (data.retryCount is int && data.retryCount >= 0))
         && (!('lastPaymentError' in data.keys()) || data.lastPaymentError is string);
@@ -101,7 +99,7 @@ service cloud.firestore {
 
     // 결제 선택적 필드
     function paymentOptionalFields() {
-      return ['type', 'previousPlanId', 'previousPlanName', 'creditApplied', 'paidAt',
+      return ['type', 'previousPlanId', 'previousPlanName', 'paidAt',
               'errorCode', 'errorMessage'];
     }
 
@@ -112,8 +110,7 @@ service cloud.firestore {
 
     // 결제 허용 타입
     function validPaymentType() {
-      return ['upgrade', 'billing_cycle_change', 'renewal', 'plan_change',
-              'downgrade_to_free', 'subscription_canceled', 'credit_applied'];
+      return ['renewal', 'plan_change', 'downgrade_to_free', 'subscription_canceled'];
     }
 
     // 결제 생성 검증
@@ -143,7 +140,6 @@ service cloud.firestore {
         && (!('type' in data.keys()) || data.type in validPaymentType())
         && (!('previousPlanId' in data.keys()) || data.previousPlanId is string)
         && (!('previousPlanName' in data.keys()) || data.previousPlanName is string)
-        && (!('creditApplied' in data.keys()) || (data.creditApplied is number && data.creditApplied >= 0))
         && (!('paidAt' in data.keys()) || data.paidAt is string)
         && (!('errorCode' in data.keys()) || data.errorCode is string)
         && (!('errorMessage' in data.keys()) || data.errorMessage is string);

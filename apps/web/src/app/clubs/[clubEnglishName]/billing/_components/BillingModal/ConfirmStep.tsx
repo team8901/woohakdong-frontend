@@ -24,16 +24,12 @@ import {
 } from 'lucide-react';
 
 import { PaymentMethodIcon } from '../../_helpers/utils/paymentMethodIcon';
-import type { ProrationResult } from '../../_helpers/utils/proration';
 
 type ConfirmStepProps = {
   selectedPlan: SubscriptionPlanId;
   currentPlanId?: SubscriptionPlanId;
-  isYearly: boolean;
   billingKeys: BillingKey[];
   selectedBillingKey: BillingKey | null;
-  /** 비례 정산 정보 (업그레이드 시) */
-  proration?: ProrationResult | null;
   /** 예약 변경 시 적용일 (현재 구독 종료일) */
   scheduledDate?: string;
   onSelectBillingKey: (billingKey: BillingKey) => void;
@@ -45,10 +41,8 @@ type ConfirmStepProps = {
 export const ConfirmStep = ({
   selectedPlan,
   currentPlanId,
-  isYearly,
   billingKeys,
   selectedBillingKey,
-  proration,
   scheduledDate,
   onSelectBillingKey,
   onPayment,
@@ -59,21 +53,16 @@ export const ConfirmStep = ({
 
   const plan = SUBSCRIPTION_PLANS[selectedPlan];
   const currentPlan = currentPlanId ? SUBSCRIPTION_PLANS[currentPlanId] : null;
-  const billingPrice = isYearly
-    ? plan.monthlyPriceYearly * 12
-    : plan.monthlyPrice;
-  const billingCycle = isYearly ? '연' : '월';
+  const billingPrice = plan.monthlyPrice;
   const isFree = plan.monthlyPrice === 0;
   const hasMultipleCards = billingKeys.length > 1;
 
-  // 비례 정산이 있는 경우 (업그레이드 또는 빌링 주기 변경)
-  const hasProration =
-    proration && (proration.isUpgrade || proration.isBillingCycleChange);
-  const amountToPay = hasProration ? proration.amountDue : billingPrice;
+  // 기존 유료 플랜에서 다른 유료 플랜으로 변경하는 경우
+  const isExistingPaidPlan = currentPlanId && currentPlanId !== 'FREE';
+  const isPlanChange = isExistingPaidPlan && selectedPlan !== currentPlanId;
 
-  // 예약 변경인 경우 (다운그레이드, 빌링 주기 동일)
-  const isScheduledChange =
-    proration && !proration.isUpgrade && !proration.isBillingCycleChange;
+  // 플랜 변경은 다음 결제일에 예약됨
+  const isScheduledChange = isPlanChange && !isFree;
 
   return (
     <>
@@ -103,28 +92,24 @@ export const ConfirmStep = ({
           </div>
         )}
 
-        {/* 플랜/빌링 주기 변경 정보 */}
-        {(hasProration || isScheduledChange) && proration && (
+        {/* 플랜 변경 정보 */}
+        {isPlanChange && currentPlan && (
           <div className="bg-primary/5 flex items-center justify-center gap-2 rounded-lg p-3">
             <span className="text-muted-foreground text-sm">
-              {currentPlan?.name ?? '현재 플랜'}
-              {proration.isBillingCycleChange && !proration.isUpgrade && (
-                <span className="ml-1">
-                  (
-                  {proration.isBillingCycleChange && !isYearly
-                    ? '연간'
-                    : '월간'}
-                  )
-                </span>
-              )}
+              {currentPlan.name}
             </span>
             <ArrowRight className="text-primary size-4" />
-            <span className="text-primary font-medium">
-              {plan.name}
-              {proration.isBillingCycleChange && (
-                <span className="ml-1">({isYearly ? '연간' : '월간'})</span>
-              )}
-            </span>
+            <span className="text-primary font-medium">{plan.name}</span>
+          </div>
+        )}
+
+        {/* 정기결제 안내 */}
+        {!isScheduledChange && !isFree && (
+          <div className="bg-muted/50 rounded-lg p-3 text-center text-sm">
+            <p>
+              매월 자동으로 결제되는{' '}
+              <span className="text-primary font-medium">정기결제</span>입니다.
+            </p>
           </div>
         )}
 
@@ -154,86 +139,21 @@ export const ConfirmStep = ({
                   {scheduledDate}부터 결제 금액
                 </span>
                 <span className="text-primary text-lg font-bold">
-                  {billingPrice.toLocaleString()}원/{billingCycle}
+                  {billingPrice.toLocaleString()}원/월
                 </span>
               </div>
-              {isYearly && (
-                <p className="text-muted-foreground text-right text-xs">
-                  월 {plan.monthlyPriceYearly.toLocaleString()}원 ×12개월
-                </p>
-              )}
               <p className="text-muted-foreground text-sm">
                 오늘 추가 결제는 없습니다. 현재 결제 주기가 끝나면 새로운
-                플랜으로 자동 결제됩니다.
-              </p>
-            </div>
-          ) : hasProration && proration ? (
-            /* 비례 정산 상세 (업그레이드 또는 빌링 주기 변경 시) */
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  {proration.isBillingCycleChange
-                    ? `${plan.name} 플랜 (${isYearly ? '연간' : '월간'})`
-                    : `${plan.name} 플랜 (${proration.remainingDays}일)`}
-                </span>
-                <span>{proration.newPlanCost.toLocaleString()}원</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">기존 구독 크레딧</span>
-                <span className="text-green-600">
-                  -{proration.currentPlanCredit.toLocaleString()}원
-                </span>
-              </div>
-              {/* 기존 보유 크레딧 표시 */}
-              {proration.existingCredit > 0 && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">보유 크레딧</span>
-                  <span className="text-green-600">
-                    -{proration.existingCredit.toLocaleString()}원
-                  </span>
-                </div>
-              )}
-              <Separator className="my-2" />
-              <div className="flex items-center justify-between">
-                <span className="font-medium">오늘 결제 금액</span>
-                <span className="text-primary text-lg font-bold">
-                  {proration.amountDue === 0
-                    ? '무료'
-                    : `${proration.amountDue.toLocaleString()}원`}
-                </span>
-              </div>
-              {/* 남은 크레딧 표시 */}
-              {proration.remainingCredit > 0 && (
-                <div className="rounded-md bg-green-50 p-2 dark:bg-green-950">
-                  <p className="text-sm text-green-700 dark:text-green-300">
-                    💰 남은 크레딧 {proration.remainingCredit.toLocaleString()}
-                    원은 다음 결제에서 자동 차감됩니다.
-                  </p>
-                </div>
-              )}
-              <p className="text-muted-foreground text-right text-xs">
-                다음 결제일(
-                {proration.nextBillingDate.toLocaleDateString(
-                  'ko-KR',
-                )})부터 {billingPrice.toLocaleString()}원/{billingCycle}
+                플랜으로 결제됩니다.
               </p>
             </div>
           ) : (
-            <>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">
-                  {isYearly ? '연간' : '월간'} 결제 금액
-                </span>
-                <span className="text-primary text-lg font-bold">
-                  {isFree ? '무료' : `${billingPrice.toLocaleString()}원`}
-                </span>
-              </div>
-              {isYearly && !isFree && (
-                <p className="text-muted-foreground mt-1 text-right text-xs">
-                  월 {plan.monthlyPriceYearly.toLocaleString()}원 ×12개월
-                </p>
-              )}
-            </>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">월간 결제 금액</span>
+              <span className="text-primary text-lg font-bold">
+                {isFree ? '무료' : `${billingPrice.toLocaleString()}원`}
+              </span>
+            </div>
           )}
         </div>
 
@@ -340,21 +260,12 @@ export const ConfirmStep = ({
           className="w-full"
           size="lg"
           onClick={onPayment}
-          disabled={
-            !isScheduledChange &&
-            !selectedBillingKey &&
-            !isFree &&
-            amountToPay > 0
-          }>
+          disabled={!isScheduledChange && !selectedBillingKey && !isFree}>
           {isScheduledChange
             ? '플랜 변경 예약하기'
             : isFree
               ? '무료로 시작하기'
-              : hasProration
-                ? amountToPay === 0
-                  ? '크레딧으로 전환하기'
-                  : `${amountToPay.toLocaleString()}원 결제하기`
-                : `${billingPrice.toLocaleString()}원/${billingCycle} 결제하기`}
+              : `${billingPrice.toLocaleString()}원/월 결제하기`}
         </Button>
         <Button variant="ghost" className="w-full" onClick={onClose}>
           취소

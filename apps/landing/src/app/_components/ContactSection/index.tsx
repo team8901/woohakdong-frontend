@@ -5,7 +5,6 @@ import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 import { MailIcon } from 'lucide-react';
 
 import { PreRegistrationDialogClient } from '../../_clientBoundary/PreRegistrationDialogClient';
-import { BusinessInfo } from '../BusinessInfo';
 
 export const ContactSection = () => {
   return (
@@ -58,8 +57,6 @@ export const ContactSection = () => {
             </div>
           </div>
         </div>
-        <Separator className="my-6" />
-        <BusinessInfo />
       </div>
     </section>
   );
