@@ -52,6 +52,7 @@ import {
   DEFAULT_BILLING_CHANNEL,
   PAYMENT_METHODS,
   type PaymentMethodId,
+  PORTONE_ERROR_CODE,
 } from '../../_helpers/constants/portone';
 import { usePortoneBilling } from '../../_helpers/hooks/usePortoneBilling';
 import { useSubscription } from '../../_helpers/hooks/useSubscription';
@@ -450,7 +451,10 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       console.error('Failed to register payment method:', err);
 
       // 사용자 취소는 에러로 처리하지 않음
-      if (err instanceof Error && err.message === 'USER_CANCEL') {
+      if (
+        err instanceof Error &&
+        err.message === PORTONE_ERROR_CODE.USER_CANCEL
+      ) {
         return;
       }
 
@@ -614,7 +618,10 @@ export const BillingClient = ({ clubId }: BillingClientProps) => {
       console.error('Failed to process payment:', err);
 
       // 사용자 취소는 에러로 처리하지 않고 select-card 단계로 돌아감
-      if (err instanceof Error && err.message === 'USER_CANCEL') {
+      if (
+        err instanceof Error &&
+        err.message === PORTONE_ERROR_CODE.USER_CANCEL
+      ) {
         setModalStep('select-card');
         setIsProcessing(false);
 

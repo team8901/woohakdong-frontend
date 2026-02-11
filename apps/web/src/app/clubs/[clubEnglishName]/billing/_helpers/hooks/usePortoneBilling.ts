@@ -6,7 +6,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { PORTONE_STORE_ID } from '../constants/portone';
+import { PORTONE_ERROR_CODE, PORTONE_STORE_ID } from '../constants/portone';
 
 export type BillingKeyMethod = 'CARD' | 'EASY_PAY';
 
@@ -114,8 +114,8 @@ export const usePortoneBilling = (): UsePortoneBillingReturn => {
         }
 
         if (response.code) {
-          if (response.code === 'USER_CANCEL') {
-            throw new Error('USER_CANCEL');
+          if (response.code === PORTONE_ERROR_CODE.USER_CANCEL) {
+            throw new Error(PORTONE_ERROR_CODE.USER_CANCEL);
           }
 
           throw new Error(response.message ?? '빌링키 발급에 실패했습니다.');

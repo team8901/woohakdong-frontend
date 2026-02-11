@@ -54,3 +54,11 @@ export const DEFAULT_BILLING_CHANNEL = PORTONE_CHANNEL_KEY.INICIS_BILLING;
  * 기본 결제수단 ID
  */
 export const DEFAULT_PAYMENT_METHOD_ID: PaymentMethodId = 'card';
+
+/**
+ * 포트원 에러 코드
+ */
+export const PORTONE_ERROR_CODE = {
+  /** 사용자가 결제를 취소한 경우 */
+  USER_CANCEL: 'USER_CANCEL',
+} as const;
