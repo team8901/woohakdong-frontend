@@ -32,9 +32,11 @@ export const calculateNewEndDate = (
 
   if (testCycleMinutes !== null) {
     newEndDate.setTime(newEndDate.getTime() + testCycleMinutes * 60 * 1000);
-  } else if (billingCycle === 'yearly') {
-    newEndDate.setFullYear(newEndDate.getFullYear() + 1);
-  } else {
+
+    return newEndDate;
+  }
+
+  if (billingCycle === 'monthly') {
     newEndDate.setMonth(newEndDate.getMonth() + 1);
   }
 

@@ -4,8 +4,12 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --port 8787",
+    "dev:scheduled": "wrangler dev --test-scheduled --port 8787",
     "deploy": "wrangler deploy",
+    "deploy:dev": "wrangler deploy --config wrangler.dev.toml",
+    "logs": "wrangler tail",
+    "logs:dev": "wrangler tail --config wrangler.dev.toml",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

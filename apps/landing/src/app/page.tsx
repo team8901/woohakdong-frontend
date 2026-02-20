@@ -8,7 +8,6 @@ import { ScheduleFeaturesSectionClient } from './_clientBoundary/ScheduleFeature
 import { ContactSection } from './_components/ContactSection';
 import { FaqSection } from './_components/FaqSection';
 import { IntroductionSection } from './_components/IntroductionSection';
-import { PricingSection } from './_components/PricingSection';
 
 const LandingPage = () => {
   return (
@@ -22,7 +21,6 @@ const LandingPage = () => {
         <ItemFeaturesSectionClient />
         <ScheduleFeaturesSectionClient />
         <CommunicationFeaturesSectionClient />
-        <PricingSection />
         <FaqSection />
         <ContactSection />
       </div>

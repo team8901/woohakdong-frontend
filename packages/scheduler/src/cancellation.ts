@@ -53,10 +53,9 @@ export const processCanceledSubscriptions = async (env: Env): Promise<void> => {
     const newPlanName = subscription.nextPlanName ?? 'Free';
     const newPrice = subscription.nextPlanPrice ?? 0;
     const isTransitioningToPaidPlan = newPrice > 0;
-    const existingCredit = subscription.credit ?? 0;
 
     console.log(
-      `Processing canceled subscription ${subscription.id}: ${subscription.planId} -> ${newPlanId}, price=${newPrice}, credit=${existingCredit}`,
+      `Processing canceled subscription ${subscription.id}: ${subscription.planId} -> ${newPlanId}, price=${newPrice}`,
     );
 
     if (isTransitioningToPaidPlan) {
@@ -67,7 +66,6 @@ export const processCanceledSubscriptions = async (env: Env): Promise<void> => {
         newPlanId,
         newPlanName,
         newPrice,
-        existingCredit,
       );
     } else {
       await handleFreePlanTransition(
@@ -76,7 +74,6 @@ export const processCanceledSubscriptions = async (env: Env): Promise<void> => {
         subscription,
         newPlanId,
         newPlanName,
-        existingCredit,
       );
     }
   }
@@ -85,7 +82,7 @@ export const processCanceledSubscriptions = async (env: Env): Promise<void> => {
 };
 
 /**
- * 유료 플랜으로 전환 처리
+ * 유료 플랜으로 전환 처리 (정기결제만)
  */
 const handlePaidPlanTransition = async (
   env: Env,
@@ -94,7 +91,6 @@ const handlePaidPlanTransition = async (
   newPlanId: string,
   newPlanName: string,
   newPrice: number,
-  existingCredit: number,
 ): Promise<void> => {
   const billingKey = await getDefaultBillingKey(
     env,
@@ -118,7 +114,6 @@ const handlePaidPlanTransition = async (
         price: 0,
         status: 'active',
         canceledAt: null,
-        credit: null,
         endDate: null,
         billingCycle: null,
         nextPlanId: null,
@@ -132,110 +127,20 @@ const handlePaidPlanTransition = async (
     return;
   }
 
-  const actualPaymentAmount = Math.max(0, newPrice - existingCredit);
-  const remainingCredit = Math.max(0, existingCredit - newPrice);
-  const creditApplied = Math.min(existingCredit, newPrice);
-
   const paymentId = `plan_change_${subscription.clubId}_${Date.now()}`;
-  const orderName =
-    existingCredit > 0
-      ? `${newPlanName} 플랜 정기결제 (크레딧 ${creditApplied.toLocaleString()}원 적용)`
-      : `${newPlanName} 플랜 정기결제`;
+  const orderName = `${newPlanName} 플랜 정기결제`;
 
-  let paymentSuccess = false;
-  let paymentData: {
-    paymentId: string;
-    transactionId: string;
-    amount: number;
-    paidAt: string;
-  } | null = null;
+  const result = await processBillingPayment(
+    env,
+    billingKey.billingKey,
+    newPrice,
+    paymentId,
+    orderName,
+  );
 
-  if (actualPaymentAmount > 0) {
-    const result = await processBillingPayment(
-      env,
-      billingKey.billingKey,
-      actualPaymentAmount,
-      paymentId,
-      orderName,
-    );
-
-    paymentSuccess = result.success;
-
-    if (result.success) {
-      paymentData = result.data;
-      console.log(
-        `Payment successful for plan change: ${subscription.id}, amount=${actualPaymentAmount}`,
-      );
-    } else {
-      console.error(
-        `Payment failed for plan change ${subscription.id}: ${result.error.message}`,
-      );
-
-      await updateFirestoreDocument(
-        env,
-        firebaseToken,
-        SUBSCRIPTIONS_COLLECTION,
-        subscription.id,
-        {
-          planId: 'FREE',
-          planName: 'Free',
-          price: 0,
-          status: 'active',
-          canceledAt: null,
-          credit: existingCredit > 0 ? existingCredit : null,
-          endDate: null,
-          billingCycle: null,
-          nextPlanId: null,
-          nextPlanName: null,
-          nextPlanPrice: null,
-          lastPaymentError: result.error.message,
-          updatedAt: new Date(),
-        },
-      );
-
-      const failedPaymentId = `failed_plan_change_${subscription.clubId}_${Date.now()}`;
-
-      await createFirestoreDocument(
-        env,
-        firebaseToken,
-        PAYMENTS_COLLECTION,
-        failedPaymentId,
-        {
-          id: failedPaymentId,
-          subscriptionId: subscription.id,
-          clubId: subscription.clubId,
-          userId: subscription.userId,
-          userEmail: subscription.userEmail,
-          orderId: paymentId,
-          transactionId: '',
-          amount: actualPaymentAmount,
-          planId: newPlanId,
-          planName: newPlanName,
-          previousPlanId: subscription.planId,
-          previousPlanName: subscription.planName,
-          status: 'failed',
-          type: 'plan_change',
-          errorCode: result.error.code,
-          errorMessage: result.error.message,
-          creditApplied: creditApplied > 0 ? creditApplied : null,
-          createdAt: new Date(),
-        },
-      );
-
-      return;
-    }
-  } else {
-    paymentSuccess = true;
-    console.log(
-      `Plan change ${subscription.id} covered by credit (no payment needed)`,
-    );
-  }
-
-  if (paymentSuccess) {
-    const newEndDate = calculateNewEndDate(
-      new Date(),
-      subscription.billingCycle,
-      env,
+  if (!result.success) {
+    console.error(
+      `Payment failed for plan change ${subscription.id}: ${result.error.message}`,
     );
 
     await updateFirestoreDocument(
@@ -244,67 +149,114 @@ const handlePaidPlanTransition = async (
       SUBSCRIPTIONS_COLLECTION,
       subscription.id,
       {
-        planId: newPlanId,
-        planName: newPlanName,
-        price: newPrice,
+        planId: 'FREE',
+        planName: 'Free',
+        price: 0,
         status: 'active',
         canceledAt: null,
-        credit: remainingCredit > 0 ? remainingCredit : null,
-        startDate: new Date(),
-        endDate: newEndDate,
+        endDate: null,
+        billingCycle: null,
         nextPlanId: null,
         nextPlanName: null,
         nextPlanPrice: null,
-        retryCount: 0,
-        lastPaymentError: null,
+        lastPaymentError: result.error.message,
         updatedAt: new Date(),
       },
     );
 
-    const documentId = paymentData
-      ? paymentData.paymentId && paymentData.paymentId !== 'undefined'
-        ? paymentData.paymentId
-        : paymentId
-      : `credit_${subscription.clubId}_${Date.now()}`;
+    const failedPaymentId = `failed_plan_change_${subscription.clubId}_${Date.now()}`;
 
-    const paymentRecord: Record<string, unknown> = {
+    await createFirestoreDocument(
+      env,
+      firebaseToken,
+      PAYMENTS_COLLECTION,
+      failedPaymentId,
+      {
+        id: failedPaymentId,
+        subscriptionId: subscription.id,
+        clubId: subscription.clubId,
+        userId: subscription.userId,
+        userEmail: subscription.userEmail,
+        orderId: paymentId,
+        transactionId: '',
+        amount: newPrice,
+        planId: newPlanId,
+        planName: newPlanName,
+        previousPlanId: subscription.planId,
+        previousPlanName: subscription.planName,
+        status: 'failed',
+        type: 'plan_change',
+        errorCode: result.error.code,
+        errorMessage: result.error.message,
+        createdAt: new Date(),
+      },
+    );
+
+    return;
+  }
+
+  const paymentData = result.data;
+  const newEndDate = calculateNewEndDate(
+    new Date(),
+    subscription.billingCycle,
+    env,
+  );
+
+  await updateFirestoreDocument(
+    env,
+    firebaseToken,
+    SUBSCRIPTIONS_COLLECTION,
+    subscription.id,
+    {
+      planId: newPlanId,
+      planName: newPlanName,
+      price: newPrice,
+      status: 'active',
+      canceledAt: null,
+      startDate: new Date(),
+      endDate: newEndDate,
+      nextPlanId: null,
+      nextPlanName: null,
+      nextPlanPrice: null,
+      retryCount: 0,
+      lastPaymentError: null,
+      updatedAt: new Date(),
+    },
+  );
+
+  const documentId =
+    paymentData.paymentId && paymentData.paymentId !== 'undefined'
+      ? paymentData.paymentId
+      : paymentId;
+
+  await createFirestoreDocument(
+    env,
+    firebaseToken,
+    PAYMENTS_COLLECTION,
+    documentId,
+    {
       id: documentId,
       subscriptionId: subscription.id,
       clubId: subscription.clubId,
       userId: subscription.userId,
       userEmail: subscription.userEmail,
       orderId: documentId,
-      transactionId: paymentData?.transactionId || '',
-      amount: paymentData?.amount ?? 0,
+      transactionId: paymentData.transactionId || '',
+      amount: paymentData.amount,
       planId: newPlanId,
       planName: newPlanName,
       previousPlanId: subscription.planId,
       previousPlanName: subscription.planName,
       status: 'success',
       type: 'plan_change',
+      paidAt: paymentData.paidAt,
       createdAt: new Date(),
-    };
+    },
+  );
 
-    if (creditApplied > 0) {
-      paymentRecord.creditApplied = creditApplied;
-    }
-
-    if (paymentData?.paidAt) {
-      paymentRecord.paidAt = paymentData.paidAt;
-    }
-
-    await createFirestoreDocument(
-      env,
-      firebaseToken,
-      PAYMENTS_COLLECTION,
-      documentId,
-      paymentRecord,
-    );
-
-    console.log(
-      `Canceled subscription ${subscription.id} transitioned to paid plan ${newPlanId}`,
-    );
-  }
+  console.log(
+    `Canceled subscription ${subscription.id} transitioned to paid plan ${newPlanId}`,
+  );
 };
 
 /**
@@ -316,14 +268,7 @@ const handleFreePlanTransition = async (
   subscription: Subscription,
   newPlanId: string,
   newPlanName: string,
-  existingCredit: number,
 ): Promise<void> => {
-  if (existingCredit > 0) {
-    console.log(
-      `Subscription ${subscription.id} had ${existingCredit} credit forfeited on cancellation to free`,
-    );
-  }
-
   await updateFirestoreDocument(
     env,
     firebaseToken,
@@ -335,7 +280,6 @@ const handleFreePlanTransition = async (
       price: 0,
       status: 'active',
       canceledAt: null,
-      credit: null,
       endDate: null,
       billingCycle: null,
       nextPlanId: null,

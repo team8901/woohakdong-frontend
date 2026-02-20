@@ -12,19 +12,10 @@ export const PORTONE_STORE_ID = process.env.NEXT_PUBLIC_PORTONE_STORE_ID ?? '';
 /**
  * PG사별 채널 키
  * 포트원 관리자 > 결제 연동 > 채널 관리에서 확인
- *
- * [결제수단 추가 시 참고]
- * - 새 PG 채널 추가: 포트원 관리자 콘솔에서 채널 생성 후 채널 키 추가
- * - KCP/이니시스 카드 정기결제: billingKeyMethod를 'CARD'로 설정 필요
- * - 간편결제(카카오페이/네이버페이) 정기결제: billingKeyMethod를 'EASY_PAY'로 설정
  */
 export const PORTONE_CHANNEL_KEY = {
-  /** KG이니시스 - 카드 정기결제 */
+  /** KG이니시스 - 빌링키 정기결제 (카드만) */
   INICIS_BILLING: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_INICIS_BILLING ?? '',
-
-  /** 카카오페이 - 정기결제 */
-  KAKAOPAY_BILLING:
-    process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KAKAOPAY_BILLING ?? '',
 } as const;
 
 /**
@@ -32,52 +23,30 @@ export const PORTONE_CHANNEL_KEY = {
  */
 export const PORTONE_PAY_METHOD = {
   CARD: 'CARD',
-  EASY_PAY: 'EASY_PAY',
 } as const;
 
 export type PortonePayMethod =
   (typeof PORTONE_PAY_METHOD)[keyof typeof PORTONE_PAY_METHOD];
 
 /**
- * 지원하는 결제 수단 목록
- *
- * [결제수단 추가 방법]
- * 1. PORTONE_CHANNEL_KEY에 새 채널 키 추가
- * 2. 아래 배열에 결제수단 정보 추가
- * 3. BillingClient에서 billingKeyMethod 설정 확인 (CARD vs EASY_PAY)
+ * 정기결제용 결제수단 (카드만)
+ * - 빌링키 발급 후 자동 갱신
  */
-export const SUPPORTED_PAYMENT_METHODS = [
+export const PAYMENT_METHODS = [
   {
     id: 'card',
     channelKey: PORTONE_CHANNEL_KEY.INICIS_BILLING,
     label: '신용/체크카드',
-    description: 'KG이니시스 카드 정기결제',
+    description: '카드 정기결제 (자동 갱신)',
     icon: 'credit-card',
-    supportsBilling: true,
     billingKeyMethod: 'CARD' as const,
-  },
-  {
-    id: 'kakaopay',
-    channelKey: PORTONE_CHANNEL_KEY.KAKAOPAY_BILLING,
-    label: '카카오페이',
-    description: '카카오페이 정기결제',
-    icon: 'kakaopay',
-    supportsBilling: true,
-    billingKeyMethod: 'EASY_PAY' as const,
   },
 ] as const;
 
-/**
- * 정기결제(빌링) 지원 결제 수단만 필터링
- */
-export const BILLING_PAYMENT_METHODS = SUPPORTED_PAYMENT_METHODS.filter(
-  (m) => m.supportsBilling,
-);
-
-export type PaymentMethodId = (typeof SUPPORTED_PAYMENT_METHODS)[number]['id'];
+export type PaymentMethodId = (typeof PAYMENT_METHODS)[number]['id'];
 
 /**
- * 기본 빌링 채널 (신용/체크카드)
+ * 기본 빌링 채널 (정기결제용)
  */
 export const DEFAULT_BILLING_CHANNEL = PORTONE_CHANNEL_KEY.INICIS_BILLING;
 
@@ -85,3 +54,11 @@ export const DEFAULT_BILLING_CHANNEL = PORTONE_CHANNEL_KEY.INICIS_BILLING;
  * 기본 결제수단 ID
  */
 export const DEFAULT_PAYMENT_METHOD_ID: PaymentMethodId = 'card';
+
+/**
+ * 포트원 에러 코드
+ */
+export const PORTONE_ERROR_CODE = {
+  /** 사용자가 결제를 취소한 경우 */
+  USER_CANCEL: 'USER_CANCEL',
+} as const;

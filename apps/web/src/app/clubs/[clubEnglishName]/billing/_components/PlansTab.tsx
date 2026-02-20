@@ -1,13 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-
 import { Card, CardContent } from '@workspace/ui/components/card';
-import {
-  BillingCycleToggle,
-  EnterprisePlanCard,
-  PlanCard,
-} from '@workspace/ui/components/plan-card';
+import { PlanCard } from '@workspace/ui/components/plan-card';
 import {
   SUBSCRIPTION_PLANS,
   type SubscriptionPlanId,
@@ -24,13 +18,11 @@ type PlansTabProps = {
   /** 구독 유지하기 (취소 철회) */
   onReactivate?: () => void;
   isReactivating?: boolean;
-  onOpenModal: (plan: SubscriptionPlanId, isYearly: boolean) => void;
+  onOpenModal: (plan: SubscriptionPlanId) => void;
 };
 
-// 엔터프라이즈를 제외한 일반 플랜
-const REGULAR_PLAN_IDS = (
-  Object.keys(SUBSCRIPTION_PLANS) as SubscriptionPlanId[]
-).filter((key) => !SUBSCRIPTION_PLANS[key].contactOnly);
+// 모든 플랜 (FREE, STANDARD, ENTERPRISE)
+const ALL_PLAN_IDS = Object.keys(SUBSCRIPTION_PLANS) as SubscriptionPlanId[];
 
 export const PlansTab = ({
   currentPlanId,
@@ -41,8 +33,6 @@ export const PlansTab = ({
   isReactivating,
   onOpenModal,
 }: PlansTabProps) => {
-  const [isYearly, setIsYearly] = useState(false);
-
   return (
     <div className="space-y-6">
       {isPaidPlanDisabled && (
@@ -62,18 +52,20 @@ export const PlansTab = ({
         </Card>
       )}
 
-      {/* 월간/연간 토글 */}
-      <div className="flex justify-center">
-        <BillingCycleToggle isYearly={isYearly} onChange={setIsYearly} />
+      {/* 결제 안내 */}
+      <div className="text-muted-foreground text-center text-sm">
+        <p>
+          카드를 등록하면 매월 자동으로 결제됩니다. 언제든 취소할 수 있습니다.
+        </p>
       </div>
 
-      {/* 일반 플랜 그리드 */}
+      {/* 플랜 그리드 */}
       <div className="grid gap-6 md:grid-cols-3">
-        {REGULAR_PLAN_IDS.map((planId) => {
+        {ALL_PLAN_IDS.map((planId) => {
           const plan = SUBSCRIPTION_PLANS[planId];
           const isCurrentPlan = currentPlanId === planId;
           const isPaidPlan = plan.monthlyPrice > 0;
-          const isFreePlan = plan.monthlyPrice === 0;
+          const isFreePlan = plan.monthlyPrice === 0 && !plan.contactOnly;
           const isComingSoon = plan.comingSoon;
           const isDisabled = isPaidPlanDisabled && isPaidPlan;
 
@@ -91,11 +83,9 @@ export const PlansTab = ({
           const hideFreePlanButton =
             isFreePlan && currentPlanId !== 'FREE' && !isCanceledAndPendingFree;
 
-          // 버튼 표시 조건:
-          // - 현재 플랜이 아니고 무료 플랜 버튼 숨김이 아니면 표시
-          // - 취소된 현재 플랜이면 표시 (재구독)
-          // - 예약된 플랜이면 버튼 숨김
+          // 버튼 표시 조건 (contactOnly 플랜은 PlanCard에서 자체 버튼 표시)
           const showButton =
+            !plan.contactOnly &&
             ((!isCurrentPlan && !hideFreePlanButton) || canReactivate) &&
             !isScheduledPlan;
 
@@ -103,7 +93,6 @@ export const PlansTab = ({
             <PlanCard
               key={planId}
               planId={planId}
-              isYearly={isYearly}
               isCurrentPlan={isCurrentPlan}
               isComingSoon={isComingSoon || isDisabled || isReactivating}
               isPendingPlan={isPendingFree || isScheduledPlan}
@@ -113,15 +102,12 @@ export const PlansTab = ({
               onAction={
                 canReactivate && onReactivate
                   ? onReactivate
-                  : () => onOpenModal(planId, isYearly)
+                  : () => onOpenModal(planId)
               }
             />
           );
         })}
       </div>
-
-      {/* 엔터프라이즈 플랜 */}
-      <EnterprisePlanCard variant="dashed" />
     </div>
   );
 };

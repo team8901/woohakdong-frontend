@@ -10,12 +10,11 @@ import {
   CardTitle,
 } from '@workspace/ui/components/card';
 import { Separator } from '@workspace/ui/components/separator';
-import { EXTERNAL_LINKS } from '@workspace/ui/constants/links';
 import {
   SUBSCRIPTION_PLANS,
   type SubscriptionPlanId,
 } from '@workspace/ui/constants/plans';
-import { AlertCircle, ArrowRight, CreditCard, Wallet } from 'lucide-react';
+import { AlertCircle, ArrowRight, CreditCard } from 'lucide-react';
 
 type OverviewTabProps = {
   subscription: Subscription | null;
@@ -40,7 +39,8 @@ export const OverviewTab = ({
   onRetryPayment,
   isRetryingPayment,
 }: OverviewTabProps) => {
-  const currentPlan = SUBSCRIPTION_PLANS[currentPlanId] ?? SUBSCRIPTION_PLANS.FREE;
+  const currentPlan =
+    SUBSCRIPTION_PLANS[currentPlanId] ?? SUBSCRIPTION_PLANS.FREE;
   const isPaidPlan = currentPlan.monthlyPrice > 0;
   // canceledAt이 있으면 취소 예정 (endDate까지 이용 가능)
   const isCanceled = !!subscription?.canceledAt;
@@ -64,11 +64,10 @@ export const OverviewTab = ({
 
   // 예약된 플랜 변경 정보
   const hasScheduledChange = !!subscription?.nextPlanId;
-  const nextPlanId = subscription?.nextPlanId?.toUpperCase() as SubscriptionPlanId | undefined;
+  const nextPlanId = subscription?.nextPlanId?.toUpperCase() as
+    | SubscriptionPlanId
+    | undefined;
   const nextPlan = nextPlanId ? SUBSCRIPTION_PLANS[nextPlanId] : null;
-
-  // 남은 크레딧 정보
-  const hasCredit = subscription?.credit && subscription.credit > 0;
 
   return (
     <Card>
@@ -86,7 +85,9 @@ export const OverviewTab = ({
           {isPaymentFailed ? (
             <Badge variant="destructive">결제 실패</Badge>
           ) : isCanceled ? (
-            <Badge variant="outline" className="border-orange-500 text-orange-600">
+            <Badge
+              variant="outline"
+              className="border-orange-500 text-orange-600">
               취소 예정
             </Badge>
           ) : (
@@ -103,7 +104,9 @@ export const OverviewTab = ({
               <span>
                 <strong>결제에 실패했습니다.</strong>
                 {subscription?.lastPaymentError && (
-                  <span className="ml-1">({subscription.lastPaymentError})</span>
+                  <span className="ml-1">
+                    ({subscription.lastPaymentError})
+                  </span>
                 )}
               </span>
               <span className="text-sm">
@@ -132,8 +135,8 @@ export const OverviewTab = ({
             <AlertCircle className="size-4 text-orange-600" />
             <AlertDescription className="flex flex-col gap-2 text-orange-800 dark:text-orange-200">
               <span>
-                구독 취소가 예약되었습니다. <strong>{endDateFormatted}</strong>까지
-                현재 플랜의 모든 기능을 계속 이용하실 수 있습니다.
+                구독 취소가 예약되었습니다. <strong>{endDateFormatted}</strong>
+                까지 현재 플랜의 모든 기능을 계속 이용하실 수 있습니다.
               </span>
               {onReactivateSubscription && (
                 <Button
@@ -150,63 +153,31 @@ export const OverviewTab = ({
         )}
 
         {/* 예약된 플랜 변경 안내 */}
-        {hasScheduledChange && nextPlan && endDate && !isCanceled && !isPaymentFailed && (
-          <Alert className="mb-4">
-            <ArrowRight className="size-4" />
-            <AlertDescription className="flex flex-col gap-2">
-              <span>
-                <strong>{endDateFormatted}</strong>부터{' '}
-                <strong>{nextPlan.name}</strong> 플랜으로 변경됩니다.
-              </span>
-              {onCancelScheduledChange && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-fit"
-                  onClick={onCancelScheduledChange}
-                  disabled={isCancelingScheduledChange}>
-                  {isCancelingScheduledChange ? '취소 중...' : '예약 취소'}
-                </Button>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* 남은 크레딧 안내 */}
-        {hasCredit && !isCanceled && !isPaymentFailed && (
-          <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
-            <Wallet className="size-4 text-green-600" />
-            <AlertDescription className="text-green-800 dark:text-green-200">
-              <span>
-                <strong>{subscription.credit?.toLocaleString()}원</strong>의 크레딧이
-                있습니다. 다음 결제 시 자동으로 차감됩니다.
-              </span>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* 취소 예정 + 크레딧 있을 때 환불 안내 */}
-        {hasCredit && isCanceled && !isPaymentFailed && (
-          <Alert className="mb-4 border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950">
-            <Wallet className="size-4 text-amber-600" />
-            <AlertDescription className="flex flex-col gap-2 text-amber-800 dark:text-amber-200">
-              <span>
-                <strong>{subscription.credit?.toLocaleString()}원</strong>의 크레딧이
-                있습니다. 구독 종료 시 크레딧은 소멸됩니다.
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-fit text-amber-700 hover:bg-amber-100 hover:text-amber-800"
-                asChild>
-                <a
-                  href={`mailto:${EXTERNAL_LINKS.SUPPORT_EMAIL}?subject=${encodeURIComponent('크레딧 환불 요청')}&body=${encodeURIComponent(`동아리 ID: ${subscription.clubId}\n구독 ID: ${subscription.id}\n크레딧 금액: ${subscription.credit?.toLocaleString()}원\n\n환불 사유:\n`)}`}>
-                  환불 문의하기
-                </a>
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
+        {hasScheduledChange &&
+          nextPlan &&
+          endDate &&
+          !isCanceled &&
+          !isPaymentFailed && (
+            <Alert className="mb-4">
+              <ArrowRight className="size-4" />
+              <AlertDescription className="flex flex-col gap-2">
+                <span>
+                  <strong>{endDateFormatted}</strong>부터{' '}
+                  <strong>{nextPlan.name}</strong> 플랜으로 변경됩니다.
+                </span>
+                {onCancelScheduledChange && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-fit"
+                    onClick={onCancelScheduledChange}
+                    disabled={isCancelingScheduledChange}>
+                    {isCancelingScheduledChange ? '취소 중...' : '예약 취소'}
+                  </Button>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -215,9 +186,7 @@ export const OverviewTab = ({
           </div>
           <Separator />
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">
-              {subscription?.billingCycle === 'yearly' ? '연간 결제 금액' : '월 결제 금액'}
-            </span>
+            <span className="text-muted-foreground">월 결제 금액</span>
             <span className="font-medium">
               {!subscription?.price || subscription.price === 0
                 ? '무료'
@@ -238,17 +207,20 @@ export const OverviewTab = ({
         </div>
 
         {/* 구독 취소 버튼 (유료 플랜 & 취소/예약 변경 없고 & 결제 실패 아닌 경우만 표시) */}
-        {isPaidPlan && !isCanceled && !isPaymentFailed && !hasScheduledChange && (
-          <>
-            <Separator className="my-4" />
-            <Button
-              variant="outline"
-              className="text-destructive hover:text-destructive"
-              onClick={onCancelSubscription}>
-              구독 취소
-            </Button>
-          </>
-        )}
+        {isPaidPlan &&
+          !isCanceled &&
+          !isPaymentFailed &&
+          !hasScheduledChange && (
+            <>
+              <Separator className="my-4" />
+              <Button
+                variant="outline"
+                className="text-destructive hover:text-destructive"
+                onClick={onCancelSubscription}>
+                구독 취소
+              </Button>
+            </>
+          )}
       </CardContent>
     </Card>
   );
